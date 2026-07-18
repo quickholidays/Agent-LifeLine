@@ -39,7 +39,7 @@ export default function AgentCharts({ agents }) {
       </section>
 
       {/* 2x2 Grid for the 4 Lead Stages + Margin Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(480px, 1fr))", gap: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(480px, 100%), 1fr))", gap: "1.5rem" }}>
         
         {/* 1. New Leads Chart */}
         <ProgressBarChart

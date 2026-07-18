@@ -17,23 +17,24 @@ export default function ProgressBarChart({
   // Sum of all values
   const totalSum = data.reduce((sum, item) => sum + item.value, 0);
 
-  // Resize handler for responsiveness
-  const [dimensions, setDimensions] = useState({ width: 450, height: 260 });
+  // Resize handler — canvas always fills container exactly so all bars are visible
+  const [dimensions, setDimensions] = useState({ width: 450, height: 300 });
 
   useEffect(() => {
     if (!containerRef.current) return;
-    
+
     const handleResize = () => {
-      const w = containerRef.current.clientWidth;
+      const w = containerRef.current.clientWidth || 300;
       setDimensions({
-        width: Math.max(w, 300),
-        height: 250
+        width: Math.max(w, 200),
+        height: 300
       });
     };
 
     handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const ro = new ResizeObserver(handleResize);
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
@@ -106,13 +107,25 @@ export default function ProgressBarChart({
     ctx.fillText(yLabel, 0, 0);
     ctx.restore();
 
-    // 3. Draw vertical bars & X labels
+    // 3. Draw vertical bars & X labels — all fit in one view, no scroll
     const barCount = data.length;
     if (barCount === 0) return;
 
-    const spacing = 12;
-    const totalSpacing = spacing * (barCount - 1);
-    const barWidth = Math.max((chartWidth - totalSpacing) / barCount, 4);
+    // Dynamically calculate spacing & bar width to fit all bars in chartWidth
+    const maxSpacing = barCount <= 6 ? 14 : barCount <= 12 ? 8 : 4;
+    const minBarWidth = 6;
+    // Solve: barCount * barWidth + (barCount - 1) * spacing = chartWidth
+    // barWidth = (chartWidth - (barCount-1)*spacing) / barCount
+    let spacing = maxSpacing;
+    let barWidth = Math.max((chartWidth - spacing * (barCount - 1)) / barCount, minBarWidth);
+    // If bars are too thin, reduce spacing further
+    if (barWidth < 12 && spacing > 2) {
+      spacing = Math.max(2, Math.floor((chartWidth - barCount * 12) / Math.max(barCount - 1, 1)));
+      barWidth = Math.max((chartWidth - spacing * (barCount - 1)) / barCount, minBarWidth);
+    }
+
+    // Adaptive font size for x-labels based on available bar width
+    const labelFontSize = barWidth < 20 ? "0.58rem" : barWidth < 35 ? "0.63rem" : "0.68rem";
 
     data.forEach((item, idx) => {
       const barHeight = (item.value / cleanMax) * chartHeight;
@@ -121,7 +134,7 @@ export default function ProgressBarChart({
 
       // Draw Bar
       const isHovered = idx === hoveredIdx;
-      ctx.fillStyle = isHovered ? "#d15c2e" : color; // Use primary brand hex
+      ctx.fillStyle = isHovered ? "#d15c2e" : color;
       
       // Rounded top corners on bar
       const radius = Math.min(barWidth / 2, 4);
@@ -135,13 +148,13 @@ export default function ProgressBarChart({
       ctx.closePath();
       ctx.fill();
 
-      // Draw value on top of bar if > 0
-      if (item.value > 0) {
-        ctx.fillStyle = textPrimary; // Use textPrimary color for contrast
-        ctx.font = "700 0.68rem Outfit, sans-serif";
+      // Draw value on top of bar if > 0 (only if bar is wide enough)
+      if (item.value > 0 && barWidth >= 14) {
+        ctx.fillStyle = textPrimary;
+        ctx.font = `700 ${labelFontSize} Outfit, sans-serif`;
         ctx.textAlign = "center";
         const valText = isCurrency ? `$${Math.round(item.value)}` : item.value.toString();
-        ctx.fillText(valText, x + barWidth / 2, y - 6);
+        ctx.fillText(valText, x + barWidth / 2, y - 5);
       }
 
       // Draw rotated X label
@@ -151,10 +164,13 @@ export default function ProgressBarChart({
       ctx.textAlign = "right";
       ctx.textBaseline = "middle";
       ctx.fillStyle = isHovered ? textPrimary : textSecondary;
-      ctx.font = isHovered ? "700 0.68rem Outfit, sans-serif" : "600 0.68rem Outfit, sans-serif";
+      ctx.font = isHovered
+        ? `700 ${labelFontSize} Outfit, sans-serif`
+        : `600 ${labelFontSize} Outfit, sans-serif`;
       
-      // Truncate name if it's too long
-      const name = item.name.length > 13 ? `${item.name.slice(0, 11)}...` : item.name;
+      // Truncate name based on available width
+      const maxChars = barWidth < 20 ? 8 : barWidth < 35 ? 11 : 13;
+      const name = item.name.length > maxChars ? `${item.name.slice(0, maxChars - 2)}...` : item.name;
       ctx.fillText(name, 0, 0);
       ctx.restore();
     });
@@ -241,7 +257,7 @@ export default function ProgressBarChart({
           ref={canvasRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          style={{ cursor: hoveredIdx !== null ? "pointer" : "default" }}
+          style={{ cursor: hoveredIdx !== null ? "pointer" : "default", display: "block" }}
         />
       </div>
 

@@ -5,10 +5,14 @@ import React, { useRef, useEffect, useState } from "react";
 export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesList = [], activeSection = "" }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
   const [hoveredItem, setHoveredItem] = useState(null); // { type, agent, time, label, x, y }
   const [selectedAgents, setSelectedAgents] = useState(agents.map(a => a.name));
   const [showAgentDropdown, setShowAgentDropdown] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // Active Dropdown Tracker (replaces individual show states to prevent overlapping panels!)
+  const [activeDropdown, setActiveDropdown] = useState(null); // 'timelineAgents', 'table1Agents', 'table1Cols', 'table2Agents', 'table2Cols', 'table3Agents', 'table3Cols'
 
   // Time workday window bounds state
   const [startHour, setStartHour] = useState(9);
@@ -22,10 +26,89 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
   const [filterOppsOnly, setFilterOppsOnly] = useState(false);
   const [filterContactsOnly, setFilterContactsOnly] = useState(false);
 
+  // Table 1 Customizer states
+  const [table1Agents, setTable1Agents] = useState(agents.map(a => a.name));
+  const [table1VisibleCols, setTable1VisibleCols] = useState(["newLeads", "apptBooked", "closedLeads", "bookedLeads", "margin", "interested", "contacted", "notes", "generalConv"]);
+
+  // Table 2 Customizer states
+  const [table2Agents, setTable2Agents] = useState(agents.map(a => a.name));
+  const [table2VisibleCols, setTable2VisibleCols] = useState(["newLeadsToday", "convertedToday", "todayConvRate"]);
+
+  // Table 3 Customizer states
+  const [table3Agents, setTable3Agents] = useState(agents.map(a => a.name));
+  const [table3VisibleCols, setTable3VisibleCols] = useState(["outboundCount", "outboundAttended", "outboundMissed", "outboundMinutes", "outboundAvgDuration", "inboundCount", "inboundAttended", "inboundMissed", "inboundMinutes", "inboundAvgDuration"]);
+
   // Sync selected agents when data loads
   useEffect(() => {
     setSelectedAgents(agents.map(a => a.name));
+    setTable1Agents(agents.map(a => a.name));
+    setTable2Agents(agents.map(a => a.name));
+    setTable3Agents(agents.map(a => a.name));
   }, [agents]);
+
+  // Columns metadata definitions
+  const table1ColumnsMetadata = [
+    { key: "newLeads", label: "New Leads" },
+    { key: "apptBooked", label: "Appt Booked" },
+    { key: "closedLeads", label: "Closed Leads" },
+    { key: "bookedLeads", label: "Booked Leads" },
+    { key: "margin", label: "Margin ($)" },
+    { key: "interested", label: "Interested Stage" },
+    { key: "contacted", label: "Contacted Stage" },
+    { key: "notes", label: "Notes Count" },
+    { key: "generalConv", label: "General Conversion (%)" },
+  ];
+
+  const table2ColumnsMetadata = [
+    { key: "newLeadsToday", label: "Today's New Leads" },
+    { key: "convertedToday", label: "Today's Converted" },
+    { key: "todayConvRate", label: "Today's Conversion Rate" },
+  ];
+
+  const table3ColumnsMetadata = [
+    { key: "outboundCount", label: "Outbound Calls" },
+    { key: "outboundAttended", label: "Outbound Answered" },
+    { key: "outboundMissed", label: "Outbound Missed" },
+    { key: "outboundMinutes", label: "Outbound Total Mins" },
+    { key: "outboundAvgDuration", label: "Outbound Avg Dur" },
+    { key: "inboundCount", label: "Inbound Calls" },
+    { key: "inboundAttended", label: "Inbound Answered" },
+    { key: "inboundMissed", label: "Inbound Missed" },
+    { key: "inboundMinutes", label: "Inbound Total Mins" },
+    { key: "inboundAvgDuration", label: "Inbound Avg Dur" },
+  ];
+
+  const toggleDropdown = (dropdownKey) => {
+    if (activeDropdown === dropdownKey) {
+      setActiveDropdown(null);
+    } else {
+      setActiveDropdown(dropdownKey);
+    }
+  };
+
+  const closeDropdowns = () => {
+    setActiveDropdown(null);
+  };
+
+  // Track containerRef width via ResizeObserver so canvas re-draws when section becomes visible
+  useEffect(() => {
+    // Give the DOM a tick to render the conditional block
+    const timer = setTimeout(() => {
+      if (!containerRef.current) return;
+      const w = containerRef.current.clientWidth;
+      if (w > 0) setContainerWidth(w);
+      
+      const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const width = entry.contentRect.width;
+          if (width > 0) setContainerWidth(width);
+        }
+      });
+      observer.observe(containerRef.current);
+      return () => observer.disconnect();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [activeSection]);
 
   // Canvas styling constants
   const timelineLeftMargin = 160;
@@ -204,14 +287,14 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
           (up) => up.agent === agent.name && up.time >= getMinTime() && up.time <= getMaxTime()
         );
 
-        if (filterNotesOnly) {
-          updatesForAgent = updatesForAgent.filter(up => up.module === "NOTE");
-        }
-        if (filterOppsOnly) {
-          updatesForAgent = updatesForAgent.filter(up => up.module === "OPPORTUNITY");
-        }
-        if (filterContactsOnly) {
-          updatesForAgent = updatesForAgent.filter(up => up.module === "CONTACT");
+        const hasSpecificFilter = filterNotesOnly || filterOppsOnly || filterContactsOnly;
+        if (hasSpecificFilter) {
+          updatesForAgent = updatesForAgent.filter(up => {
+            if (up.module === "NOTE" && filterNotesOnly) return true;
+            if (up.module === "OPPORTUNITY" && filterOppsOnly) return true;
+            if (up.module === "CONTACT" && filterContactsOnly) return true;
+            return false;
+          });
         }
 
         updatesForAgent.forEach((up) => {
@@ -275,7 +358,8 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     filterMissedOnly,
     filterNotesOnly,
     filterOppsOnly,
-    filterContactsOnly
+    filterContactsOnly,
+    containerWidth
   ]);
 
   const handleMouseMove = (e) => {
@@ -311,14 +395,14 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         (up) => up.agent === agent.name && up.time >= getMinTime() && up.time <= getMaxTime()
       );
 
-      if (filterNotesOnly) {
-        updatesForAgent = updatesForAgent.filter(up => up.module === "NOTE");
-      }
-      if (filterOppsOnly) {
-        updatesForAgent = updatesForAgent.filter(up => up.module === "OPPORTUNITY");
-      }
-      if (filterContactsOnly) {
-        updatesForAgent = updatesForAgent.filter(up => up.module === "CONTACT");
+      const hasSpecificFilter = filterNotesOnly || filterOppsOnly || filterContactsOnly;
+      if (hasSpecificFilter) {
+        updatesForAgent = updatesForAgent.filter(up => {
+          if (up.module === "NOTE" && filterNotesOnly) return true;
+          if (up.module === "OPPORTUNITY" && filterOppsOnly) return true;
+          if (up.module === "CONTACT" && filterContactsOnly) return true;
+          return false;
+        });
       }
 
       for (const up of updatesForAgent) {
@@ -645,46 +729,28 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                   <input
                     type="checkbox"
                     checked={filterNotesOnly}
-                    onChange={() => {
-                      setFilterNotesOnly(!filterNotesOnly);
-                      if (!filterNotesOnly) {
-                        setFilterOppsOnly(false);
-                        setFilterContactsOnly(false);
-                      }
-                    }}
+                    onChange={() => setFilterNotesOnly(!filterNotesOnly)}
                     style={{ accentColor: "var(--primary)", cursor: "pointer" }}
                   />
-                  Notes Only
+                  Notes
                 </label>
                 <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-secondary)", cursor: "pointer" }}>
                   <input
                     type="checkbox"
                     checked={filterOppsOnly}
-                    onChange={() => {
-                      setFilterOppsOnly(!filterOppsOnly);
-                      if (!filterOppsOnly) {
-                        setFilterNotesOnly(false);
-                        setFilterContactsOnly(false);
-                      }
-                    }}
+                    onChange={() => setFilterOppsOnly(!filterOppsOnly)}
                     style={{ accentColor: "var(--primary)", cursor: "pointer" }}
                   />
-                  Opportunities Only
+                  Opportunities
                 </label>
                 <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-secondary)", cursor: "pointer" }}>
                   <input
                     type="checkbox"
                     checked={filterContactsOnly}
-                    onChange={() => {
-                      setFilterContactsOnly(!filterContactsOnly);
-                      if (!filterContactsOnly) {
-                        setFilterNotesOnly(false);
-                        setFilterOppsOnly(false);
-                      }
-                    }}
+                    onChange={() => setFilterContactsOnly(!filterContactsOnly)}
                     style={{ accentColor: "var(--primary)", cursor: "pointer" }}
                   />
-                  Contacts Only
+                  Contacts
                 </label>
               </div>
             )}
@@ -721,14 +787,18 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             Click on any GHL circle or Call triangle in the timeline to inspect detailed action parameters.
           </div>
 
-          <div className="timeline-container-outer" ref={containerRef}>
-            <div className="timeline-container">
+          <div 
+            className="timeline-container-outer" 
+            ref={containerRef}
+            style={{ overflowX: "auto", overflowY: "hidden", width: "100%", WebkitOverflowScrolling: "touch" }}
+          >
+            <div className="timeline-container" style={{ minWidth: "900px" }}>
               <canvas
                 ref={canvasRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={() => setHoveredItem(null)}
                 onClick={handleCanvasClick}
-                style={{ cursor: hoveredItem ? "pointer" : "default" }}
+                style={{ cursor: hoveredItem ? "pointer" : "default", display: "block" }}
               />
             </div>
           </div>
@@ -831,45 +901,143 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       {/* 4. Table 1: Main Conversion */}
       {(showAll || activeSection === "exec-conversion") && (
         <section className="card">
-          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
             <h2 style={{ margin: 0 }}>Table 1: Main Agent Conversion & Lead Metrics</h2>
-            <button className="btn-primary-small no-print" onClick={handleExportTable1}>
-              <i className="fa-solid fa-file-excel"></i> Export Table 1
-            </button>
+            
+            {/* Table Controls (Selective Agents and Columns) */}
+            <div className="no-print" style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+              {/* Selective Agents checklist */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => toggleDropdown("table1Agents")}
+                  className="custom-select-small"
+                  style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 1.6rem 0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px" }}
+                >
+                  <i className="fa-solid fa-user-gear"></i> Rows ({table1Agents.length})
+                </button>
+                {activeDropdown === "table1Agents" && (
+                  <>
+                    <div onClick={closeDropdowns} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 998 }} />
+                    <div style={{ position: "absolute", right: 0, top: "100%", marginTop: "0.4rem", background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "8px", padding: "0.6rem", width: "180px", maxHeight: "200px", overflowY: "auto", zIndex: 999, boxShadow: "var(--shadow)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.3rem", marginBottom: "0.3rem" }}>
+                        <button onClick={() => setTable1Agents(agents.map(a => a.name))} style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>All</button>
+                        <button onClick={() => setTable1Agents([])} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {agents.map(a => (
+                          <label key={a.name} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={table1Agents.includes(a.name)}
+                              onChange={() => {
+                                if (table1Agents.includes(a.name)) {
+                                  setTable1Agents(table1Agents.filter(x => x !== a.name));
+                                } else {
+                                  setTable1Agents([...table1Agents, a.name]);
+                                }
+                              }}
+                              style={{ cursor: "pointer", accentColor: "var(--primary)" }}
+                            />
+                            {a.name}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Column checklist selector */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => toggleDropdown("table1Cols")}
+                  className="custom-select-small"
+                  style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 1.6rem 0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px" }}
+                >
+                  <i className="fa-solid fa-table-columns"></i> Columns ({table1VisibleCols.length})
+                </button>
+                {activeDropdown === "table1Cols" && (
+                  <>
+                    <div onClick={closeDropdowns} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 998 }} />
+                    <div style={{ position: "absolute", right: 0, top: "100%", marginTop: "0.4rem", background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "8px", padding: "0.6rem", width: "200px", maxHeight: "250px", overflowY: "auto", zIndex: 999, boxShadow: "var(--shadow)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.3rem", marginBottom: "0.3rem" }}>
+                        <button onClick={() => setTable1VisibleCols(table1ColumnsMetadata.map(c => c.key))} style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>All</button>
+                        <button onClick={() => setTable1VisibleCols([])} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {table1ColumnsMetadata.map(c => (
+                          <label key={c.key} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={table1VisibleCols.includes(c.key)}
+                              onChange={() => {
+                                if (table1VisibleCols.includes(c.key)) {
+                                  setTable1VisibleCols(table1VisibleCols.filter(x => x !== c.key));
+                                } else {
+                                  setTable1VisibleCols([...table1VisibleCols, c.key]);
+                                }
+                              }}
+                              style={{ cursor: "pointer", accentColor: "var(--primary)" }}
+                            />
+                            {c.label}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <button className="btn-primary-small no-print" onClick={handleExportTable1}>
+                <i className="fa-solid fa-file-excel"></i> Export Table 1
+              </button>
+            </div>
           </div>
+          
           <div className="table-container">
             <table className="print-table">
               <thead>
                 <tr>
                   <th>Agent</th>
-                  <th>New Leads</th>
-                  <th>Appt Booked</th>
-                  <th>Closed Leads</th>
-                  <th>Booked Leads</th>
-                  <th>Margin ($)</th>
-                  <th>Interested Stage</th>
-                  <th>Contacted Stage</th>
-                  <th>Notes Count</th>
-                  <th>General Conversion (%)</th>
+                  {table1VisibleCols.includes("newLeads") && <th style={{ backgroundColor: "rgba(56, 189, 248, 0.08)", color: "#38bdf8" }}>New Leads</th>}
+                  {table1VisibleCols.includes("apptBooked") && <th style={{ backgroundColor: "rgba(201, 179, 54, 0.08)", color: "var(--warning)" }}>Appt Booked</th>}
+                  {table1VisibleCols.includes("closedLeads") && <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "var(--danger)" }}>Closed Leads</th>}
+                  {table1VisibleCols.includes("bookedLeads") && <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)" }}>Booked Leads</th>}
+                  {table1VisibleCols.includes("margin") && <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)" }}>Margin ($)</th>}
+                  {table1VisibleCols.includes("interested") && <th>Interested Stage</th>}
+                  {table1VisibleCols.includes("contacted") && <th>Contacted Stage</th>}
+                  {table1VisibleCols.includes("notes") && <th>Notes Count</th>}
+                  {table1VisibleCols.includes("generalConv") && <th>General Conversion (%)</th>}
                 </tr>
               </thead>
               <tbody>
-                {agents.map((a) => {
+                {agents.filter(a => table1Agents.includes(a.name)).map((a) => {
                   const seg = a.segmentations || {};
                   return (
                     <tr key={a.name}>
                       <td style={{ fontWeight: 700 }}>{a.name}</td>
-                      <td>{seg.newLeads || 0}</td>
-                      <td>{seg.apptBookedLeads || 0}</td>
-                      <td>{seg.closedLeads || 0}</td>
-                      <td>{seg.bookedLeads || 0}</td>
-                      <td style={{ fontWeight: 700, color: "var(--success)" }}>
-                        ${a.margin_added_today.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </td>
-                      <td>{a.stage_interested_today}</td>
-                      <td>{a.stage_contacted_today}</td>
-                      <td>{a.notes_updated_today}</td>
-                      <td style={{ fontWeight: 700 }}>{a.general_conv_rate.toFixed(1)}%</td>
+                      
+                      {table1VisibleCols.includes("newLeads") && (
+                        <td style={{ backgroundColor: "rgba(56, 189, 248, 0.02)", fontWeight: 600 }}>{seg.newLeads || 0}</td>
+                      )}
+                      {table1VisibleCols.includes("apptBooked") && (
+                        <td style={{ backgroundColor: "rgba(201, 179, 54, 0.02)", color: "var(--warning)", fontWeight: 700 }}>{seg.apptBookedLeads || 0}</td>
+                      )}
+                      {table1VisibleCols.includes("closedLeads") && (
+                        <td style={{ backgroundColor: "rgba(239, 68, 68, 0.02)", color: "var(--danger)", fontWeight: 700 }}>{seg.closedLeads || 0}</td>
+                      )}
+                      {table1VisibleCols.includes("bookedLeads") && (
+                        <td style={{ backgroundColor: "rgba(113, 167, 88, 0.02)", color: "var(--success)", fontWeight: 700 }}>{seg.bookedLeads || 0}</td>
+                      )}
+                      {table1VisibleCols.includes("margin") && (
+                        <td style={{ backgroundColor: "rgba(113, 167, 88, 0.02)", fontWeight: 700, color: "var(--success)" }}>
+                          ${a.margin_added_today.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </td>
+                      )}
+                      {table1VisibleCols.includes("interested") && <td>{a.stage_interested_today}</td>}
+                      {table1VisibleCols.includes("contacted") && <td>{a.stage_contacted_today}</td>}
+                      {table1VisibleCols.includes("notes") && <td>{a.notes_updated_today}</td>}
+                      {table1VisibleCols.includes("generalConv") && <td style={{ fontWeight: 700 }}>{a.general_conv_rate.toFixed(1)}%</td>}
                     </tr>
                   );
                 })}
@@ -882,29 +1050,121 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       {/* 5. Table 2: Conversion Sprints */}
       {(showAll || activeSection === "exec-sprints") && (
         <section className="card">
-          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
             <h2 style={{ margin: 0 }}>Table 2: Today's (July 17) New Leads Conversion Sprints</h2>
-            <button className="btn-primary-small no-print" onClick={handleExportTable2}>
-              <i className="fa-solid fa-file-excel"></i> Export Table 2
-            </button>
+            
+            {/* Table 2 controls */}
+            <div className="no-print" style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+              {/* Table 2 Row checklist */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => toggleDropdown("table2Agents")}
+                  className="custom-select-small"
+                  style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 1.6rem 0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px" }}
+                >
+                  <i className="fa-solid fa-user-gear"></i> Rows ({table2Agents.length})
+                </button>
+                {activeDropdown === "table2Agents" && (
+                  <>
+                    <div onClick={closeDropdowns} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 998 }} />
+                    <div style={{ position: "absolute", right: 0, top: "100%", marginTop: "0.4rem", background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "8px", padding: "0.6rem", width: "180px", maxHeight: "200px", overflowY: "auto", zIndex: 999, boxShadow: "var(--shadow)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.3rem", marginBottom: "0.3rem" }}>
+                        <button onClick={() => setTable2Agents(agents.map(a => a.name))} style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>All</button>
+                        <button onClick={() => setTable2Agents([])} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {agents.map(a => (
+                          <label key={a.name} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={table2Agents.includes(a.name)}
+                              onChange={() => {
+                                if (table2Agents.includes(a.name)) {
+                                  setTable2Agents(table2Agents.filter(x => x !== a.name));
+                                } else {
+                                  setTable2Agents([...table2Agents, a.name]);
+                                }
+                              }}
+                              style={{ cursor: "pointer", accentColor: "var(--primary)" }}
+                            />
+                            {a.name}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Table 2 Columns checklist */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => toggleDropdown("table2Cols")}
+                  className="custom-select-small"
+                  style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 1.6rem 0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px" }}
+                >
+                  <i className="fa-solid fa-table-columns"></i> Columns ({table2VisibleCols.length})
+                </button>
+                {activeDropdown === "table2Cols" && (
+                  <>
+                    <div onClick={closeDropdowns} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 998 }} />
+                    <div style={{ position: "absolute", right: 0, top: "100%", marginTop: "0.4rem", background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "8px", padding: "0.6rem", width: "200px", maxHeight: "200px", overflowY: "auto", zIndex: 999, boxShadow: "var(--shadow)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.3rem", marginBottom: "0.3rem" }}>
+                        <button onClick={() => setTable2VisibleCols(table2ColumnsMetadata.map(c => c.key))} style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>All</button>
+                        <button onClick={() => setTable2VisibleCols([])} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {table2ColumnsMetadata.map(c => (
+                          <label key={c.key} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={table2VisibleCols.includes(c.key)}
+                              onChange={() => {
+                                if (table2VisibleCols.includes(c.key)) {
+                                  setTable2VisibleCols(table2VisibleCols.filter(x => x !== c.key));
+                                } else {
+                                  setTable2VisibleCols([...table2VisibleCols, c.key]);
+                                }
+                              }}
+                              style={{ cursor: "pointer", accentColor: "var(--primary)" }}
+                            />
+                            {c.label}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <button className="btn-primary-small no-print" onClick={handleExportTable2}>
+                <i className="fa-solid fa-file-excel"></i> Export Table 2
+              </button>
+            </div>
           </div>
           <div className="table-container">
             <table className="print-table">
               <thead>
                 <tr>
                   <th>Agent</th>
-                  <th>Today's New Leads</th>
-                  <th>Today's Converted (Booked/Appt Booked)</th>
-                  <th>Today's Conversion Rate (%)</th>
+                  {table2VisibleCols.includes("newLeadsToday") && <th style={{ backgroundColor: "rgba(56, 189, 248, 0.08)", color: "#38bdf8" }}>Today's New Leads</th>}
+                  {table2VisibleCols.includes("convertedToday") && <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)" }}>Today's Converted (Booked/Appt Booked)</th>}
+                  {table2VisibleCols.includes("todayConvRate") && <th style={{ backgroundColor: "rgba(201, 179, 54, 0.08)", color: "var(--warning)" }}>Today's Conversion Rate (%)</th>}
                 </tr>
               </thead>
               <tbody>
-                {agents.map((a) => (
+                {agents.filter(a => table2Agents.includes(a.name)).map((a) => (
                   <tr key={a.name}>
                     <td style={{ fontWeight: 700 }}>{a.name}</td>
-                    <td>{a.new_leads_today}</td>
-                    <td>{a.converted_today}</td>
-                    <td style={{ fontWeight: 700, color: "var(--primary)" }}>{a.today_conv_rate.toFixed(1)}%</td>
+                    {table2VisibleCols.includes("newLeadsToday") && (
+                      <td style={{ backgroundColor: "rgba(56, 189, 248, 0.02)" }}>{a.new_leads_today}</td>
+                    )}
+                    {table2VisibleCols.includes("convertedToday") && (
+                      <td style={{ backgroundColor: "rgba(113, 167, 88, 0.02)", color: "var(--success)", fontWeight: 700 }}>{a.converted_today}</td>
+                    )}
+                    {table2VisibleCols.includes("todayConvRate") && (
+                      <td style={{ backgroundColor: "rgba(201, 179, 54, 0.02)", fontWeight: 700, color: "var(--primary)" }}>{a.today_conv_rate.toFixed(1)}%</td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -916,51 +1176,182 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       {/* 6. Table 3: Call Metrics */}
       {(showAll || activeSection === "exec-calls") && (
         <section className="card">
-          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
             <h2 style={{ margin: 0 }}>Table 3: Granular Inbound vs. Outbound Call Metrics</h2>
-            <button className="btn-primary-small no-print" onClick={handleExportTable3}>
-              <i className="fa-solid fa-file-excel"></i> Export Table 3
-            </button>
+            
+            {/* Table 3 controls */}
+            <div className="no-print" style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+              {/* Table 3 Agent checklist */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => toggleDropdown("table3Agents")}
+                  className="custom-select-small"
+                  style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 1.6rem 0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px" }}
+                >
+                  <i className="fa-solid fa-user-gear"></i> Rows ({table3Agents.length})
+                </button>
+                {activeDropdown === "table3Agents" && (
+                  <>
+                    <div onClick={closeDropdowns} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 998 }} />
+                    <div style={{ position: "absolute", right: 0, top: "100%", marginTop: "0.4rem", background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "8px", padding: "0.6rem", width: "180px", maxHeight: "200px", overflowY: "auto", zIndex: 999, boxShadow: "var(--shadow)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.3rem", marginBottom: "0.3rem" }}>
+                        <button onClick={() => setTable3Agents(agents.map(a => a.name))} style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>All</button>
+                        <button onClick={() => setTable3Agents([])} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {agents.map(a => (
+                          <label key={a.name} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={table3Agents.includes(a.name)}
+                              onChange={() => {
+                                if (table3Agents.includes(a.name)) {
+                                  setTable3Agents(table3Agents.filter(x => x !== a.name));
+                                } else {
+                                  setTable3Agents([...table3Agents, a.name]);
+                                }
+                              }}
+                              style={{ cursor: "pointer", accentColor: "var(--primary)" }}
+                            />
+                            {a.name}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Table 3 Columns checklist */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => toggleDropdown("table3Cols")}
+                  className="custom-select-small"
+                  style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 1.6rem 0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px" }}
+                >
+                  <i className="fa-solid fa-table-columns"></i> Columns ({table3VisibleCols.length})
+                </button>
+                {activeDropdown === "table3Cols" && (
+                  <>
+                    <div onClick={closeDropdowns} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 998 }} />
+                    <div style={{ position: "absolute", right: 0, top: "100%", marginTop: "0.4rem", background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "8px", padding: "0.6rem", width: "200px", maxHeight: "250px", overflowY: "auto", zIndex: 999, boxShadow: "var(--shadow)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.3rem", marginBottom: "0.3rem" }}>
+                        <button onClick={() => setTable3VisibleCols(table3ColumnsMetadata.map(c => c.key))} style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>All</button>
+                        <button onClick={() => setTable3VisibleCols([])} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {table3ColumnsMetadata.map(c => (
+                          <label key={c.key} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={table3VisibleCols.includes(c.key)}
+                              onChange={() => {
+                                if (table3VisibleCols.includes(c.key)) {
+                                  setTable3VisibleCols(table3VisibleCols.filter(x => x !== c.key));
+                                } else {
+                                  setTable3VisibleCols([...table3VisibleCols, c.key]);
+                                }
+                              }}
+                              style={{ cursor: "pointer", accentColor: "var(--primary)" }}
+                            />
+                            {c.label}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <button className="btn-primary-small no-print" onClick={handleExportTable3}>
+                <i className="fa-solid fa-file-excel"></i> Export Table 3
+              </button>
+            </div>
           </div>
           <div className="table-container">
             <table className="print-table" style={{ fontSize: "0.78rem" }}>
               <thead>
                 <tr>
-                  <th rowSpan="2" style={{ verticalAlign: "middle" }}>Agent</th>
-                  <th colSpan="5" style={{ textAlign: "center", backgroundColor: "rgba(219, 131, 36, 0.08)" }}>Outbound Calls</th>
-                  <th colSpan="5" style={{ textAlign: "center", backgroundColor: "rgba(113, 167, 88, 0.08)" }}>Inbound Calls</th>
-                </tr>
-                <tr>
-                  <th>Calls</th>
-                  <th>Answered</th>
-                  <th>Missed</th>
-                  <th>Total Mins</th>
-                  <th>Avg Dur (Mins)</th>
-                  <th>Calls</th>
-                  <th>Answered</th>
-                  <th>Missed</th>
-                  <th>Total Mins</th>
-                  <th>Avg Dur (Mins)</th>
+                  <th style={{ minWidth: "130px" }}>Agent</th>
+                  {table3VisibleCols.includes("outboundCount") && (
+                    <th style={{ backgroundColor: "rgba(219, 131, 36, 0.08)", color: "#fb923c", whiteSpace: "nowrap" }}>
+                      Out Calls
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("outboundAttended") && (
+                    <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
+                      Out Answered
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("outboundMissed") && (
+                    <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "var(--danger)", whiteSpace: "nowrap" }}>
+                      Out Missed
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("outboundMinutes") && (
+                    <th style={{ backgroundColor: "rgba(219, 131, 36, 0.08)", color: "#fb923c", whiteSpace: "nowrap" }}>
+                      Out Mins
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("outboundAvgDuration") && (
+                    <th style={{ backgroundColor: "rgba(219, 131, 36, 0.08)", color: "#fb923c", whiteSpace: "nowrap" }}>
+                      Out Avg Dur
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("inboundCount") && (
+                    <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
+                      In Calls
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("inboundAttended") && (
+                    <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
+                      In Answered
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("inboundMissed") && (
+                    <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "var(--danger)", whiteSpace: "nowrap" }}>
+                      In Missed
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("inboundMinutes") && (
+                    <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
+                      In Mins
+                    </th>
+                  )}
+                  {table3VisibleCols.includes("inboundAvgDuration") && (
+                    <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
+                      In Avg Dur
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {agents.map((a) => {
+                {agents.filter(a => table3Agents.includes(a.name)).map((a) => {
                   const call = a.call_metrics || {};
                   return (
                     <tr key={a.name}>
                       <td style={{ fontWeight: 700 }}>{a.name}</td>
                       {/* Outbound */}
-                      <td>{call.outboundCount}</td>
-                      <td>{call.outboundAttended}</td>
-                      <td>{call.outboundMissed}</td>
-                      <td>{call.outboundMinutes.toFixed(1)}</td>
-                      <td style={{ fontWeight: 600 }}>{call.outboundAvgDuration.toFixed(1)}</td>
+                      {table3VisibleCols.includes("outboundCount") && <td>{call.outboundCount}</td>}
+                      {table3VisibleCols.includes("outboundAttended") && (
+                        <td style={{ backgroundColor: "rgba(113, 167, 88, 0.02)", color: "var(--success)", fontWeight: 600 }}>{call.outboundAttended}</td>
+                      )}
+                      {table3VisibleCols.includes("outboundMissed") && (
+                        <td style={{ backgroundColor: "rgba(239, 68, 68, 0.02)", color: "var(--danger)", fontWeight: 600 }}>{call.outboundMissed}</td>
+                      )}
+                      {table3VisibleCols.includes("outboundMinutes") && <td>{call.outboundMinutes.toFixed(1)}</td>}
+                      {table3VisibleCols.includes("outboundAvgDuration") && <td style={{ fontWeight: 600 }}>{call.outboundAvgDuration.toFixed(1)}</td>}
+                      
                       {/* Inbound */}
-                      <td>{call.inboundCount}</td>
-                      <td>{call.inboundAttended}</td>
-                      <td>{call.inboundMissed}</td>
-                      <td>{call.inboundMinutes.toFixed(1)}</td>
-                      <td style={{ fontWeight: 600 }}>{call.inboundAvgDuration.toFixed(1)}</td>
+                      {table3VisibleCols.includes("inboundCount") && <td>{call.inboundCount}</td>}
+                      {table3VisibleCols.includes("inboundAttended") && (
+                        <td style={{ backgroundColor: "rgba(113, 167, 88, 0.02)", color: "var(--success)", fontWeight: 600 }}>{call.inboundAttended}</td>
+                      )}
+                      {table3VisibleCols.includes("inboundMissed") && (
+                        <td style={{ backgroundColor: "rgba(239, 68, 68, 0.02)", color: "var(--danger)", fontWeight: 600 }}>{call.inboundMissed}</td>
+                      )}
+                      {table3VisibleCols.includes("inboundMinutes") && <td>{call.inboundMinutes.toFixed(1)}</td>}
+                      {table3VisibleCols.includes("inboundAvgDuration") && <td style={{ fontWeight: 600 }}>{call.inboundAvgDuration.toFixed(1)}</td>}
                     </tr>
                   );
                 })}

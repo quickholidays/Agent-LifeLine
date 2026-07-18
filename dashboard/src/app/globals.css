@@ -66,12 +66,18 @@ body.light-mode {
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-primary);
     font-family: var(--font-stack);
     min-height: 100vh;
     overflow-x: hidden;
+    max-width: 100vw;
     transition: background-color 0.4s ease, color 0.4s ease;
     position: relative;
 }
@@ -253,6 +259,8 @@ header {
     -webkit-backdrop-filter: blur(12px);
     box-shadow: var(--shadow);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .card:hover {
@@ -277,7 +285,7 @@ header {
 /* KPI Card Grid */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: 1.25rem;
 }
 
@@ -1301,9 +1309,12 @@ tbody tr td:first-child {
 
 .main-content-area {
     flex: 1;
+    min-width: 0; /* Critical: prevents flex item from overflowing parent and causing horizontal scroll */
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
     height: 100vh;
     padding: 1.5rem;
     gap: 1.25rem;
@@ -1312,7 +1323,7 @@ tbody tr td:first-child {
 /* Overview Layout Mirroring NexaVerse */
 .overview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
     gap: 1.25rem;
 }
 
@@ -1567,12 +1578,14 @@ body.light-mode select option {
     }
 }
 
-@media (min-width: 1025px) {
-    .mobile-hamburger {
-        display: none !important;
-    }
-    .mobile-sidebar-backdrop {
-        display: none !important;
-    }
+/* Always show hamburger button on all screen sizes */
+.mobile-hamburger {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-sidebar-backdrop {
+    display: none; /* Only shows via JS conditional rendering */
 }
 

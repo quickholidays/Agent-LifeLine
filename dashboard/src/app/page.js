@@ -880,7 +880,6 @@ export default function Home() {
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="mobile-hamburger"
               style={{
-                display: "none",
                 background: "var(--card-bg)",
                 border: "1px solid var(--card-border)",
                 color: "var(--text-primary)",
@@ -891,7 +890,8 @@ export default function Home() {
                 justifyContent: "center",
                 cursor: "pointer",
                 fontSize: "1.1rem",
-                boxShadow: "var(--shadow)"
+                boxShadow: "var(--shadow)",
+                flexShrink: 0
               }}
             >
               <i className="fa-solid fa-bars"></i>

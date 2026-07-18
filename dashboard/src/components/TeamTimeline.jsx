@@ -490,14 +490,22 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
           </div>
         </div>
       </div>
-      <div className="timeline-container-outer" ref={containerRef}>
-        <div className="timeline-container" id="timeline-canvas-container">
+      <div 
+        className="timeline-container-outer" 
+        ref={containerRef}
+        style={{ overflowX: "auto", overflowY: "hidden", width: "100%", WebkitOverflowScrolling: "touch" }}
+      >
+        <div 
+          className="timeline-container" 
+          id="timeline-canvas-container"
+          style={{ minWidth: "900px" }}
+        >
           <canvas
             ref={canvasRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             onClick={handleClick}
-            style={{ cursor: hoveredItem ? "pointer" : "default" }}
+            style={{ cursor: hoveredItem ? "pointer" : "default", display: "block" }}
           />
         </div>
       </div>

@@ -167,23 +167,23 @@ export default function Overview({ agents, stageChanges = {} }) {
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "0.5rem" }}>
-            <div style={{ background: "rgba(14, 165, 233, 0.05)", border: "1px solid rgba(14, 165, 233, 0.15)", borderRadius: "12px", padding: "1.2rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-              <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600 }}>New Leads</span>
-              <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--info)", margin: 0 }}>
+            <div style={{ background: "rgba(14, 165, 233, 0.04)", border: "1px solid rgba(14, 165, 233, 0.15)", borderRadius: "12px", padding: "1.5rem 1rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", textAlign: "center" }}>
+              <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: 700 }}>New Leads</span>
+              <h3 style={{ fontSize: "2.3rem", fontWeight: 800, color: "#38bdf8", margin: 0 }}>
                 {agents.reduce((sum, a) => sum + (a.segmentations?.newLeads || 0), 0)}
               </h3>
             </div>
-            <div style={{ background: "rgba(113, 167, 88, 0.05)", border: "1px solid rgba(113, 167, 88, 0.15)", borderRadius: "12px", padding: "1.2rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-              <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600 }}>Booked Leads</span>
-              <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--success)", margin: 0 }}>{totalBooked}</h3>
+            <div style={{ background: "rgba(113, 167, 88, 0.04)", border: "1px solid rgba(113, 167, 88, 0.15)", borderRadius: "12px", padding: "1.5rem 1rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", textAlign: "center" }}>
+              <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: 700 }}>Booked Leads</span>
+              <h3 style={{ fontSize: "2.3rem", fontWeight: 800, color: "var(--success)", margin: 0 }}>{totalBooked}</h3>
             </div>
-            <div style={{ background: "rgba(201, 179, 54, 0.05)", border: "1px solid rgba(201, 179, 54, 0.15)", borderRadius: "12px", padding: "1.2rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-              <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600 }}>Appointment Booked</span>
-              <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--warning)", margin: 0 }}>{totalApptBooked}</h3>
+            <div style={{ background: "rgba(201, 179, 54, 0.04)", border: "1px solid rgba(201, 179, 54, 0.15)", borderRadius: "12px", padding: "1.5rem 1rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", textAlign: "center" }}>
+              <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: 700 }}>Appointment Booked</span>
+              <h3 style={{ fontSize: "2.3rem", fontWeight: 800, color: "var(--warning)", margin: 0 }}>{totalApptBooked}</h3>
             </div>
-            <div style={{ background: "rgba(239, 68, 68, 0.05)", border: "1px solid rgba(239, 68, 68, 0.15)", borderRadius: "12px", padding: "1.2rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-              <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600 }}>Closed Leads</span>
-              <h3 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--danger)", margin: 0 }}>{totalClosed}</h3>
+            <div style={{ background: "rgba(239, 68, 68, 0.04)", border: "1px solid rgba(239, 68, 68, 0.15)", borderRadius: "12px", padding: "1.5rem 1rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", textAlign: "center" }}>
+              <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: 700 }}>Closed Leads</span>
+              <h3 style={{ fontSize: "2.3rem", fontWeight: 800, color: "var(--danger)", margin: 0 }}>{totalClosed}</h3>
             </div>
           </div>
         </section>
