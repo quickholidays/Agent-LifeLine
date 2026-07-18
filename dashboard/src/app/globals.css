@@ -369,9 +369,77 @@ header {
     position: relative;
 }
 
+/* Card header override for timeline — stacks vertically */
+.timeline-card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Title row: heading + hovered-agent chip */
+.timeline-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Hovered agent chip */
+.timeline-hovered-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    background: var(--primary-glow);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.timeline-hovered-chip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Controls row: time pickers + legend side by side, wraps on small screens */
+.timeline-controls-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    justify-content: space-between;
+}
+
+.timeline-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    flex-shrink: 0;
+}
+
+.timeline-controls label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .timeline-legend {
     display: flex;
     gap: 1.25rem;
+    flex-wrap: wrap;
 }
 
 .legend-item {
@@ -390,9 +458,53 @@ header {
 }
 
 .legend-active { background-color: var(--success); opacity: 0.85; border: 1px solid rgba(0, 0, 0, 0.2); }
-.legend-break { background-color: var(--warning); opacity: 0.3; }
-.legend-call { background-color: var(--info); opacity: 0.85; border: 1px solid rgba(0, 0, 0, 0.2); }
+.legend-call   { background-color: var(--info);    opacity: 0.85; border: 1px solid rgba(0, 0, 0, 0.2); }
 
+/* Canvas split wrapper */
+.timeline-canvas-wrapper {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+}
+
+/* Sticky names panel — vertical scroll only */
+.timeline-names-panel {
+    flex-shrink: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 2;
+    position: relative;
+    scrollbar-width: none;          /* hide scrollbar, synced via JS */
+    -ms-overflow-style: none;
+}
+.timeline-names-panel::-webkit-scrollbar {
+    display: none;
+}
+
+/* Chart panel — horizontal + vertical scroll */
+.timeline-chart-panel {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    WebkitOverflowScrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
+}
+.timeline-chart-panel::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+.timeline-chart-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+.timeline-chart-panel::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.35);
+    border-radius: 3px;
+}
+
+/* Legacy selectors kept for JudgmentTimeline */
 .timeline-container-outer {
     width: 100%;
     overflow-x: auto;
@@ -400,13 +512,11 @@ header {
     background: rgba(0, 0, 0, 0.1);
     border: 1px solid var(--card-border);
 }
-
 .timeline-container {
     min-width: 900px;
     position: relative;
     padding: 0.5rem;
 }
-
 #timeline-canvas, #judgment-timeline-canvas {
     display: block;
     width: 100%;

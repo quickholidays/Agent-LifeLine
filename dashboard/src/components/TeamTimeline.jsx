@@ -2,31 +2,36 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
-// Fixed canvas width — the scroll container will handle overflow
+// Fixed canvas width — the horizontal scroll container will handle overflow
 const CANVAS_MIN_WIDTH = 1200;
+// Max visible height before vertical scroll kicks in
+const MAX_VISIBLE_HEIGHT = 520;
 
 export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
   const canvasRef = useRef(null);
   const namesCanvasRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  const namesScrollRef = useRef(null);
   const containerRef = useRef(null);
+  const isSyncingScroll = useRef(false);
+
   const [startHour, setStartHour] = useState(9);
   const [endHour, setEndHour] = useState(20);
-  const [hoveredItem, setHoveredItem] = useState(null); // { agent, type, data, x, y }
+  const [hoveredItem, setHoveredItem] = useState(null);
   const [canvasWidth, setCanvasWidth] = useState(CANVAS_MIN_WIDTH);
 
-  // Constant metrics for timeline layout
-  const timelineLeftMargin = 160;
+  // Layout constants
+  const timelineLeftMargin = 0;   // Names are on separate canvas now
   const timelineRightMargin = 40;
   const timelineRowHeight = 40;
   const timelineTopMargin = 30;
   const timelineBottomMargin = 20;
 
-  // Colors mapping (matching CSS variables or custom colors in app.js)
+  const namesColumnWidth = 160;
+
   const colors = {
     active: "#71a758",
     activeHover: "#5a8646",
-    break: "#c9b336",
     primary: "#d15c2e",
     accent: "#a74a25",
   };
@@ -59,7 +64,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     );
   };
 
-  // Keep canvas width at least CANVAS_MIN_WIDTH, but allow it to be wider than container
+  // ── Resize Observer: keep canvasWidth ≥ CANVAS_MIN_WIDTH ──────────────────
   useEffect(() => {
     const updateWidth = () => {
       if (!scrollContainerRef.current) return;
@@ -72,48 +77,100 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     return () => ro.disconnect();
   }, []);
 
-  // Draw the sticky names column on a separate overlay canvas
+  // ── Sync vertical scroll between names panel and chart ────────────────────
+  const handleChartScroll = useCallback(() => {
+    if (isSyncingScroll.current) return;
+    if (!scrollContainerRef.current || !namesScrollRef.current) return;
+    isSyncingScroll.current = true;
+    namesScrollRef.current.scrollTop = scrollContainerRef.current.scrollTop;
+    isSyncingScroll.current = false;
+  }, []);
+
+  const handleNamesScroll = useCallback(() => {
+    if (isSyncingScroll.current) return;
+    if (!scrollContainerRef.current || !namesScrollRef.current) return;
+    isSyncingScroll.current = true;
+    scrollContainerRef.current.scrollTop = namesScrollRef.current.scrollTop;
+    isSyncingScroll.current = false;
+  }, []);
+
+  // ── Draw the sticky names column ──────────────────────────────────────────
   useEffect(() => {
     const namesCanvas = namesCanvasRef.current;
     if (!namesCanvas) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const displayHeight = timelineTopMargin + timelineBottomMargin + Math.max(1, agents.length) * timelineRowHeight;
-    namesCanvas.width = timelineLeftMargin * dpr;
+    const displayHeight =
+      timelineTopMargin +
+      timelineBottomMargin +
+      Math.max(1, agents.length) * timelineRowHeight;
+
+    namesCanvas.width = namesColumnWidth * dpr;
     namesCanvas.height = displayHeight * dpr;
-    namesCanvas.style.width = `${timelineLeftMargin}px`;
+    namesCanvas.style.width = `${namesColumnWidth}px`;
     namesCanvas.style.height = `${displayHeight}px`;
 
     const ctx = namesCanvas.getContext("2d");
     ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, timelineLeftMargin, displayHeight);
+    ctx.clearRect(0, 0, namesColumnWidth, displayHeight);
 
-    const isDark = document.body.classList.contains("dark-mode") || !document.body.classList.contains("light-mode");
+    const isDark =
+      document.body.classList.contains("dark-mode") ||
+      !document.body.classList.contains("light-mode");
 
-    // Draw background for name column to match card background
+    // Background matching card bg
     ctx.fillStyle = isDark ? "#0a0a0a" : "#ffffff";
-    ctx.fillRect(0, 0, timelineLeftMargin, displayHeight);
+    ctx.fillRect(0, 0, namesColumnWidth, displayHeight);
 
-    // Thin right border separator
+    // Separator line on the right edge
     ctx.strokeStyle = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(timelineLeftMargin - 0.5, 0);
-    ctx.lineTo(timelineLeftMargin - 0.5, displayHeight);
+    ctx.moveTo(namesColumnWidth - 0.5, 0);
+    ctx.lineTo(namesColumnWidth - 0.5, displayHeight);
     ctx.stroke();
 
+    // Row dividers + agent names
     agents.forEach((agent, idx) => {
-      const yCenter = timelineTopMargin + idx * timelineRowHeight + timelineRowHeight / 2;
+      const yCenter =
+        timelineTopMargin + idx * timelineRowHeight + timelineRowHeight / 2;
+      const rowTop = timelineTopMargin + idx * timelineRowHeight;
       const isSelectedRow = selectedAgent && selectedAgent.name === agent.name;
+      const isHoveredRow =
+        hoveredItem && hoveredItem.agent && hoveredItem.agent.name === agent.name;
 
-      ctx.fillStyle = isSelectedRow ? (isDark ? "#8b5cf6" : "#4338ca") : isDark ? "#f8fafc" : "#0f172a";
+      // Row highlight
+      if (isSelectedRow) {
+        ctx.fillStyle = isDark
+          ? "rgba(79, 70, 229, 0.15)"
+          : "rgba(67, 56, 202, 0.08)";
+        ctx.fillRect(0, rowTop, namesColumnWidth, timelineRowHeight);
+      } else if (isHoveredRow) {
+        ctx.fillStyle = isDark
+          ? "rgba(255, 255, 255, 0.03)"
+          : "rgba(0, 0, 0, 0.02)";
+        ctx.fillRect(0, rowTop, namesColumnWidth, timelineRowHeight);
+      }
+
+      // Row divider
+      ctx.strokeStyle = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, rowTop + timelineRowHeight);
+      ctx.lineTo(namesColumnWidth, rowTop + timelineRowHeight);
+      ctx.stroke();
+
+      // Name text
+      ctx.fillStyle = isSelectedRow
+        ? isDark ? "#8b5cf6" : "#4338ca"
+        : isDark ? "#f8fafc" : "#0f172a";
       ctx.font = isSelectedRow ? "700 12px Outfit" : "600 12px Outfit";
       ctx.textAlign = "left";
       ctx.fillText(agent.name, 15, yCenter + 4);
     });
   }, [agents, selectedAgent, hoveredItem]);
 
-  // Re-draw main canvas when agents, hours, hover or selection changes
+  // ── Draw the main timeline canvas ─────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -121,7 +178,10 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     const ctx = canvas.getContext("2d");
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = canvasWidth;
-    const displayHeight = timelineTopMargin + timelineBottomMargin + Math.max(1, agents.length) * timelineRowHeight;
+    const displayHeight =
+      timelineTopMargin +
+      timelineBottomMargin +
+      Math.max(1, agents.length) * timelineRowHeight;
 
     canvas.width = displayWidth * dpr;
     canvas.height = displayHeight * dpr;
@@ -129,23 +189,30 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     canvas.style.height = `${displayHeight}px`;
     ctx.scale(dpr, dpr);
 
-    const isDark = document.body.classList.contains("dark-mode") || !document.body.classList.contains("light-mode");
+    const isDark =
+      document.body.classList.contains("dark-mode") ||
+      !document.body.classList.contains("light-mode");
+
     ctx.clearRect(0, 0, displayWidth, displayHeight);
 
     if (agents.length === 0) {
       ctx.fillStyle = isDark ? "#94a3b8" : "#475569";
       ctx.font = "14px Outfit";
       ctx.textAlign = "center";
-      ctx.fillText("No agents match the search criteria", displayWidth / 2, displayHeight / 2);
+      ctx.fillText(
+        "No agents match the search criteria",
+        displayWidth / 2,
+        displayHeight / 2
+      );
       return;
     }
 
-    // Draw a background so row highlights look consistent
+    // Background
     ctx.fillStyle = isDark ? "#0a0a0a" : "#ffffff";
     ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-    // 1. Draw X Axis hour grids
-    ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)";
+    // ── 1. Hour grid lines & labels ──────────────────────────────────────
+    ctx.strokeStyle = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
     ctx.lineWidth = 1;
     ctx.font = "500 11px Outfit";
     ctx.fillStyle = "#64748b";
@@ -186,54 +253,49 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
       }
     }
 
-    // 2. Draw Agent Timelines
+    // ── 2. Agent rows ────────────────────────────────────────────────────
     agents.forEach((agent, idx) => {
-      const yCenter = timelineTopMargin + idx * timelineRowHeight + timelineRowHeight / 2;
+      const yCenter =
+        timelineTopMargin + idx * timelineRowHeight + timelineRowHeight / 2;
       const rowTop = timelineTopMargin + idx * timelineRowHeight;
 
-      const isHoveredRow = hoveredItem && hoveredItem.agent.name === agent.name;
+      const isHoveredRow =
+        hoveredItem && hoveredItem.agent && hoveredItem.agent.name === agent.name;
       const isSelectedRow = selectedAgent && selectedAgent.name === agent.name;
 
+      // Row highlight
       if (isSelectedRow) {
-        ctx.fillStyle = isDark ? "rgba(79, 70, 229, 0.15)" : "rgba(67, 56, 202, 0.08)";
+        ctx.fillStyle = isDark
+          ? "rgba(79, 70, 229, 0.15)"
+          : "rgba(67, 56, 202, 0.08)";
         ctx.fillRect(0, rowTop, displayWidth, timelineRowHeight);
       } else if (isHoveredRow) {
-        ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.02)" : "rgba(0, 0, 0, 0.01)";
+        ctx.fillStyle = isDark
+          ? "rgba(255,255,255,0.02)"
+          : "rgba(0,0,0,0.01)";
         ctx.fillRect(0, rowTop, displayWidth, timelineRowHeight);
       }
 
-      ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.04)";
+      // Row divider
+      ctx.strokeStyle = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)";
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, rowTop + timelineRowHeight);
       ctx.lineTo(displayWidth, rowTop + timelineRowHeight);
       ctx.stroke();
 
-      // Names are drawn on the sticky overlay canvas — skip here
-
       const details = agent.details;
 
-      // Draw Breaks
-      details.breaks.forEach((b) => {
-        const startX = getX(b.start, displayWidth);
-        const endX = getX(b.end, displayWidth);
-        const barWidth = Math.max(2, endX - startX);
-        const isHoveredBreak = hoveredItem && hoveredItem.type === "break" && hoveredItem.data === b && hoveredItem.agent.name === agent.name;
-
-        ctx.fillStyle = colors.break;
-        ctx.globalAlpha = isHoveredBreak ? 0.45 : 0.22;
-        ctx.fillRect(startX, yCenter - 6, barWidth, 12);
-        ctx.globalAlpha = 1.0;
-
-        ctx.strokeStyle = "rgba(245, 158, 11, 0.2)";
-        ctx.strokeRect(startX, yCenter - 6, barWidth, 12);
-      });
-
-      // Draw Active Sessions
+      // ── Active Sessions (green bars) ──────────────────────────────────
       details.sessions.forEach((s) => {
         const startX = getX(s.start, displayWidth);
         const endX = getX(s.end, displayWidth);
         const barWidth = Math.max(3, endX - startX);
-        const isHoveredSession = hoveredItem && hoveredItem.type === "session" && hoveredItem.data === s && hoveredItem.agent.name === agent.name;
+        const isHoveredSession =
+          hoveredItem &&
+          hoveredItem.type === "session" &&
+          hoveredItem.data === s &&
+          hoveredItem.agent.name === agent.name;
 
         ctx.fillStyle = isHoveredSession ? colors.activeHover : colors.active;
         ctx.beginPath();
@@ -244,30 +306,36 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
         }
         ctx.fill();
 
-        ctx.strokeStyle = isDark ? "rgba(15, 23, 42, 0.4)" : "rgba(255, 255, 255, 0.4)";
+        ctx.strokeStyle = isDark
+          ? "rgba(15, 23, 42, 0.4)"
+          : "rgba(255,255,255,0.4)";
         ctx.lineWidth = 0.8;
         ctx.stroke();
       });
 
-      // Draw Call markers overlay
+      // ── Call markers ──────────────────────────────────────────────────
       const agentCalls = agent.calls || [];
       agentCalls.forEach((c) => {
         const callTime = new Date(c.timestamp);
         if (callTime >= getMinTime() && callTime <= getMaxTime()) {
           const xVal = getX(callTime, displayWidth);
-          const isHoveredCall = hoveredItem && hoveredItem.type === "call" && hoveredItem.data === c && hoveredItem.agent.name === agent.name;
+          const isHoveredCall =
+            hoveredItem &&
+            hoveredItem.type === "call" &&
+            hoveredItem.data === c &&
+            hoveredItem.agent.name === agent.name;
 
-          let callColor = "#db8324"; // Default answered outbound (Orange/Caramel)
+          let callColor = "#db8324";
           if (c.status !== "Answered") {
-            callColor = "#ef4444"; // Red for missed/voicemail/no-answer/failed calls
+            callColor = "#ef4444";
           } else if (c.direction === "inbound") {
-            callColor = "#71a758"; // Green for answered inbound calls
+            callColor = "#71a758";
           }
 
           ctx.fillStyle = callColor;
           ctx.fillRect(xVal - 1.5, yCenter - 10, 3, 20);
 
-          ctx.strokeStyle = isHoveredCall ? "white" : "rgba(255, 255, 255, 0.6)";
+          ctx.strokeStyle = isHoveredCall ? "white" : "rgba(255,255,255,0.6)";
           ctx.lineWidth = isHoveredCall ? 1 : 0.5;
           ctx.strokeRect(xVal - 1.5, yCenter - 10, 3, 20);
         }
@@ -275,16 +343,23 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     });
   }, [agents, startHour, endHour, hoveredItem, selectedAgent, canvasWidth]);
 
-  // Handle interaction
+  // ── Mouse interaction ─────────────────────────────────────────────────────
   const handleMouseMove = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // Account for vertical scroll inside the chart pane
+    const scrollTop = scrollContainerRef.current
+      ? scrollContainerRef.current.scrollTop
+      : 0;
+    const y = e.clientY - rect.top + scrollTop;
 
-    if (y < timelineTopMargin || y > timelineTopMargin + agents.length * timelineRowHeight) {
+    if (
+      y < timelineTopMargin ||
+      y > timelineTopMargin + agents.length * timelineRowHeight
+    ) {
       handleMouseLeave();
       return;
     }
@@ -297,47 +372,22 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     }
 
     const displayWidth = canvasWidth;
-    const yCenter = timelineTopMargin + idx * timelineRowHeight + timelineRowHeight / 2;
+    const yCenter =
+      timelineTopMargin + idx * timelineRowHeight + timelineRowHeight / 2;
     const details = agent.details;
-
     let hovered = null;
 
-    // Check active sessions
+    // Sessions
     for (const s of details.sessions) {
       const startX = getX(s.start, displayWidth);
       const endX = getX(s.end, displayWidth);
-      const pad = 3;
-      if (x >= startX - pad && x <= endX + pad && Math.abs(y - yCenter) <= 12) {
-        hovered = {
-          agent,
-          type: "session",
-          data: s,
-          x: e.clientX,
-          y: e.clientY,
-        };
+      if (x >= startX - 3 && x <= endX + 3 && Math.abs(y - yCenter) <= 12) {
+        hovered = { agent, type: "session", data: s, x: e.clientX, y: e.clientY };
         break;
       }
     }
 
-    // Check breaks
-    if (!hovered) {
-      for (const b of details.breaks) {
-        const startX = getX(b.start, displayWidth);
-        const endX = getX(b.end, displayWidth);
-        if (x >= startX && x <= endX && Math.abs(y - yCenter) <= 8) {
-          hovered = {
-            agent,
-            type: "break",
-            data: b,
-            x: e.clientX,
-            y: e.clientY,
-          };
-          break;
-        }
-      }
-    }
-
-    // Check calls hover
+    // Calls
     if (!hovered) {
       const calls = agent.calls || [];
       for (const c of calls) {
@@ -345,13 +395,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
         if (callTime >= getMinTime() && callTime <= getMaxTime()) {
           const xVal = getX(callTime, canvasWidth);
           if (Math.abs(x - xVal) <= 6 && Math.abs(y - yCenter) <= 10) {
-            hovered = {
-              agent,
-              type: "call",
-              data: c,
-              x: e.clientX,
-              y: e.clientY,
-            };
+            hovered = { agent, type: "call", data: c, x: e.clientX, y: e.clientY };
             break;
           }
         }
@@ -359,21 +403,13 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     }
 
     if (!hovered) {
-      hovered = {
-        agent,
-        type: "row",
-        data: null,
-        x: e.clientX,
-        y: e.clientY,
-      };
+      hovered = { agent, type: "row", data: null, x: e.clientX, y: e.clientY };
     }
 
     setHoveredItem(hovered);
   };
 
-  const handleMouseLeave = () => {
-    setHoveredItem(null);
-  };
+  const handleMouseLeave = () => setHoveredItem(null);
 
   const handleClick = () => {
     if (hoveredItem && hoveredItem.agent) {
@@ -381,30 +417,27 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     }
   };
 
+  // ── Tooltip ───────────────────────────────────────────────────────────────
   const renderTooltip = () => {
     if (!hoveredItem || hoveredItem.type === "row") return null;
 
     const { agent, type, data, x, y } = hoveredItem;
-    
+
     if (type === "call") {
       const callTime = new Date(data.timestamp);
-      const callTimeStr = callTime.getUTCHours().toString().padStart(2, "0") + ":" + callTime.getUTCMinutes().toString().padStart(2, "0");
+      const callTimeStr =
+        callTime.getUTCHours().toString().padStart(2, "00") +
+        ":" +
+        callTime.getUTCMinutes().toString().padStart(2, "00");
       return (
         <div
           className="tooltip"
-          style={{
-            left: `${x + 15}px`,
-            top: `${y + 15}px`,
-            display: "flex",
-            opacity: 1,
-          }}
+          style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}
         >
           <div className="tooltip-title">{agent.name}</div>
           <div className="tooltip-row">
             <span className="tooltip-label">State:</span>
-            <span className="tooltip-value" style={{ color: "#fb923c" }}>
-              Phone Call Event
-            </span>
+            <span className="tooltip-value" style={{ color: "#fb923c" }}>Phone Call Event</span>
           </div>
           <div className="tooltip-row">
             <span className="tooltip-label">Direction:</span>
@@ -439,68 +472,50 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     return (
       <div
         className="tooltip"
-        style={{
-          left: `${x + 15}px`,
-          top: `${y + 15}px`,
-          display: "flex",
-          opacity: 1,
-        }}
+        style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}
       >
         <div className="tooltip-title">{agent.name}</div>
-        {type === "session" ? (
-          <>
-            <div className="tooltip-row">
-              <span className="tooltip-label">State:</span>
-              <span className="tooltip-value" style={{ color: "#86efac" }}>
-                Active Work
-              </span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Time:</span>
-              <span className="tooltip-value">
-                {startStr} - {endStr}
-              </span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Duration:</span>
-              <span className="tooltip-value">{durationStr}</span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Actions:</span>
-              <span className="tooltip-value">{data.actions_count} operations</span>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="tooltip-row">
-              <span className="tooltip-label">State:</span>
-              <span className="tooltip-value" style={{ color: "#cbd5e1" }}>
-                Away / Break
-              </span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Time:</span>
-              <span className="tooltip-value">
-                {startStr} - {endStr}
-              </span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Duration:</span>
-              <span className="tooltip-value">{durationStr}</span>
-            </div>
-          </>
-        )}
+        <div className="tooltip-row">
+          <span className="tooltip-label">State:</span>
+          <span className="tooltip-value" style={{ color: "#86efac" }}>Active Work</span>
+        </div>
+        <div className="tooltip-row">
+          <span className="tooltip-label">Time:</span>
+          <span className="tooltip-value">{startStr} – {endStr}</span>
+        </div>
+        <div className="tooltip-row">
+          <span className="tooltip-label">Duration:</span>
+          <span className="tooltip-value">{durationStr}</span>
+        </div>
+        <div className="tooltip-row">
+          <span className="tooltip-label">Actions:</span>
+          <span className="tooltip-value">{data.actions_count} operations</span>
+        </div>
       </div>
     );
   };
 
+  const hoveredAgentName = hoveredItem && hoveredItem.agent
+    ? hoveredItem.agent.name
+    : null;
+
   return (
     <section className="card timeline-section mt-1">
-      <div className="card-header">
-        <h2>
-          <i className="fa-solid fa-timeline"></i> Interactive Activity Timeline
-        </h2>
+      {/* ── Card header ─────────────────────────────────────────────────── */}
+      <div className="card-header timeline-card-header">
+        <div className="timeline-title-row">
+          <h2>
+            <i className="fa-solid fa-timeline"></i> Interactive Activity Timeline
+          </h2>
+          {/* Hovered agent name chip */}
+          <div className={`timeline-hovered-chip ${hoveredAgentName ? "visible" : ""}`}>
+            <i className="fa-solid fa-user"></i>
+            <span>{hoveredAgentName || ""}</span>
+          </div>
+        </div>
+
         <div className="timeline-controls-row">
+          {/* Time range controls */}
           <div className="timeline-controls">
             <label>
               <i className="fa-solid fa-hourglass-start"></i> Start:{" "}
@@ -535,43 +550,44 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i + 1} value={i + 1}>
-                    {(i + 1).toString().padStart(2, "0")}:00
+                    {(i + 1).toString().padStart(2, "00")}:00
                   </option>
                 ))}
               </select>
             </label>
           </div>
+
+          {/* Legend — only Active Work & Calls */}
           <div className="timeline-legend">
             <span className="legend-item">
               <span className="legend-color legend-active"></span>Active Work
             </span>
             <span className="legend-item">
-              <span className="legend-color legend-break"></span>Break (&gt;30m)
+              <span className="legend-color" style={{ backgroundColor: "#db8324", opacity: 0.85, border: "1px solid rgba(0,0,0,0.2)" }}></span>Calls
             </span>
           </div>
         </div>
       </div>
 
-      {/* Wrapper: sticky name column + scrollable chart area */}
-      <div ref={containerRef} style={{ display: "flex", width: "100%", overflow: "hidden" }}>
-        {/* Sticky name labels canvas */}
-        <div style={{ flexShrink: 0, zIndex: 2, position: "relative" }}>
+      {/* ── Canvas area: sticky names + scrollable chart ─────────────────── */}
+      <div ref={containerRef} className="timeline-canvas-wrapper">
+        {/* Names column (sticky, vertical-scroll synced) */}
+        <div
+          ref={namesScrollRef}
+          className="timeline-names-panel"
+          onScroll={handleNamesScroll}
+          style={{ maxHeight: `${MAX_VISIBLE_HEIGHT}px` }}
+        >
           <canvas ref={namesCanvasRef} style={{ display: "block" }} />
         </div>
 
-        {/* Horizontally scrollable chart */}
+        {/* Chart area (horizontal + vertical scroll) */}
         <div
           ref={scrollContainerRef}
           id="timeline-canvas-container"
-          style={{
-            flex: 1,
-            overflowX: "auto",
-            overflowY: "hidden",
-            WebkitOverflowScrolling: "touch",
-            /* Custom scrollbar styling */
-            scrollbarWidth: "thin",
-            scrollbarColor: "rgba(100,116,139,0.4) transparent",
-          }}
+          className="timeline-chart-panel"
+          onScroll={handleChartScroll}
+          style={{ maxHeight: `${MAX_VISIBLE_HEIGHT}px` }}
         >
           <canvas
             ref={canvasRef}
@@ -584,9 +600,9 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
       </div>
 
       <div className="timeline-tip">
-        <i className="fa-solid fa-info-circle"></i> Hover over work blocks or breaks to view details. Click on an
-        agent name or block to inspect.
+        <i className="fa-solid fa-info-circle"></i> Hover over work blocks to view details. Click on a row to inspect the agent.
       </div>
+
       {renderTooltip()}
     </section>
   );
