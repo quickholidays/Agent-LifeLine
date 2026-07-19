@@ -61,6 +61,56 @@ export default function JudgmentTimeline({ agent, startHour, endHour }) {
     return 0;
   };
 
+  const getActionSummary = (act) => {
+    if (!act.details) return null;
+    try {
+      const details = typeof act.details === "string" ? JSON.parse(act.details) : act.details;
+      
+      if (act.module === "NOTE") {
+        if (details.body) {
+          const cleanText = details.body.replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/g, " ").trim();
+          return cleanText ? `Note: "${cleanText}"` : null;
+        }
+      }
+      
+      if (act.module === "OPPORTUNITY") {
+        const parts = [];
+        if (details.pipelineStageName) {
+          parts.push(`Stage: ${details.pipelineStageName}`);
+        }
+        if (details.status) {
+          parts.push(`Status: ${details.status}`);
+        }
+        if (details.source) {
+          parts.push(`Source: ${details.source}`);
+        }
+        if (details.name) {
+          parts.push(`Opp: ${details.name}`);
+        }
+        return parts.join(" | ") || null;
+      }
+      
+      if (act.module === "CONTACT") {
+        const parts = [];
+        if (details.firstName || details.lastName) {
+          parts.push(`Contact: ${[details.firstName, details.lastName].filter(Boolean).join(" ")}`);
+        }
+        if (details.phone) {
+          parts.push(`Phone: ${details.phone}`);
+        }
+        if (details.email) {
+          parts.push(`Email: ${details.email}`);
+        }
+        return parts.join(" | ") || null;
+      }
+    } catch (e) {
+      if (typeof act.details === "string") {
+        return act.details.substring(0, 50);
+      }
+    }
+    return null;
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !agent) return;
@@ -339,11 +389,24 @@ export default function JudgmentTimeline({ agent, startHour, endHour }) {
     const { type, data, x, y } = hoveredItem;
     const startStr = formatIsoToTime(data.start || data.timestamp);
 
+    let left = x + 15;
+    let top = y + 15;
+    if (typeof window !== "undefined") {
+      if (left + 260 > window.innerWidth) {
+        left = x - 275;
+      }
+      if (top + 200 > window.innerHeight) {
+        top = y - 215;
+      }
+      left = Math.max(10, left);
+      top = Math.max(10, top);
+    }
+
     if (type === "session") {
       const endStr = formatIsoToTime(data.end);
       const durationStr = formatSecondsToTime(data.duration);
       return (
-        <div className="tooltip" style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}>
+        <div className="tooltip" style={{ left: `${left}px`, top: `${top}px`, display: "flex", opacity: 1 }}>
           <div className="tooltip-title">{agent.name}</div>
           <div className="tooltip-row">
             <span className="tooltip-label">Type:</span>
@@ -371,7 +434,7 @@ export default function JudgmentTimeline({ agent, startHour, endHour }) {
       const endStr = formatIsoToTime(data.end);
       const durationStr = formatSecondsToTime(data.duration);
       return (
-        <div className="tooltip" style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}>
+        <div className="tooltip" style={{ left: `${left}px`, top: `${top}px`, display: "flex", opacity: 1 }}>
           <div className="tooltip-title">{agent.name}</div>
           <div className="tooltip-row">
             <span className="tooltip-label">Type:</span>
@@ -392,8 +455,9 @@ export default function JudgmentTimeline({ agent, startHour, endHour }) {
         </div>
       );
     } else if (type === "action") {
+      const summary = getActionSummary(data);
       return (
-        <div className="tooltip" style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}>
+        <div className="tooltip" style={{ left: `${left}px`, top: `${top}px`, display: "flex", opacity: 1 }}>
           <div className="tooltip-title">{agent.name}</div>
           <div className="tooltip-row">
             <span className="tooltip-label">Type:</span>
@@ -413,12 +477,18 @@ export default function JudgmentTimeline({ agent, startHour, endHour }) {
             <span className="tooltip-label">Time:</span>
             <span className="tooltip-value">{startStr} UTC</span>
           </div>
+          {summary && (
+            <div className="tooltip-row" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "4px", marginTop: "4px" }}>
+              <span className="tooltip-label">Details:</span>
+              <span className="tooltip-value" style={{ color: "#e2e8f0", fontStyle: "italic", whiteSpace: "normal", maxWidth: "200px" }}>{summary}</span>
+            </div>
+          )}
         </div>
       );
     } else if (type === "call") {
       const isAnswered = data.status === "Answered";
       return (
-        <div className="tooltip" style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}>
+        <div className="tooltip" style={{ left: `${left}px`, top: `${top}px`, display: "flex", opacity: 1 }}>
           <div className="tooltip-title">{agent.name}</div>
           <div className="tooltip-row">
             <span className="tooltip-label">Type:</span>

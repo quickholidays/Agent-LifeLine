@@ -75,6 +75,56 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     return 0;
   };
 
+  const getActionSummary = (act) => {
+    if (!act.details) return null;
+    try {
+      const details = typeof act.details === "string" ? JSON.parse(act.details) : act.details;
+      
+      if (act.module === "NOTE") {
+        if (details.body) {
+          const cleanText = details.body.replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/g, " ").trim();
+          return cleanText ? `Note: "${cleanText}"` : null;
+        }
+      }
+      
+      if (act.module === "OPPORTUNITY") {
+        const parts = [];
+        if (details.pipelineStageName) {
+          parts.push(`Stage: ${details.pipelineStageName}`);
+        }
+        if (details.status) {
+          parts.push(`Status: ${details.status}`);
+        }
+        if (details.source) {
+          parts.push(`Source: ${details.source}`);
+        }
+        if (details.name) {
+          parts.push(`Opp: ${details.name}`);
+        }
+        return parts.join(" | ") || null;
+      }
+      
+      if (act.module === "CONTACT") {
+        const parts = [];
+        if (details.firstName || details.lastName) {
+          parts.push(`Contact: ${[details.firstName, details.lastName].filter(Boolean).join(" ")}`);
+        }
+        if (details.phone) {
+          parts.push(`Phone: ${details.phone}`);
+        }
+        if (details.email) {
+          parts.push(`Email: ${details.email}`);
+        }
+        return parts.join(" | ") || null;
+      }
+    } catch (e) {
+      if (typeof act.details === "string") {
+        return act.details.substring(0, 50);
+      }
+    }
+    return null;
+  };
+
   // ── Resize Observer: keep canvasWidth ≥ CANVAS_MIN_WIDTH ──────────────────
   useEffect(() => {
     const updateWidth = () => {
@@ -313,6 +363,8 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
 
       const details = agent.details;
 
+
+
       // ── GHL Action / Operation markers ──────────────────────────────────────────
       const agentActions = details.actions_list || [];
       agentActions.forEach((act) => {
@@ -447,6 +499,8 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
       }
     }
 
+
+
     if (!hovered) {
       hovered = { agent, type: "row", data: null, x: e.clientX, y: e.clientY };
     }
@@ -468,6 +522,19 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
 
     const { agent, type, data, x, y } = hoveredItem;
 
+    let left = x + 15;
+    let top = y + 15;
+    if (typeof window !== "undefined") {
+      if (left + 260 > window.innerWidth) {
+        left = x - 275;
+      }
+      if (top + 200 > window.innerHeight) {
+        top = y - 215;
+      }
+      left = Math.max(10, left);
+      top = Math.max(10, top);
+    }
+
     if (type === "call") {
       const callTime = new Date(data.timestamp);
       const callTimeStr =
@@ -477,7 +544,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
       return (
         <div
           className="tooltip"
-          style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}
+          style={{ left: `${left}px`, top: `${top}px`, display: "flex", opacity: 1 }}
         >
           <div className="tooltip-title">{agent.name}</div>
           <div className="tooltip-row">
@@ -522,10 +589,12 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
       else if (data.module === "OPPORTUNITY") moduleColor = "#a74a25";
       else if (data.module === "CONTACT") moduleColor = "#71a758";
 
+      const summary = getActionSummary(data);
+
       return (
         <div
           className="tooltip"
-          style={{ left: `${x + 15}px`, top: `${y + 15}px`, display: "flex", opacity: 1 }}
+          style={{ left: `${left}px`, top: `${top}px`, display: "flex", opacity: 1 }}
         >
           <div className="tooltip-title">{agent.name}</div>
           <div className="tooltip-row">
@@ -536,9 +605,17 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
             <span className="tooltip-label">Time:</span>
             <span className="tooltip-value">{actTimeStr} BST</span>
           </div>
+          {summary && (
+            <div className="tooltip-row" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "4px", marginTop: "4px" }}>
+              <span className="tooltip-label">Details:</span>
+              <span className="tooltip-value" style={{ color: "#e2e8f0", fontStyle: "italic", whiteSpace: "normal", maxWidth: "200px" }}>{summary}</span>
+            </div>
+          )}
         </div>
       );
     }
+
+
   };
 
   const hoveredAgentName = hoveredItem && hoveredItem.agent

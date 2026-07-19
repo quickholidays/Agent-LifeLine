@@ -34,6 +34,56 @@ export default function AgentDetails({ agent, onClose }) {
     );
   };
 
+  const getActionSummary = (act) => {
+    if (!act.details) return null;
+    try {
+      const details = typeof act.details === "string" ? JSON.parse(act.details) : act.details;
+      
+      if (act.module === "NOTE") {
+        if (details.body) {
+          const cleanText = details.body.replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/g, " ").trim();
+          return cleanText ? `Note: "${cleanText}"` : null;
+        }
+      }
+      
+      if (act.module === "OPPORTUNITY") {
+        const parts = [];
+        if (details.pipelineStageName) {
+          parts.push(`Stage: ${details.pipelineStageName}`);
+        }
+        if (details.status) {
+          parts.push(`Status: ${details.status}`);
+        }
+        if (details.source) {
+          parts.push(`Source: ${details.source}`);
+        }
+        if (details.name) {
+          parts.push(`Opp: ${details.name}`);
+        }
+        return parts.join(" | ") || null;
+      }
+      
+      if (act.module === "CONTACT") {
+        const parts = [];
+        if (details.firstName || details.lastName) {
+          parts.push(`Contact: ${[details.firstName, details.lastName].filter(Boolean).join(" ")}`);
+        }
+        if (details.phone) {
+          parts.push(`Phone: ${details.phone}`);
+        }
+        if (details.email) {
+          parts.push(`Email: ${details.email}`);
+        }
+        return parts.join(" | ") || null;
+      }
+    } catch (e) {
+      if (typeof act.details === "string") {
+        return act.details.substring(0, 50);
+      }
+    }
+    return null;
+  };
+
   if (!agent) {
     return (
       <section className="card details-card" id="details-panel" style={{ flex: 1 }}>
@@ -105,7 +155,7 @@ export default function AgentDetails({ agent, onClose }) {
   const maxHourlyCount = Math.max(...hourlyCounts, 1);
 
   return (
-    <section className="card details-card" id="details-panel" style={{ flex: 1, maxHeight: "100vh", overflowY: "auto" }}>
+    <section className="card details-card" id="details-panel" style={{ flex: 1, minHeight: "880px", maxHeight: "100vh", overflowY: "auto" }}>
       <div id="details-active-state" className="details-content">
         <div className="details-header">
           <div className="agent-avatar" id="agent-avatar-char" style={{ background: "var(--primary)" }}>
@@ -143,15 +193,26 @@ export default function AgentDetails({ agent, onClose }) {
           </div>
         </div>
 
+        {/* Modules focus piecharts */}
+        <div className="details-section" style={{ borderTop: "1px solid var(--card-border)", paddingTop: "1rem", marginTop: "0.75rem" }}>
+          <h3>
+            <i className="fa-solid fa-chart-pie"></i> Modules Focus & Action Types
+          </h3>
+          <div className="charts-row">
+            <PieChart dataDict={details.module_counts} colors={chartColors} size={130} />
+            <PieChart dataDict={details.action_counts} colors={[...chartColors].reverse()} size={130} />
+          </div>
+        </div>
+
         {/* Dynamic Activity Filter Panel & Mini Activity Bar Chart */}
-        <div className="details-section" style={{ borderTop: "1px solid var(--card-border)", paddingTop: "1.25rem", marginTop: "1rem" }}>
-          <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="details-section" style={{ borderTop: "1px solid var(--card-border)", paddingTop: "1rem", marginTop: "0.75rem" }}>
+          <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
             <span><i className="fa-solid fa-filter"></i> Per-Agent Activity Inspector</span>
             <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{filteredEvents.length} events matching</span>
           </h3>
 
           {/* Filtering Dropdowns */}
-          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", margin: "1rem 0" }}>
+          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", margin: "0.5rem 0" }}>
             <div style={{ flex: 1, minWidth: "110px" }}>
               <label style={{ fontSize: "0.72rem", color: "var(--text-secondary)", fontWeight: 700, display: "block", marginBottom: "4px" }}>Source:</label>
               <select 
@@ -199,11 +260,11 @@ export default function AgentDetails({ agent, onClose }) {
           </div>
 
           {/* Mini Hourly Activity Graph */}
-          <div style={{ background: "rgba(0,0,0,0.15)", borderRadius: "8px", padding: "1rem", marginBottom: "1.25rem" }}>
-            <span style={{ fontSize: "0.7rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.5rem", fontWeight: 700 }}>
+          <div style={{ background: "rgba(0,0,0,0.15)", borderRadius: "8px", padding: "0.75rem", marginBottom: "0.75rem" }}>
+            <span style={{ fontSize: "0.7rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.4rem", fontWeight: 700 }}>
               HOURLY EVENT DISTRIBUTION (09:00 - 20:00 BST)
             </span>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", height: "55px", gap: "3px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", height: "45px", gap: "3px" }}>
               {hourlyCounts.map((cnt, idx) => {
                 const percent = (cnt / maxHourlyCount) * 100;
                 return (
@@ -229,7 +290,7 @@ export default function AgentDetails({ agent, onClose }) {
           </div>
 
           {/* Event Details Logs List */}
-          <div style={{ maxHeight: "250px", overflowY: "auto", border: "1px solid var(--card-border)", borderRadius: "8px", background: "var(--bg-color)" }}>
+          <div style={{ maxHeight: "100px", overflowY: "auto", border: "1px solid var(--card-border)", borderRadius: "8px", background: "var(--bg-color)" }}>
             {filteredEvents.length > 0 ? (
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
                 <thead>
@@ -268,7 +329,7 @@ export default function AgentDetails({ agent, onClose }) {
                           {isCall ? (
                             <span>{ev.contact_name} ({ev.duration})</span>
                           ) : (
-                            <span>{ev.action} event triggered</span>
+                            <span>{getActionSummary(ev) || `${ev.action} event triggered`}</span>
                           )}
                         </td>
                       </tr>
@@ -284,19 +345,8 @@ export default function AgentDetails({ agent, onClose }) {
           </div>
         </div>
 
-        {/* Modules focus piecharts */}
-        <div className="details-section" style={{ borderTop: "1px solid var(--card-border)", paddingTop: "1.25rem", marginTop: "1rem" }}>
-          <h3>
-            <i className="fa-solid fa-chart-pie"></i> Modules Focus & Action Types
-          </h3>
-          <div className="charts-row">
-            <PieChart dataDict={details.module_counts} colors={chartColors} size={140} />
-            <PieChart dataDict={details.action_counts} colors={[...chartColors].reverse()} size={140} />
-          </div>
-        </div>
-
         {/* Breaks Timeline */}
-        <div className="details-section" style={{ borderTop: "1px solid var(--card-border)", paddingTop: "1.25rem", marginTop: "1rem" }}>
+        <div className="details-section" style={{ borderTop: "1px solid var(--card-border)", paddingTop: "1rem", marginTop: "0.75rem" }}>
           <h3>
             <i className="fa-solid fa-mug-hot"></i> Workday Break Timeline
           </h3>
