@@ -1,4 +1,4 @@
-import { Outfit } from "next/font/google";
+import { Outfit, Bevan } from "next/font/google";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -7,14 +7,20 @@ const outfit = Outfit({
   variable: "--font-outfit",
 });
 
+const bevan = Bevan({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-luxury",
+});
+
 export const metadata = {
-  title: "Antigravity - Agent Performance & Activity Hub",
-  description: "Agent Performance & Activity Hub Dashboard built with Next.js",
+  title: "LifeLine - Agent Performance & Activity Hub",
+  description: "The premium GoHighLevel agent performance, activity tracking, and call analytics hub.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={outfit.variable}>
+    <html lang="en" className={`${outfit.variable} ${bevan.variable}`}>
       <head>
         <link
           rel="stylesheet"

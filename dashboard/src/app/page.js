@@ -9,6 +9,7 @@ import AgentDetails from "@/components/AgentDetails";
 import ProgressWorkspace from "@/components/ProgressWorkspace";
 import ExecutiveReport from "@/components/ExecutiveReport";
 import AgentCharts from "@/components/AgentCharts";
+import ConversationsWorkspace from "@/components/ConversationsWorkspace";
 import { parseCSV } from "@/utils/csvParser";
 import { processAgentData } from "@/utils/analysisEngine";
 
@@ -38,11 +39,34 @@ export default function Home() {
 
   const [processStatus, setProcessStatus] = useState("");
   const [isCustomData, setIsCustomData] = useState(false);
+  const [processingState, setProcessingState] = useState(null);
+  const [ghlToken, setGhlToken] = useState("");
+  const [ghlLocationId, setGhlLocationId] = useState("");
+
+  const handleGhlTokenChange = (val) => {
+    setGhlToken(val);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ghl_token", val);
+    }
+  };
+
+  const handleGhlLocationChange = (val) => {
+    setGhlLocationId(val);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ghl_location", val);
+    }
+  };
 
   useEffect(() => {
     // Set default body class
     document.body.classList.add("light-mode");
     document.body.classList.remove("dark-mode");
+
+    // Load credentials from local storage
+    if (typeof window !== "undefined") {
+      setGhlToken(localStorage.getItem("ghl_token") || "");
+      setGhlLocationId(localStorage.getItem("ghl_location") || "");
+    }
 
     // Auto collapse sidebar on small viewports
     if (typeof window !== "undefined") {
@@ -229,10 +253,25 @@ export default function Home() {
 
   const processUploadedFiles = async () => {
     if (auditFiles.length === 0) return;
-    setProcessStatus("Reading files...");
+
+    // Initialize processing steps
+    const steps = [
+      { id: "read-audit", name: `Parsing ${auditFiles.length} GHL Agent Log file(s)`, status: "processing" },
+      { id: "read-opps", name: "Parsing CRM Opportunities Master", status: "pending" },
+      { id: "read-calls", name: "Parsing Call Report Logs", status: "pending" },
+      { id: "read-segments", name: "Parsing Lead Segmentation files", status: "pending" },
+      { id: "align-bst", name: "Standardizing activity timelines to BST", status: "pending" },
+      { id: "compile", name: "Compiling metrics & building dashboard layout", status: "pending" }
+    ];
+
+    setProcessingState({
+      steps,
+      progressPercent: 5,
+    });
 
     try {
-      // 1. GHL audit logs
+      // Step 1: Read Audit Logs
+      await new Promise(resolve => setTimeout(resolve, 600)); // allow UI to render first
       const auditRows = [];
       for (const file of auditFiles) {
         const text = await readFileText(file);
@@ -240,21 +279,48 @@ export default function Home() {
         auditRows.push(...rows);
       }
 
-      // 2. Opportunities Master
+      // Update after Step 1
+      steps[0].status = "done";
+      steps[1].status = "processing";
+      setProcessingState({
+        steps: [...steps],
+        progressPercent: 20
+      });
+
+      // Step 2: Read Opportunities Master
+      await new Promise(resolve => setTimeout(resolve, 500));
       let oppsRows = [];
       if (oppsFile) {
         const text = await readFileText(oppsFile);
         oppsRows = parseCSV(text);
       }
 
-      // 3. Call report
+      // Update after Step 2
+      steps[1].status = "done";
+      steps[2].status = "processing";
+      setProcessingState({
+        steps: [...steps],
+        progressPercent: 40
+      });
+
+      // Step 3: Read Call report
+      await new Promise(resolve => setTimeout(resolve, 500));
       let callsRows = [];
       if (callsFile) {
         const text = await readFileText(callsFile);
         callsRows = parseCSV(text);
       }
 
-      // 4. Lead segmentations
+      // Update after Step 3
+      steps[2].status = "done";
+      steps[3].status = "processing";
+      setProcessingState({
+        steps: [...steps],
+        progressPercent: 60
+      });
+
+      // Step 4: Lead segmentations
+      await new Promise(resolve => setTimeout(resolve, 500));
       let newLeadsRows = [];
       if (newLeadsFile) {
         const text = await readFileText(newLeadsFile);
@@ -279,8 +345,16 @@ export default function Home() {
         closedRows = parseCSV(text);
       }
 
-      setProcessStatus("Processing CRM statistics & standardizing to BST...");
+      // Update after Step 4
+      steps[3].status = "done";
+      steps[4].status = "processing";
+      setProcessingState({
+        steps: [...steps],
+        progressPercent: 75
+      });
 
+      // Step 5: BST Alignment & compile data
+      await new Promise(resolve => setTimeout(resolve, 600));
       const processed = processAgentData(
         auditRows,
         oppsRows,
@@ -293,6 +367,16 @@ export default function Home() {
 
       setRawAnalysisData(processed);
 
+      // Update after Step 5
+      steps[4].status = "done";
+      steps[5].status = "processing";
+      setProcessingState({
+        steps: [...steps],
+        progressPercent: 90
+      });
+
+      // Step 6: Map to final structured agent objects
+      await new Promise(resolve => setTimeout(resolve, 600));
       const parsed = Object.entries(processed.agents)
         .map(([name, stats]) => {
           return {
@@ -331,11 +415,27 @@ export default function Home() {
       setAgentsList(parsed);
       setIsCustomData(true);
       setSelectedAgent(null);
-      setProcessStatus(`Processed ${parsed.length} agents successfully!`);
-      setTimeout(() => setShowUploads(false), 2000);
+
+      // Complete
+      steps[5].status = "done";
+      setProcessingState({
+        steps: [...steps],
+        progressPercent: 100
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 800)); // let user see 100% complete
+      setProcessingState(null); // close loader
+      setShowUploads(false); // return to dashboard
     } catch (err) {
       console.error(err);
-      setProcessStatus(`Import error: ${err.message}`);
+      // Mark active step as error
+      const activeStep = steps.find(s => s.status === "processing");
+      if (activeStep) activeStep.status = "error";
+      
+      setProcessingState(prev => prev ? {
+        ...prev,
+        error: err.message
+      } : null);
     }
   };
 
@@ -459,6 +559,71 @@ export default function Home() {
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.88rem", marginTop: "0.4rem" }}>
                   Please upload your CRM report files to standardize timezone conversions and generate dashboard metrics.
                 </p>
+              </div>
+
+              {/* GoHighLevel API Integration Credentials */}
+              <div
+                style={{
+                  background: "rgba(209, 92, 46, 0.02)",
+                  border: "1px solid var(--card-border)",
+                  borderRadius: "12px",
+                  padding: "1.5rem",
+                  marginBottom: "2rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem"
+                }}
+              >
+                <h3 style={{ fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <i className="fa-solid fa-key" style={{ color: "var(--primary)" }}></i> GoHighLevel API Credentials
+                </h3>
+                <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: 0 }}>
+                  Configure your GoHighLevel Location ID and Private Integration Key to sync live conversation messages and logs automatically.
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginTop: "0.2rem" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
+                      Location ID
+                    </label>
+                    <input
+                      type="text"
+                      value={ghlLocationId}
+                      onChange={(e) => handleGhlLocationChange(e.target.value)}
+                      placeholder="e.g. gCr3FJTylSWPTvuQjR6V"
+                      style={{
+                        width: "100%",
+                        padding: "0.55rem 0.8rem",
+                        borderRadius: "8px",
+                        background: "var(--input-bg)",
+                        border: "1px solid var(--input-border)",
+                        color: "var(--text-primary)",
+                        fontSize: "0.82rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
+                      Private Integration Key (Access Token)
+                    </label>
+                    <input
+                      type="password"
+                      value={ghlToken}
+                      onChange={(e) => handleGhlTokenChange(e.target.value)}
+                      placeholder="pit-xxxxxx..."
+                      style={{
+                        width: "100%",
+                        padding: "0.55rem 0.8rem",
+                        borderRadius: "8px",
+                        background: "var(--input-bg)",
+                        border: "1px solid var(--input-border)",
+                        color: "var(--text-primary)",
+                        fontSize: "0.82rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Bulk All-in-One Upload Area */}
@@ -804,6 +969,8 @@ export default function Home() {
         return <ProgressWorkspace agents={agentsList} />;
       case "agent-charts":
         return <AgentCharts agents={agentsList} />;
+      case "ghl-conversations":
+        return <ConversationsWorkspace agents={agentsList} />;
       case "exec-conversion":
       case "exec-sprints":
       case "exec-calls":
@@ -826,7 +993,7 @@ export default function Home() {
   // Loading runs in background while hero shows — no blocking loading screen
   if (showHero) {
     return (
-      <div className="hero-root">
+      <div className="hero-root hero-dark">
 
         {/* Video background — poster is actual first frame of the video */}
         <div className="hero-video-wrap">
@@ -844,19 +1011,27 @@ export default function Home() {
           <div className="hero-video-overlay" />
         </div>
 
-        {/* Subtle dot-grid texture */}
-        <div className="hero-grid" />
-
         {/* Centred content */}
         <div className="hero-content">
+          {/* Logo */}
+          <img
+            src="/logo.png"
+            alt="LifeLine Logo"
+            style={{
+              height: "120px",
+              width: "auto",
+              marginBottom: "0.5rem",
+              filter: "drop-shadow(0 8px 24px rgba(209, 92, 46, 0.25))"
+            }}
+          />
+
           <h1 className="hero-headline">
-            Agent Tracking
-            <span className="hero-headline-accent"> Workspace</span>
+            LifeLine
+            <span className="hero-headline-accent"> Agent Tracking</span>
           </h1>
 
           <p className="hero-subheadline">
-            Know exactly what your agents are doing — every action, every call,
-            every moment of the working day.
+            The premium GoHighLevel activity workspace. Know exactly what your agents are doing — every action, every call, every moment of the working day.
           </p>
 
           <button
@@ -953,6 +1128,134 @@ export default function Home() {
         {/* Tab content panel */}
         {renderActiveTab()}
       </main>
+
+      {/* Compiling datasets loader overlay */}
+      {processingState && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: "100%",
+              maxWidth: "520px",
+              padding: "2.5rem 2rem",
+              background: "#0a0a0a",
+              border: "1px solid var(--card-border)",
+              borderRadius: "16px",
+              boxShadow: "0 24px 48px rgba(0, 0, 0, 0.6)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              fontFamily: "var(--font-stack)",
+              color: "#faefea"
+            }}
+          >
+            {/* Header */}
+            <div style={{ textAlign: "center" }}>
+              <h3 style={{ fontSize: "1.25rem", fontWeight: 800, margin: 0 }}>
+                Compiling LifeLine Workspace
+              </h3>
+              <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "0.4rem", margin: 0 }}>
+                Processing agent activity logs and CRM segmentations...
+              </p>
+            </div>
+
+            {/* Circular Progress & Percentage */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.6rem" }}>
+              {/* Progress Bar Container */}
+              <div
+                style={{
+                  width: "100%",
+                  height: "8px",
+                  background: "rgba(255, 255, 255, 0.08)",
+                  borderRadius: "999px",
+                  overflow: "hidden",
+                  position: "relative"
+                }}
+              >
+                <div
+                  style={{
+                    width: `${processingState.progressPercent}%`,
+                    height: "100%",
+                    background: "var(--primary)",
+                    borderRadius: "999px",
+                    transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                  }}
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+                <span>Progress</span>
+                <strong style={{ color: "var(--primary)", fontWeight: 800 }}>{processingState.progressPercent}%</strong>
+              </div>
+            </div>
+
+            {/* Checklist of Steps */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.03)", borderRadius: "10px", padding: "1.2rem 1.2rem" }}>
+              {processingState.steps.map((step) => {
+                let icon = <i className="fa-regular fa-circle" style={{ color: "var(--text-secondary)", opacity: 0.5 }}></i>;
+                let textColor = "rgba(250, 239, 234, 0.4)";
+
+                if (step.status === "processing") {
+                  icon = <i className="fa-solid fa-spinner fa-spin" style={{ color: "var(--primary)" }}></i>;
+                  textColor = "#faefea";
+                } else if (step.status === "done") {
+                  icon = <i className="fa-solid fa-circle-check" style={{ color: "var(--success)" }}></i>;
+                  textColor = "rgba(250, 239, 234, 0.85)";
+                } else if (step.status === "error") {
+                  icon = <i className="fa-solid fa-circle-xmark" style={{ color: "var(--danger)" }}></i>;
+                  textColor = "var(--danger)";
+                }
+
+                return (
+                  <div key={step.id} style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontSize: "0.82rem", color: textColor, transition: "all 0.3s ease" }}>
+                    <div style={{ fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", width: "20px", height: "20px" }}>
+                      {icon}
+                    </div>
+                    <span style={{ fontWeight: step.status === "processing" ? 700 : 400 }}>{step.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Error Message & Close Button */}
+            {processingState.error && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "0.5rem" }}>
+                <div style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "8px", padding: "0.8rem 1rem", fontSize: "0.78rem", color: "var(--danger)", lineHeight: 1.4 }}>
+                  <i className="fa-solid fa-triangle-exclamation"></i> <strong>Processing Failed:</strong> {processingState.error}
+                </div>
+                <button
+                  className="ghl-btn btn-red"
+                  onClick={() => setProcessingState(null)}
+                  style={{
+                    alignSelf: "center",
+                    padding: "0.5rem 1.5rem",
+                    borderRadius: "8px",
+                    background: "rgba(239, 68, 68, 0.15)",
+                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                    color: "var(--danger)",
+                    cursor: "pointer",
+                    fontSize: "0.8rem",
+                    fontWeight: 700
+                  }}
+                >
+                  Dismiss & Close
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

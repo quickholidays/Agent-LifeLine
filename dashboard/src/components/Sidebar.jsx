@@ -9,6 +9,7 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
     { id: "activity-graph", label: "Activity Graph", icon: "fa-chart-column" },
     { id: "agent-progress", label: "Agent Progress", icon: "fa-bars-progress" },
     { id: "agent-charts", label: "Progression Charts", icon: "fa-chart-gantt" },
+    { id: "ghl-conversations", label: "GHL Conversations", icon: "fa-comments" },
     { id: "exec-conversion", label: "Agent Conversion", icon: "fa-file-invoice" },
     { id: "exec-sprints", label: "Lead Sprints", icon: "fa-running" },
     { id: "exec-calls", label: "Call Analytics", icon: "fa-phone-volume" },
@@ -22,8 +23,8 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
         <i className={`fa-solid ${collapsed ? "fa-chevron-right" : "fa-chevron-left"}`}></i>
       </button>
 
-      <div className="sidebar-header">
-        <i className="fa-solid fa-compass-drafting sidebar-logo-icon"></i>
+      <div className="sidebar-header" style={{ gap: "0.55rem" }}>
+        <img src="/logo.png" alt="LifeLine Logo" style={{ height: "26px", width: "auto", flexShrink: 0 }} />
         <span className="sidebar-logo-text">LifeLine</span>
       </div>
 
