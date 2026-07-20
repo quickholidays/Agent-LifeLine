@@ -7,7 +7,7 @@ const CANVAS_MIN_WIDTH = 1200;
 // Max visible height before vertical scroll kicks in
 const MAX_VISIBLE_HEIGHT = 520;
 
-export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
+export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, reportDate = "2026-07-17", showGhlMessages = true, ghlMessages = [] }) {
   const canvasRef = useRef(null);
   const namesCanvasRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -36,8 +36,14 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
     accent: "#a74a25",
   };
 
-  const getMinTime = () => new Date(Date.UTC(2026, 6, 17, startHour, 0, 0));
-  const getMaxTime = () => new Date(Date.UTC(2026, 6, 17, endHour, 0, 0));
+  const getMinTime = () => {
+    const [yr, mo, dy] = reportDate.split("-").map(Number);
+    return new Date(Date.UTC(yr, mo - 1, dy, startHour, 0, 0));
+  };
+  const getMaxTime = () => {
+    const [yr, mo, dy] = reportDate.split("-").map(Number);
+    return new Date(Date.UTC(yr, mo - 1, dy, endHour, 0, 0));
+  };
 
   const getX = (timeStrOrMs, width) => {
     const timeMs = new Date(timeStrOrMs).getTime();
@@ -429,8 +435,33 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
           ctx.stroke();
         }
       });
+
+      // ── GHL Outbound Messages ──────────────────────────────────────────
+      if (showGhlMessages && ghlMessages) {
+        const agentMessages = ghlMessages.filter(m => m.agent === agent.name);
+        agentMessages.forEach((msg) => {
+          const msgTime = new Date(msg.time);
+          if (msgTime >= getMinTime() && msgTime <= getMaxTime()) {
+            const xVal = getX(msgTime, displayWidth);
+            const isHoveredMsg =
+              hoveredItem &&
+              hoveredItem.type === "message" &&
+              hoveredItem.data === msg &&
+              hoveredItem.agent.name === agent.name;
+
+            ctx.fillStyle = "#38bdf8"; // Sky blue circle
+            ctx.beginPath();
+            ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.strokeStyle = isHoveredMsg ? "white" : "rgba(0, 0, 0, 0.4)";
+            ctx.lineWidth = isHoveredMsg ? 1.5 : 0.5;
+            ctx.stroke();
+          }
+        });
+      }
     });
-  }, [agents, startHour, endHour, hoveredItem, selectedAgent, canvasWidth]);
+  }, [agents, startHour, endHour, hoveredItem, selectedAgent, canvasWidth, showGhlMessages, ghlMessages, reportDate]);
 
   // ── Mouse interaction ─────────────────────────────────────────────────────
   const handleMouseMove = (e) => {
@@ -499,7 +530,20 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
       }
     }
 
-
+    // Check GHL Outbound Messages
+    if (!hovered && showGhlMessages && ghlMessages) {
+      const agentMessages = ghlMessages.filter(m => m.agent === agent.name);
+      for (const msg of agentMessages) {
+        const msgTime = new Date(msg.time);
+        if (msgTime >= getMinTime() && msgTime <= getMaxTime()) {
+          const xVal = getX(msgTime, canvasWidth);
+          if (Math.abs(x - xVal) <= 6 && Math.abs(y - yCenter) <= 6) {
+            hovered = { agent, type: "message", data: msg, x: e.clientX, y: e.clientY };
+            break;
+          }
+        }
+      }
+    }
 
     if (!hovered) {
       hovered = { agent, type: "row", data: null, x: e.clientX, y: e.clientY };
@@ -611,6 +655,39 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent }) {
               <span className="tooltip-value" style={{ color: "#e2e8f0", fontStyle: "italic", whiteSpace: "normal", maxWidth: "200px" }}>{summary}</span>
             </div>
           )}
+        </div>
+      );
+    }
+
+    if (type === "message") {
+      const msgTime = new Date(data.time);
+      const msgTimeStr =
+        msgTime.getUTCHours().toString().padStart(2, "00") +
+        ":" +
+        msgTime.getUTCMinutes().toString().padStart(2, "00");
+
+      return (
+        <div
+          className="tooltip"
+          style={{ left: `${left}px`, top: `${top}px`, display: "flex", opacity: 1 }}
+        >
+          <div className="tooltip-title">{agent.name}</div>
+          <div className="tooltip-row">
+            <span className="tooltip-label">State:</span>
+            <span className="tooltip-value" style={{ color: "#38bdf8" }}>Outbound Message</span>
+          </div>
+          <div className="tooltip-row">
+            <span className="tooltip-label">Contact:</span>
+            <span className="tooltip-value">{data.contactName}</span>
+          </div>
+          <div className="tooltip-row">
+            <span className="tooltip-label">Time:</span>
+            <span className="tooltip-value">{msgTimeStr} BST</span>
+          </div>
+          <div className="tooltip-row" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "4px", marginTop: "4px" }}>
+            <span className="tooltip-label">Content:</span>
+            <span className="tooltip-value" style={{ color: "#e2e8f0", fontStyle: "italic", whiteSpace: "normal", maxWidth: "200px" }}>{data.body}</span>
+          </div>
         </div>
       );
     }

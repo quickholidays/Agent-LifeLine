@@ -112,12 +112,17 @@ const MOCK_CONVERSATIONS = [
   }
 ];
 
-export default function ConversationsWorkspace({ agents = [] }) {
+export default function ConversationsWorkspace({ agents = [], defaultDate = "2026-07-17" }) {
   // Credentials loaded from localStorage
   const [token, setToken] = useState("");
   const [locationId, setLocationId] = useState("");
-  const [selectedDate, setSelectedDate] = useState("2026-07-17");
+  const [selectedDate, setSelectedDate] = useState(defaultDate);
+  const [contactSearchQuery, setContactSearchQuery] = useState("");
   const [isSimulated, setIsSimulated] = useState(true);
+
+  useEffect(() => {
+    setSelectedDate(defaultDate);
+  }, [defaultDate]);
 
   // Loaded and processed data
   const [conversations, setConversations] = useState([]);
@@ -464,6 +469,17 @@ export default function ConversationsWorkspace({ agents = [] }) {
 
   const activeAgentConvs = agentsMap[activeAgent] || [];
 
+  const filteredContacts = React.useMemo(() => {
+    if (!contactSearchQuery) {
+      return activeAgentConvs;
+    }
+    return mergedConversations.filter(c => 
+      c.fullName.toLowerCase().includes(contactSearchQuery.toLowerCase()) ||
+      c.phone.includes(contactSearchQuery) ||
+      (c.email && c.email.toLowerCase().includes(contactSearchQuery.toLowerCase()))
+    );
+  }, [activeAgentConvs, mergedConversations, contactSearchQuery]);
+
   // Helper to render channel badges/icons
   const getChannelBadge = (channel) => {
     switch (channel) {
@@ -661,17 +677,37 @@ export default function ConversationsWorkspace({ agents = [] }) {
 
           {/* Column 2: Contacts/Threads list */}
           <section className="card" style={{ display: "flex", flexDirection: "column", padding: "1rem" }}>
-            <h3 style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 800, marginTop: 0, marginBottom: "0.75rem", paddingBottom: "0.5rem", borderBottom: "1px solid var(--card-border)" }}>
-              Conversations ({activeAgentConvs.length})
-            </h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem", paddingBottom: "0.5rem", borderBottom: "1px solid var(--card-border)" }}>
+              <h3 style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-secondary)", fontWeight: 800, margin: 0 }}>
+                {contactSearchQuery ? "Search Results" : "Conversations"} ({filteredContacts.length})
+              </h3>
+            </div>
+
+            {/* Search Box */}
+            <div className="search-box" style={{ margin: "0 0 0.75rem 0", padding: "0.3rem 0.5rem", borderRadius: "6px" }}>
+              <i className="fa-solid fa-magnifying-glass search-icon" style={{ fontSize: "0.75rem" }}></i>
+              <input
+                type="text"
+                placeholder="Search contacts..."
+                value={contactSearchQuery}
+                onChange={(e) => setContactSearchQuery(e.target.value)}
+                style={{ fontSize: "0.76rem" }}
+              />
+            </div>
+
             <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {activeAgentConvs.map((conv) => {
+              {filteredContacts.map((conv) => {
                 const badge = getChannelBadge(conv.channel);
                 const isActive = activeConv && activeConv.id === conv.id;
                 return (
                   <div
                     key={conv.id}
-                    onClick={() => setActiveConv(conv)}
+                    onClick={() => {
+                      setActiveConv(conv);
+                      if (conv.agentName && conv.agentName !== activeAgent) {
+                        setActiveAgent(conv.agentName);
+                      }
+                    }}
                     style={{
                       padding: "0.75rem",
                       borderRadius: "8px",

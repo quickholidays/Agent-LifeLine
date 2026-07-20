@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from "react";
 
-export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesList = [], activeSection = "" }) {
+export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesList = [], activeSection = "", reportDate = "2026-07-17", ghlMessages = [] }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -20,6 +20,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
 
   // Checklist filters for visual events
   const [filterGhlUpdates, setFilterGhlUpdates] = useState(true);
+  const [filterGhlMessages, setFilterGhlMessages] = useState(true);
   const [filterCalls, setFilterCalls] = useState(true);
   const [filterMissedOnly, setFilterMissedOnly] = useState(false);
   const [filterNotesOnly, setFilterNotesOnly] = useState(false);
@@ -118,8 +119,14 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
   const timelineBottomMargin = 20;
 
   // BST Limits based on startHour and endHour
-  const getMinTime = () => new Date(Date.UTC(2026, 6, 17, startHour, 0, 0));
-  const getMaxTime = () => new Date(Date.UTC(2026, 6, 17, endHour, 0, 0));
+  const getMinTime = () => {
+    const [yr, mo, dy] = reportDate.split("-").map(Number);
+    return new Date(Date.UTC(yr, mo - 1, dy, startHour, 0, 0));
+  };
+  const getMaxTime = () => {
+    const [yr, mo, dy] = reportDate.split("-").map(Number);
+    return new Date(Date.UTC(yr, mo - 1, dy, endHour, 0, 0));
+  };
 
   const getX = (timeMs, width) => {
     const startMs = getMinTime().getTime();
@@ -314,6 +321,29 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         });
       }
 
+      // Filter GHL Messages (Outbound Messages)
+      if (filterGhlMessages && ghlMessages) {
+        let messagesForAgent = ghlMessages.filter(
+          (m) => m.agent === agent.name && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
+        );
+
+        messagesForAgent.forEach((msg) => {
+          const xVal = getX(new Date(msg.time).getTime(), displayWidth);
+          const isHovered = hoveredItem && hoveredItem.type === "message" && hoveredItem.data === msg;
+
+          ctx.fillStyle = "#38bdf8"; // Sky blue circle
+          ctx.beginPath();
+          ctx.arc(xVal, yCenter, isHovered ? 7.5 : 5, 0, 2 * Math.PI);
+          ctx.fill();
+
+          if (isHovered) {
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        });
+      }
+
       // Filter Calls
       if (filterCalls) {
         let callsForAgent = bstCallsList.filter(
@@ -354,6 +384,9 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     startHour,
     endHour,
     filterGhlUpdates,
+    filterGhlMessages,
+    ghlMessages,
+    reportDate,
     filterCalls,
     filterMissedOnly,
     filterNotesOnly,
@@ -415,6 +448,30 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             time: up.time,
             label: `GHL Log: ${up.module} - ${up.action}`,
             data: up,
+            x: e.clientX,
+            y: e.clientY,
+          };
+          break;
+        }
+      }
+    }
+
+    // Check GHL Outbound Messages
+    if (!found && filterGhlMessages && ghlMessages) {
+      let messagesForAgent = ghlMessages.filter(
+        (m) => m.agent === agent.name && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
+      );
+
+      for (const msg of messagesForAgent) {
+        const xVal = getX(new Date(msg.time).getTime(), displayWidth);
+        const dist = Math.sqrt((x - xVal) * (x - xVal) + (y - yCenter) * (y - yCenter));
+        if (dist <= 8) {
+          found = {
+            type: "message",
+            agent: agent.name,
+            time: new Date(msg.time),
+            label: `GHL Outbound Message: to ${msg.contactName}`,
+            data: msg,
             x: e.clientX,
             y: e.clientY,
           };
@@ -543,8 +600,8 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     downloadCSV(headers, rows, "call_analytics_report.csv");
   };
 
-  // Switch display elements based on selected sidebar section
   const showAll = !activeSection || activeSection === "executive-report";
+  const formattedGlossaryDate = new Date(reportDate).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
@@ -552,7 +609,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       <div className="card no-print" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.5rem" }}>
         <div>
           <h2 style={{ margin: 0 }}>
-            <i className="fa-solid fa-file-invoice"></i> Executive Operations Report - July 17, 2026
+            <i className="fa-solid fa-file-invoice"></i> Executive Operations Report - {new Date(reportDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}
           </h2>
           <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>BST (British Summer Time) standard timezone analysis</span>
         </div>
@@ -575,7 +632,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
               <strong>General Conversion Rate:</strong> (Booked Leads &divide; Eligible Interacted Base) &times; 100.
             </li>
             <li>
-              <strong>Today's Conversion Rate:</strong> (July 17 Converted &divide; July 17 Created New Leads) &times; 100.
+              <strong>Today's Conversion Rate:</strong> ({formattedGlossaryDate} Converted &divide; {formattedGlossaryDate} Created New Leads) &times; 100.
             </li>
             <li>
               <strong>Stage Advancements:</strong> Pipeline movements to <em>'Interested'</em> and <em>'Contacted'</em>.
@@ -723,6 +780,18 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
               GHL Updates
             </label>
 
+            {/* GHL Messages Checkbox */}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={filterGhlMessages}
+                onChange={() => setFilterGhlMessages(!filterGhlMessages)}
+                style={{ accentColor: "#38bdf8", cursor: "pointer" }}
+              />
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#38bdf8" }} />
+              GHL Messages
+            </label>
+
             {filterGhlUpdates && (
               <div style={{ display: "flex", gap: "0.8rem", paddingLeft: "0.5rem", borderLeft: "1px solid rgba(255,255,255,0.1)", flexWrap: "wrap" }}>
                 <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-secondary)", cursor: "pointer" }}>
@@ -825,8 +894,8 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                 </div>
                 <div>
                   <span style={{ color: "var(--text-secondary)", display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "2px" }}>EVENT TYPE</span>
-                  <span style={{ fontWeight: 700, color: selectedEvent.type === "update" ? "#818cf8" : "#fb923c" }}>
-                    {selectedEvent.type === "update" ? "GHL Update Log" : "Phone Call Event"}
+                  <span style={{ fontWeight: 700, color: selectedEvent.type === "message" ? "#38bdf8" : (selectedEvent.type === "update" ? "#818cf8" : "#fb923c") }}>
+                    {selectedEvent.type === "message" ? "GHL Outbound Message" : (selectedEvent.type === "update" ? "GHL Update Log" : "Phone Call Event")}
                   </span>
                 </div>
                 <div>
@@ -865,6 +934,18 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                     </div>
                   </>
                 )}
+                {selectedEvent.type === "message" && (
+                  <>
+                    <div>
+                      <span style={{ color: "var(--text-secondary)", display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "2px" }}>RECIPIENT (CONTACT)</span>
+                      <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>{selectedEvent.data.contactName}</span>
+                    </div>
+                    <div style={{ gridColumn: "span 2" }}>
+                      <span style={{ color: "var(--text-secondary)", display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "2px" }}>MESSAGE BODY</span>
+                      <span style={{ fontWeight: 700, color: "var(--text-primary)", fontStyle: "italic", whiteSpace: "normal" }}>"{selectedEvent.data.body}"</span>
+                    </div>
+                  </>
+                )}
               </div>
 
               {selectedEvent.data.details && (
@@ -881,8 +962,8 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
               <div className="tooltip-title">{hoveredItem.agent}</div>
               <div className="tooltip-row">
                 <span className="tooltip-label">Type:</span>
-                <span className="tooltip-value" style={{ color: hoveredItem.type === "update" ? "#818cf8" : "#fb923c" }}>
-                  {hoveredItem.type === "update" ? "GHL Update" : "Call Event"}
+                <span className="tooltip-value" style={{ color: hoveredItem.type === "message" ? "#38bdf8" : (hoveredItem.type === "update" ? "#818cf8" : "#fb923c") }}>
+                  {hoveredItem.type === "message" ? "GHL Outbound Message" : (hoveredItem.type === "update" ? "GHL Update" : "Call Event")}
                 </span>
               </div>
               <div className="tooltip-row">
@@ -1051,7 +1132,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       {(showAll || activeSection === "exec-sprints") && (
         <section className="card">
           <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-            <h2 style={{ margin: 0 }}>Table 2: Today's (July 17) New Leads Conversion Sprints</h2>
+            <h2 style={{ margin: 0 }}>Table 2: Today's ({formattedGlossaryDate}) New Leads Conversion Sprints</h2>
             
             {/* Table 2 controls */}
             <div className="no-print" style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>

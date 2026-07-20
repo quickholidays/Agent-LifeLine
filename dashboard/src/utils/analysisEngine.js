@@ -24,43 +24,108 @@ export function normalizeAgentName(name) {
     .join(" ");
 }
 
-// Helper to convert date to BST (UTC + 1 hour) with timezone-robust checking
-export function toBST(dateStr) {
+// Helper to convert date to BST standard timezone-robust checking (interprets string directly as UTC components)
+export function toBST(dateStr, targetDateStr = "2026-07-17") {
   if (!dateStr) return null;
   const cleanStr = dateStr.trim();
-  
-  // Date-only string like "Jul 17 2026"
-  if (!cleanStr.includes(":")) {
-    const parts = cleanStr.replace(/,/g, "").split(/\s+/);
-    if (parts.length >= 3) {
-      const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-      const mIdx = monthNames.indexOf(parts[0].toLowerCase().slice(0, 3));
-      const day = parseInt(parts[1], 10);
-      const year = parseInt(parts[2], 10);
-      if (mIdx !== -1 && !isNaN(day) && !isNaN(year)) {
-        return new Date(Date.UTC(year, mIdx, day, 12, 0, 0));
+
+  // Parse target date components
+  const [targetYear, targetMonth, targetDay] = targetDateStr.split("-").map(Number);
+
+  // Try to match hours, minutes, seconds from the string
+  const timeRegex = /(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?/i;
+  const match = cleanStr.match(timeRegex);
+
+  let hours = 12;
+  let minutes = 0;
+  let seconds = 0;
+
+  if (match) {
+    hours = parseInt(match[1], 10);
+    minutes = parseInt(match[2], 10);
+    if (match[3]) {
+      seconds = parseInt(match[3], 10);
+    }
+    const ampm = match[4];
+    if (ampm) {
+      const lower = ampm.toLowerCase();
+      if (lower === "pm" && hours < 12) {
+        hours += 12;
+      } else if (lower === "am" && hours === 12) {
+        hours = 0;
       }
     }
   }
 
-  const d = new Date(cleanStr);
-  if (isNaN(d.getTime())) return null;
+  // Parse year, month, and day from the string (forcing UTC) to prevent local browser timezone offset shifts
+  let year = targetYear;
+  let monthIdx = targetMonth - 1;
+  let day = targetDay;
 
-  // Timezone check: if it was meant to be July 17 but offset shifted it
-  if (cleanStr.includes("Jul 17") || cleanStr.includes("2026-07-17")) {
-    const localHr = d.getHours();
-    const localMin = d.getMinutes();
-    const localSec = d.getSeconds();
-    return new Date(Date.UTC(2026, 6, 17, localHr, localMin, localSec));
+  // Format 1: ISO YYYY-MM-DD
+  const isoMatch = cleanStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+  // Format 2: US/UK Slash format MM/DD/YYYY or DD/MM/YYYY
+  const slashMatch = cleanStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  // Format 3: Named month format "Jul 17, 2026"
+  const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  let namedMonthIdx = -1;
+  let namedDay = -1;
+  let namedYear = -1;
+
+  const monthWords = cleanStr.toLowerCase().replace(/,/g, "").split(/\s+/);
+  for (let i = 0; i < monthWords.length; i++) {
+    const word = monthWords[i];
+    const idx = monthNames.findIndex(m => word.startsWith(m));
+    if (idx !== -1) {
+      namedMonthIdx = idx;
+      const numbers = monthWords.map(w => parseInt(w, 10)).filter(num => !isNaN(num));
+      if (numbers.length >= 2) {
+        namedYear = numbers.find(num => num > 1900 && num < 2100) || targetYear;
+        namedDay = numbers.find(num => num >= 1 && num <= 31 && num !== namedYear) || targetDay;
+      }
+      break;
+    }
   }
 
-  return new Date(d.getTime() + 1 * 60 * 60 * 1000);
+  if (isoMatch) {
+    year = parseInt(isoMatch[1], 10);
+    monthIdx = parseInt(isoMatch[2], 10) - 1;
+    day = parseInt(isoMatch[3], 10);
+  } else if (slashMatch) {
+    const part1 = parseInt(slashMatch[1], 10);
+    const part2 = parseInt(slashMatch[2], 10);
+    const part3 = parseInt(slashMatch[3], 10);
+
+    year = part3;
+    if (part1 === targetMonth || part2 === targetDay) {
+      monthIdx = part1 - 1;
+      day = part2;
+    } else if (part2 === targetMonth || part1 === targetDay) {
+      monthIdx = part2 - 1;
+      day = part1;
+    } else {
+      if (part1 > 12) {
+        monthIdx = part2 - 1;
+        day = part1;
+      } else {
+        monthIdx = part1 - 1;
+        day = part2;
+      }
+    }
+  } else if (namedMonthIdx !== -1) {
+    year = namedYear;
+    monthIdx = namedMonthIdx;
+    day = namedDay;
+  }
+
+  return new Date(Date.UTC(year, monthIdx, day, hours, minutes, seconds));
 }
 
-// Check if a BST Date object is strictly July 17, 2026
-export function isJuly17BST(date) {
+// Check if a BST Date object is strictly targetDateStr
+export function isJuly17BST(date, targetDateStr = "2026-07-17") {
   if (!date) return false;
-  return date.getUTCFullYear() === 2026 && date.getUTCMonth() === 6 && date.getUTCDate() === 17;
+  const [yr, mo, dy] = targetDateStr.split("-").map(Number);
+  return date.getUTCFullYear() === yr && date.getUTCMonth() === mo - 1 && date.getUTCDate() === dy;
 }
 
 // Parse phone number to digits only (digits only, e.g. +447865964771 -> 447865964771)
@@ -89,6 +154,7 @@ export function processAgentData(
   bookedLeadsRows = [],
   apptBookedLeadsRows = [],
   closedLeadsRows = [],
+  targetDateStr = "2026-07-17",
   maxBreakGapMinutes = 30,
   nominalActionMinutes = 5
 ) {
@@ -156,8 +222,8 @@ export function processAgentData(
     initAgentSegment(agent);
     agentSegmentations[agent].newLeads++;
 
-    const bstCreated = toBST(row["Created on"]);
-    if (isJuly17BST(bstCreated)) {
+    const bstCreated = toBST(row["Created on"], targetDateStr);
+    if (isJuly17BST(bstCreated, targetDateStr)) {
       agentSegmentations[agent].newLeadsToday++;
     }
   });
@@ -168,8 +234,8 @@ export function processAgentData(
     initAgentSegment(agent);
     agentSegmentations[agent].bookedLeads++;
 
-    const bstCreated = toBST(row["Created on"]);
-    if (isJuly17BST(bstCreated)) {
+    const bstCreated = toBST(row["Created on"], targetDateStr);
+    if (isJuly17BST(bstCreated, targetDateStr)) {
       agentSegmentations[agent].bookedLeadsToday++;
     }
   });
@@ -180,8 +246,8 @@ export function processAgentData(
     initAgentSegment(agent);
     agentSegmentations[agent].apptBookedLeads++;
 
-    const bstCreated = toBST(row["Created on"]);
-    if (isJuly17BST(bstCreated)) {
+    const bstCreated = toBST(row["Created on"], targetDateStr);
+    if (isJuly17BST(bstCreated, targetDateStr)) {
       agentSegmentations[agent].apptBookedLeadsToday++;
     }
   });
@@ -205,7 +271,7 @@ export function processAgentData(
     const status = row["Call status"] || row["Call Status"] || row["call_status"];
     const direction = row.Direction || row.direction || "unknown";
 
-    const bstTime = toBST(timestamp);
+    const bstTime = toBST(timestamp, targetDateStr);
     if (!bstTime) return;
 
     const agent = normalizeAgentName(findAgent(cPhone, cName));
@@ -223,7 +289,7 @@ export function processAgentData(
       }
       agentCalls[agent].push(call);
 
-      if (isJuly17BST(bstTime)) {
+      if (isJuly17BST(bstTime, targetDateStr)) {
         bstCallsList.push({
           agent,
           time: bstTime,
@@ -249,7 +315,7 @@ export function processAgentData(
 
     if (!rawAgent || !dtVal) return;
 
-    const bstTime = toBST(dtVal);
+    const bstTime = toBST(dtVal, targetDateStr);
     if (!bstTime) return;
 
     const agentClean = normalizeAgentName(rawAgent);
@@ -268,7 +334,7 @@ export function processAgentData(
 
     agentActivities[agentClean].push(activity);
 
-    if (isJuly17BST(bstTime)) {
+    if (isJuly17BST(bstTime, targetDateStr)) {
       bstUpdatesList.push({
         agent: agentClean,
         time: bstTime,
@@ -295,9 +361,9 @@ export function processAgentData(
     if (!assigned) return;
 
     const marginAddedDate = row["Margin Added Date"] || row["margin_added_date"];
-    const bstMarginDate = toBST(marginAddedDate);
+    const bstMarginDate = toBST(marginAddedDate, targetDateStr);
 
-    if (isJuly17BST(bstMarginDate)) {
+    if (isJuly17BST(bstMarginDate, targetDateStr)) {
       const marginVal = parseFloat(row["Margin Amount"] || row["Margin value"] || row["Lead Value"] || 0);
       agentMargins[assigned] = (agentMargins[assigned] || 0) + marginVal;
     }
@@ -410,7 +476,7 @@ export function processAgentData(
     let notesCount = 0;
 
     activities.forEach((act) => {
-      if (isJuly17BST(act.dt)) {
+      if (isJuly17BST(act.dt, targetDateStr)) {
         if (act.module === "NOTE") {
           notesCount++;
         }
@@ -444,8 +510,8 @@ export function processAgentData(
     const convertedToday = seg.bookedLeadsToday + seg.apptBookedLeadsToday;
     const todayConvRate = seg.newLeadsToday > 0 ? (convertedToday / seg.newLeadsToday) * 100 : 0.0;
 
-    // Table 3 Call Metrics Calculations (for July 17, 2026 BST only)
-    const callsToday = (agentCalls[agent] || []).filter((c) => isJuly17BST(new Date(c.timestamp)));
+    // Table 3 Call Metrics Calculations (for targetDateStr BST only)
+    const callsToday = (agentCalls[agent] || []).filter((c) => isJuly17BST(new Date(c.timestamp), targetDateStr));
     
     let outboundCount = 0;
     let outboundAttended = 0;

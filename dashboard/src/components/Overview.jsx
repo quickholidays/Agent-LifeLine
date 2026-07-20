@@ -3,7 +3,22 @@
 import React from "react";
 import PieChart from "./PieChart";
 
-export default function Overview({ agents, stageChanges = {} }) {
+export default function Overview({ agents, stageChanges = {}, reportDate = "2026-07-17" }) {
+  const [selectedAgentName, setSelectedAgentName] = React.useState("all");
+  const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const dropdownRef = React.useRef(null);
+
+  // Close dropdown on outside click
+  React.useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const chartColors = ["#4f46e5", "#8b5cf6", "#0ea5e9", "#71a758", "#c9b336", "#db8324", "#ef4444"];
 
   // Team summary aggregates
@@ -33,7 +48,11 @@ export default function Overview({ agents, stageChanges = {} }) {
 
   // Source distribution
   const sourceCounts = {};
-  agents.forEach((a) => {
+  const agentsToProcess = selectedAgentName === "all" 
+    ? agents 
+    : agents.filter(a => a.name === selectedAgentName);
+
+  agentsToProcess.forEach((a) => {
     const list = a.details?.actions_list || [];
     list.forEach((act) => {
       sourceCounts[act.module] = (sourceCounts[act.module] || 0) + 1;
@@ -59,7 +78,9 @@ export default function Overview({ agents, stageChanges = {} }) {
           <div className="kpi-info">
             <span className="kpi-title" style={{ color: "rgba(255,255,255,0.8)" }}>Margin Generated Today</span>
             <h3 className="kpi-value">${totalMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
-            <p className="kpi-subtext" style={{ color: "rgba(255,255,255,0.7)" }}>July 17 BST additions</p>
+            <p className="kpi-subtext" style={{ color: "rgba(255,255,255,0.7)" }}>
+              {new Date(reportDate).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} BST additions
+            </p>
           </div>
         </div>
 
@@ -189,61 +210,103 @@ export default function Overview({ agents, stageChanges = {} }) {
         </section>
       </div>
 
-      {/* Support & Source Split */}
-      <div className="dashboard-split" style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap" }}>
-        {/* Support Alerts Checklist */}
-        <section className="card" style={{ flex: 1, minWidth: "300px" }}>
-          <div className="card-header">
-            <h2>
-              <i className="fa-solid fa-list-check"></i> Quality Control Checklist
-            </h2>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
-            {alerts.map((alert, idx) => (
+      {/* Source breakdown bar list */}
+      <section className="card" style={{ width: "100%" }}>
+        <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+          <h2>
+            <i className="fa-solid fa-circle-nodes"></i> Source Distribution
+          </h2>
+          <div ref={dropdownRef} style={{ position: "relative" }}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="custom-select-small"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "0.5rem",
+                padding: "0.45rem 1rem",
+                borderRadius: "8px",
+                background: "var(--input-bg)",
+                border: "1px solid var(--input-border)",
+                color: "var(--text-primary)",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                minWidth: "160px"
+              }}
+            >
+              <span>{selectedAgentName === "all" ? "All Agents" : selectedAgentName}</span>
+              <i className={`fa-solid fa-chevron-down`} style={{ fontSize: "0.7rem", color: "var(--text-secondary)", transition: "transform 0.2s", transform: dropdownOpen ? "rotate(180deg)" : "none" }}></i>
+            </button>
+            
+            {dropdownOpen && (
               <div
-                key={idx}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "0.6rem 0.8rem",
-                  background: "rgba(0,0,0,0.02)",
+                  position: "absolute",
+                  top: "105%",
+                  right: 0,
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--card-border)",
                   borderRadius: "8px",
-                  borderLeft: `4px solid ${alert.resolved ? "var(--success)" : "var(--primary)"}`,
+                  boxShadow: "var(--shadow-lg)",
+                  zIndex: 200,
+                  minWidth: "180px",
+                  maxHeight: "260px",
+                  overflowY: "auto",
+                  padding: "0.3rem"
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <i
-                    className={`fa-regular ${alert.resolved ? "fa-circle-check" : "fa-circle"}`}
-                    style={{ color: alert.resolved ? "var(--success)" : "var(--text-secondary)" }}
-                  ></i>
-                  <span
-                    style={{
-                      fontSize: "0.82rem",
-                      textDecoration: alert.resolved ? "line-through" : "none",
-                      color: alert.resolved ? "var(--text-secondary)" : "var(--text-primary)",
-                    }}
-                  >
-                    {alert.text}
-                  </span>
+                <div
+                  onClick={() => {
+                    setSelectedAgentName("all");
+                    setDropdownOpen(false);
+                  }}
+                  style={{
+                    padding: "0.45rem 0.75rem",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "0.8rem",
+                    fontWeight: selectedAgentName === "all" ? 700 : 500,
+                    background: selectedAgentName === "all" ? "rgba(var(--primary-rgb, 14), 165, 233, 0.08)" : "transparent",
+                    color: selectedAgentName === "all" ? "var(--primary)" : "var(--text-primary)",
+                    transition: "all 0.15s ease"
+                  }}
+                  onMouseEnter={(e) => { if (selectedAgentName !== "all") e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                  onMouseLeave={(e) => { if (selectedAgentName !== "all") e.currentTarget.style.background = "transparent"; }}
+                >
+                  All Agents
                 </div>
-                <span className="badge" style={{ fontSize: "0.7rem", backgroundColor: alert.resolved ? "var(--success-glow)" : "var(--primary-glow)", color: alert.resolved ? "var(--success)" : "var(--primary)" }}>
-                  {alert.label}
-                </span>
+                {agents.map(a => (
+                  <div
+                    key={a.name}
+                    onClick={() => {
+                      setSelectedAgentName(a.name);
+                      setDropdownOpen(false);
+                    }}
+                    style={{
+                      padding: "0.45rem 0.75rem",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "0.8rem",
+                      fontWeight: selectedAgentName === a.name ? 700 : 500,
+                      background: selectedAgentName === a.name ? "rgba(var(--primary-rgb, 14), 165, 233, 0.08)" : "transparent",
+                      color: selectedAgentName === a.name ? "var(--primary)" : "var(--text-primary)",
+                      transition: "all 0.15s ease"
+                    }}
+                    onMouseEnter={(e) => { if (selectedAgentName !== a.name) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                    onMouseLeave={(e) => { if (selectedAgentName !== a.name) e.currentTarget.style.background = "transparent"; }}
+                  >
+                    {a.name}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        </section>
-
-        {/* Source breakdown bar list */}
-        <section className="card" style={{ flex: 1, minWidth: "300px" }}>
-          <div className="card-header">
-            <h2>
-              <i className="fa-solid fa-circle-nodes"></i> Source Distribution
-            </h2>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
-            {Object.entries(sourceCounts).map(([source, count], idx) => {
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+          {Object.keys(sourceCounts).length > 0 ? (
+            Object.entries(sourceCounts).map(([source, count], idx) => {
               const maxCount = Math.max(...Object.values(sourceCounts));
               const pct = (count / maxCount) * 100;
               return (
@@ -264,10 +327,14 @@ export default function Overview({ agents, stageChanges = {} }) {
                   </div>
                 </div>
               );
-            })}
-          </div>
-        </section>
-      </div>
+            })
+          ) : (
+            <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+              No operations recorded for {selectedAgentName === "all" ? "the team" : selectedAgentName} on this date.
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

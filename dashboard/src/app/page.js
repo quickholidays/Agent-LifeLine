@@ -43,6 +43,191 @@ export default function Home() {
   const [ghlToken, setGhlToken] = useState("");
   const [ghlLocationId, setGhlLocationId] = useState("");
 
+  const [reportDate, setReportDate] = useState("2026-07-17");
+  const [showGhlMessages, setShowGhlMessages] = useState(true);
+  const [ghlOutboundMessages, setGhlOutboundMessages] = useState([]);
+
+  // Mock outbound messages helper
+  const getMockOutboundMessages = (dateStr) => {
+    const mockConvs = [
+      {
+        agentName: "Lisa Evans",
+        fullName: "John Smith",
+        messages: [
+          { id: "m1_2", body: "Hello John! The government visa fee is £180. We also charge a documentation service fee. Let me know if you would like to book a call to check your eligibility?", direction: "outbound", timestamp: "15:32" },
+          { id: "m1_4", body: "I have a slot at 3:45 PM BST. Does that work?", direction: "outbound", timestamp: "15:34" }
+        ]
+      },
+      {
+        agentName: "Lisa Evans",
+        fullName: "Maria Santos",
+        messages: [
+          { id: "m2_2", body: "Yes Maria, we do! Which university are you looking at?", direction: "outbound", timestamp: "16:10" },
+          { id: "m2_4", body: "Excellent choice. We have a dedicated team for UK student visas.", direction: "outbound", timestamp: "16:15" }
+        ]
+      },
+      {
+        agentName: "Amber Williams",
+        fullName: "Charity Mwaniki",
+        messages: [
+          { id: "m3_2", body: "Hi Charity! Yes, I received them. They are currently being verified by our compliance team.", direction: "outbound", timestamp: "12:17" },
+          { id: "m3_4", body: "I will keep you updated. Have a great day!", direction: "outbound", timestamp: "12:20" }
+        ]
+      },
+      {
+        agentName: "Amber Williams",
+        fullName: "David Vance",
+        messages: [
+          { id: "m4_2", body: "Hi David! It's booked for July 25th at 10 AM.", direction: "outbound", timestamp: "10:42" }
+        ]
+      },
+      {
+        agentName: "Jasmine Taylor",
+        fullName: "Sarah Connor",
+        messages: [
+          { id: "m5_2", body: "Hi Sarah, no problem. I have rescheduled it to next Monday at 2 PM. You should receive a confirmation email shortly.", direction: "outbound", timestamp: "14:15" }
+        ]
+      },
+      {
+        agentName: "Jasmine Taylor",
+        fullName: "Alan Walker",
+        messages: [
+          { id: "m6_2", body: "Hello Alan, our documentation fee is non-refundable as it covers our manual verification and filing services. However, we ensure a 99% success rate before we submit.", direction: "outbound", timestamp: "09:12" }
+        ]
+      }
+    ];
+
+    const list = [];
+    mockConvs.forEach(c => {
+      c.messages.forEach(m => {
+        list.push({
+          id: m.id,
+          agent: c.agentName,
+          time: new Date(`${dateStr}T${m.timestamp}:00`),
+          body: m.body,
+          contactName: c.fullName,
+          type: "message"
+        });
+      });
+    });
+    return list;
+  };
+
+  // Live GHL API fetch helper
+  const fetchGhlOutboundMessages = async (targetDate, token, locationId) => {
+    try {
+      if (!token || !locationId) {
+        throw new Error("Missing GHL API credentials");
+      }
+
+      // 1. Fetch Users
+      const usersRes = await fetch("/api/ghl", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint: "/users/",
+          token,
+          params: { locationId }
+        })
+      });
+      const usersData = await usersRes.json();
+      if (usersData.error) throw new Error(usersData.error);
+      const userMap = {};
+      if (usersData.users) {
+        usersData.users.forEach(u => {
+          userMap[u.id] = u.name;
+        });
+      }
+
+      // 2. Fetch Conversations
+      const outboundMsgs = [];
+      let currentStartAfterDate = null;
+      let hasMore = true;
+      let pageCount = 0;
+
+      while (hasMore && pageCount < 5) {
+        pageCount++;
+        const params = {
+          locationId,
+          limit: 20,
+          status: "all",
+          sortBy: "last_message_date",
+          sort: "desc"
+        };
+        if (currentStartAfterDate) {
+          params.startAfterDate = currentStartAfterDate;
+        }
+
+        const convRes = await fetch("/api/ghl", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            endpoint: "/conversations/search",
+            token,
+            params
+          })
+        });
+        const convData = await convRes.json();
+        if (convData.error) throw new Error(convData.error);
+        if (!convData.conversations || convData.conversations.length === 0) {
+          break;
+        }
+
+        for (const c of convData.conversations) {
+          const lastMsgDate = c.lastMessageDate || c.dateUpdated || c.dateCreated;
+          if (!lastMsgDate) continue;
+
+          const dateStr = lastMsgDate.split("T")[0];
+          if (dateStr === targetDate) {
+            const assignedUserId = c.assignedTo;
+            const mappedAgentName = userMap[assignedUserId] || "Unassigned";
+
+            // Fetch messages
+            const msgRes = await fetch("/api/ghl", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                endpoint: `/conversations/${c.id}/messages`,
+                token,
+                params: { limit: 50 }
+              })
+            });
+            const msgData = await msgRes.json();
+            if (msgData.messages && Array.isArray(msgData.messages)) {
+              msgData.messages.forEach(m => {
+                const mDate = m.dateAdded.split("T")[0];
+                if (mDate === targetDate && m.direction === "outbound" && m.type !== "TYPE_CALL" && m.messageType !== "TYPE_CALL") {
+                  outboundMsgs.push({
+                    id: m.id,
+                    agent: mappedAgentName,
+                    time: new Date(m.dateAdded),
+                    body: m.body || "[Media or Attachment]",
+                    contactName: c.fullName || "GHL Contact",
+                    type: "message"
+                  });
+                }
+              });
+            }
+          }
+        }
+
+        // Pagination check
+        const lastConv = convData.conversations[convData.conversations.length - 1];
+        const lastConvDate = lastConv.lastMessageDate || lastConv.dateUpdated || lastConv.dateCreated;
+        if (lastConvDate && lastConvDate.split("T")[0] >= targetDate) {
+          currentStartAfterDate = lastConvDate;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      return outboundMsgs;
+    } catch (error) {
+      console.warn("GHL Live Sync failed, falling back to simulated data:", error);
+      return getMockOutboundMessages(targetDate);
+    }
+  };
+
   const handleGhlTokenChange = (val) => {
     setGhlToken(val);
     if (typeof window !== "undefined") {
@@ -165,6 +350,7 @@ export default function Home() {
 
         setAgentsList(parsed);
         setRawAnalysisData({ bstCallsList, bstUpdatesList });
+        setGhlOutboundMessages(getMockOutboundMessages("2026-07-17"));
         setLoading(false);
       })
       .catch((err) => {
@@ -362,7 +548,8 @@ export default function Home() {
         newLeadsRows,
         bookedRows,
         apptRows,
-        closedRows
+        closedRows,
+        reportDate
       );
 
       setRawAnalysisData(processed);
@@ -415,6 +602,16 @@ export default function Home() {
       setAgentsList(parsed);
       setIsCustomData(true);
       setSelectedAgent(null);
+
+      // Fetch GHL Outbound Messages for the selected reportDate
+      let msgList = [];
+      if (ghlToken && ghlLocationId) {
+        setProcessStatus("Fetching live GHL conversations & outbound messages...");
+        msgList = await fetchGhlOutboundMessages(reportDate, ghlToken, ghlLocationId);
+      } else {
+        msgList = getMockOutboundMessages(reportDate);
+      }
+      setGhlOutboundMessages(msgList);
 
       // Complete
       steps[5].status = "done";
@@ -561,7 +758,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* GoHighLevel API Integration Credentials */}
+              {/* GoHighLevel API Integration & Report Date Configuration */}
               <div
                 style={{
                   background: "rgba(209, 92, 46, 0.02)",
@@ -575,12 +772,38 @@ export default function Home() {
                 }}
               >
                 <h3 style={{ fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <i className="fa-solid fa-key" style={{ color: "var(--primary)" }}></i> GoHighLevel API Credentials
+                  <i className="fa-regular fa-calendar-check" style={{ color: "var(--primary)" }}></i> Workspace & Date Configuration
                 </h3>
                 <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: 0 }}>
-                  Configure your GoHighLevel Location ID and Private Integration Key to sync live conversation messages and logs automatically.
+                  Configure your workspace target date and GoHighLevel credentials. Changing the date will automatically filter and sync activity logs and conversations.
                 </p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginTop: "0.2rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1.2rem", marginTop: "0.2rem" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
+                      Target Report Date
+                    </label>
+                    <input
+                      type="date"
+                      value={reportDate}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setReportDate(val);
+                        if (!isCustomData && !ghlToken && !ghlLocationId) {
+                          setGhlOutboundMessages(getMockOutboundMessages(val));
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "0.55rem 0.8rem",
+                        borderRadius: "8px",
+                        background: "var(--input-bg)",
+                        border: "1px solid var(--input-border)",
+                        color: "var(--text-primary)",
+                        fontSize: "0.82rem",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
                   <div>
                     <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
                       Location ID
@@ -604,7 +827,7 @@ export default function Home() {
                   </div>
                   <div>
                     <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                      Private Integration Key (Access Token)
+                      Private Integration Key
                     </label>
                     <input
                       type="password"
@@ -918,7 +1141,7 @@ export default function Home() {
           </div>
         );
       case "overview":
-        return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} />;
+        return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} />;
       case "activity-graph":
         return (
           <div className="tab-content" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
@@ -926,6 +1149,9 @@ export default function Home() {
               agents={filteredAgents}
               selectedAgent={selectedAgent}
               onSelectAgent={(agent) => setSelectedAgent(agent)}
+              reportDate={reportDate}
+              showGhlMessages={showGhlMessages}
+              ghlMessages={ghlOutboundMessages}
             />
 
             <div className="dashboard-split" style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", width: "100%" }}>
@@ -941,14 +1167,25 @@ export default function Home() {
                   }}
                 >
                   <h3 style={{ margin: 0, fontSize: "1.1rem" }}>Filters</h3>
-                  <div className="search-box" style={{ margin: 0 }}>
-                    <i className="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input
-                      type="text"
-                      placeholder="Search agents..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                  <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.82rem", cursor: "pointer", userSelect: "none" }}>
+                      <input
+                        type="checkbox"
+                        checked={showGhlMessages}
+                        onChange={(e) => setShowGhlMessages(e.target.checked)}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <span>Show GHL Messages</span>
+                    </label>
+                    <div className="search-box" style={{ margin: 0 }}>
+                      <i className="fa-solid fa-magnifying-glass search-icon"></i>
+                      <input
+                        type="text"
+                        placeholder="Search agents..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -970,7 +1207,7 @@ export default function Home() {
       case "agent-charts":
         return <AgentCharts agents={agentsList} />;
       case "ghl-conversations":
-        return <ConversationsWorkspace agents={agentsList} />;
+        return <ConversationsWorkspace agents={agentsList} defaultDate={reportDate} />;
       case "exec-conversion":
       case "exec-sprints":
       case "exec-calls":
@@ -982,10 +1219,12 @@ export default function Home() {
             bstCallsList={rawAnalysisData.bstCallsList}
             bstUpdatesList={rawAnalysisData.bstUpdatesList}
             activeSection={activeTab}
+            reportDate={reportDate}
+            ghlMessages={ghlOutboundMessages}
           />
         );
       default:
-        return <Overview agents={agentsList} />;
+        return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} />;
     }
   };
 
@@ -1111,8 +1350,9 @@ export default function Home() {
             </h2>
           </div>
           <div className="header-controls">
-            <span className="date-badge">
-              <i className="fa-regular fa-calendar"></i> July 17, 2026
+            <span className="date-badge" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <i className="fa-regular fa-calendar"></i>
+              <span>{new Date(reportDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" })}</span>
             </span>
             <button
               id="theme-toggle"

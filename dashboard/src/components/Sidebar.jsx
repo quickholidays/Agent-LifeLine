@@ -9,7 +9,6 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
     { id: "activity-graph", label: "Activity Graph", icon: "fa-chart-column" },
     { id: "agent-progress", label: "Agent Progress", icon: "fa-bars-progress" },
     { id: "agent-charts", label: "Progression Charts", icon: "fa-chart-gantt" },
-    { id: "ghl-conversations", label: "GHL Conversations", icon: "fa-comments" },
     { id: "exec-conversion", label: "Agent Conversion", icon: "fa-file-invoice" },
     { id: "exec-sprints", label: "Lead Sprints", icon: "fa-running" },
     { id: "exec-calls", label: "Call Analytics", icon: "fa-phone-volume" },

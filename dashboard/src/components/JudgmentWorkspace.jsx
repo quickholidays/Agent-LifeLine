@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import JudgmentTimeline from "./JudgmentTimeline";
 import PieChart from "./PieChart";
 
-export default function JudgmentWorkspace({ agents, currentAgentName, onSelectAgent }) {
+export default function JudgmentWorkspace({ agents, currentAgentName, onSelectAgent, reportDate = "2026-07-17" }) {
   const [startHour, setStartHour] = useState(0);
   const [endHour, setEndHour] = useState(24);
   const [notes, setNotes] = useState("");
@@ -235,7 +235,7 @@ export default function JudgmentWorkspace({ agents, currentAgentName, onSelectAg
                 </div>
               </div>
             </div>
-            <JudgmentTimeline agent={activeAgent} startHour={startHour} endHour={endHour} />
+            <JudgmentTimeline agent={activeAgent} startHour={startHour} endHour={endHour} reportDate={reportDate} />
             <div className="timeline-tip">
               <i className="fa-solid fa-circle-question"></i> Swimlanes separate: 1. Active Blocks & Breaks, 2. Audit Actions (Notes/Opps/Contacts), 3. Calls. Hover blocks/markers for details.
             </div>

@@ -155,7 +155,7 @@ export default function AgentDetails({ agent, onClose }) {
   const maxHourlyCount = Math.max(...hourlyCounts, 1);
 
   return (
-    <section className="card details-card" id="details-panel" style={{ flex: 1, minHeight: "880px", maxHeight: "100vh", overflowY: "auto" }}>
+    <section className="card details-card" id="details-panel" style={{ flex: 1, overflowY: "auto" }}>
       <div id="details-active-state" className="details-content">
         <div className="details-header">
           <div className="agent-avatar" id="agent-avatar-char" style={{ background: "var(--primary)" }}>
@@ -290,7 +290,7 @@ export default function AgentDetails({ agent, onClose }) {
           </div>
 
           {/* Event Details Logs List */}
-          <div style={{ maxHeight: "100px", overflowY: "auto", border: "1px solid var(--card-border)", borderRadius: "8px", background: "var(--bg-color)" }}>
+          <div style={{ maxHeight: "245px", overflowY: "auto", border: "1px solid var(--card-border)", borderRadius: "8px", background: "var(--bg-color)" }}>
             {filteredEvents.length > 0 ? (
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
                 <thead>

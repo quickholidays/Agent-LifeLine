@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from "react";
 
-export default function JudgmentTimeline({ agent, startHour, endHour }) {
+export default function JudgmentTimeline({ agent, startHour, endHour, reportDate = "2026-07-17" }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [hoveredItem, setHoveredItem] = useState(null); // { type, data, x, y }
@@ -22,8 +22,14 @@ export default function JudgmentTimeline({ agent, startHour, endHour }) {
     danger: "#ef4444",
   };
 
-  const getMinTime = () => new Date(Date.UTC(2026, 6, 17, startHour, 0, 0));
-  const getMaxTime = () => new Date(Date.UTC(2026, 6, 17, endHour, 0, 0));
+  const getMinTime = () => {
+    const [yr, mo, dy] = reportDate.split("-").map(Number);
+    return new Date(Date.UTC(yr, mo - 1, dy, startHour, 0, 0));
+  };
+  const getMaxTime = () => {
+    const [yr, mo, dy] = reportDate.split("-").map(Number);
+    return new Date(Date.UTC(yr, mo - 1, dy, endHour, 0, 0));
+  };
 
   const getX = (timeStrOrMs, width) => {
     const timeMs = new Date(timeStrOrMs).getTime();
