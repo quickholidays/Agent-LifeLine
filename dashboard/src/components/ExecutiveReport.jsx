@@ -50,15 +50,15 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
   // Columns metadata definitions
   const table1ColumnsMetadata = [
     { key: "newLeads", label: "New Leads" },
-    { key: "referrals", label: "Referrals" },
-    { key: "apptBooked", label: "Appt Booked" },
-    { key: "closedLeads", label: "Closed Leads" },
-    { key: "bookedLeads", label: "Booked Leads" },
-    { key: "margin", label: "Margin ($)" },
-    { key: "interested", label: "Interested Stage" },
-    { key: "contacted", label: "Contacted Stage" },
-    { key: "notes", label: "Notes Count" },
-    { key: "generalConv", label: "General Conversion (%)" },
+    { key: "referrals", label: "Ref" },
+    { key: "apptBooked", label: "Appt" },
+    { key: "closedLeads", label: "Closed" },
+    { key: "bookedLeads", label: "Booked" },
+    { key: "margin", label: "Margin" },
+    { key: "interested", label: "Interest" },
+    { key: "contacted", label: "Contact" },
+    { key: "notes", label: "Notes" },
+    { key: "generalConv", label: "Conv %" },
   ];
 
   const table2ColumnsMetadata = [
@@ -615,20 +615,23 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
           <div style="border-left: 4px solid #1b365d; padding-left: 8px; color: #1b365d; font-weight: bold; font-size: 11pt; margin-top: 1.5rem; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px;">
             1. Agent Conversion & Lead Metrics
           </div>
+          <div style="font-size: 7.2pt; color: #64748b; margin-bottom: 0.5rem; font-style: italic; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            Glossary: REF = Referrals | APPT = Appointment Booked | CLOSED = Closed Leads | BOOKED = Booked Leads | INTEREST = Stage 'Interested' | CONTACT = Stage 'Contacted' | NOTES = Notes Updated | CONV % = Gen Conv Rate
+          </div>
           <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; font-size: 7.2pt; text-align: center; margin: 0 auto; table-layout: auto;">
             <thead>
               <tr style="background: #3c5a78; color: #ffffff; font-weight: bold;">
                 <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; width: 14%; white-space: nowrap;">AGENT</th>
                 <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">NEW LEADS</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">REFERRALS</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">APPT BOOKED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">CLOSED LEADS</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">BOOKED LEADS</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">REF</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">APPT</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">CLOSED</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">BOOKED</th>
                 <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">MARGIN</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">INTERESTED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">CONTACTED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">NOTES UPDATED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">CONV. RATE</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">INTEREST</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">CONTACT</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">NOTES</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; white-space: nowrap;">CONV %</th>
               </tr>
             </thead>
             <tbody>
@@ -713,22 +716,22 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             3. Detailed Call Metrics (${formattedGlossaryDate} BST)
           </div>
           <div style="font-size: 7.2pt; color: #64748b; margin-bottom: 0.5rem; font-style: italic; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-            Glossary: OUT = Outbound | IN = Inbound | MINS = Total Call Minutes | AVG = Avg Duration | ANS = Answered | MISS = Missed
+            Glossary: OUT = Outbound | IN = Inbound | CNT = Count | ANS = Answered | MISS = Missed | MINS = Total Call Minutes | AVG = Avg Duration (Mins)
           </div>
           <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #cbd5e1; font-size: 7.2pt; text-align: center; margin: 0 auto; table-layout: auto;">
             <thead>
               <tr style="background: #3c5a78; color: #ffffff; font-weight: bold;">
                 <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.8pt; text-align: center; width: 15%; white-space: nowrap;">AGENT</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT COUNT</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT ATTENDED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT MISSED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT TOTAL MINS</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT AVG (MINS)</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN COUNT</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN ATTENDED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN MISSED</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN TOTAL MINS</th>
-                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN AVG (MINS)</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT CNT</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT ANS</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT MISS</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT MINS</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">OUT AVG</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN CNT</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN ANS</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN MISS</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN MINS</th>
+                <th style="border: 1px solid #cbd5e1; padding: 5px 2px; font-size: 6.2pt; text-align: center; white-space: nowrap;">IN AVG</th>
               </tr>
             </thead>
             <tbody>
@@ -1192,12 +1195,12 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       <table style="width:100%;">
         <tr>
           <th ${thStyle("14%")}>AGENT</th>
-          <th ${thStyle("8%")}>OUT COUNT</th>
+          <th ${thStyle("8%")}>OUT CNT</th>
           <th ${thStyle("9%")}>OUT ANS</th>
           <th ${thStyle("9%")}>OUT MISS</th>
           <th ${thStyle("10%")}>OUT MINS</th>
           <th ${thStyle("8%")}>OUT AVG</th>
-          <th ${thStyle("8%")}>IN COUNT</th>
+          <th ${thStyle("8%")}>IN CNT</th>
           <th ${thStyle("8%")}>IN ANS</th>
           <th ${thStyle("8%")}>IN MISS</th>
           <th ${thStyle("9%")}>IN MINS</th>
@@ -1793,15 +1796,15 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                 <tr>
                   <th>Agent</th>
                   {table1VisibleCols.includes("newLeads") && <th style={{ backgroundColor: "rgba(56, 189, 248, 0.08)", color: "#38bdf8" }}>New Leads</th>}
-                  {table1VisibleCols.includes("referrals") && <th style={{ backgroundColor: "rgba(129, 140, 248, 0.08)", color: "#818cf8" }}>Referrals</th>}
-                  {table1VisibleCols.includes("apptBooked") && <th style={{ backgroundColor: "rgba(201, 179, 54, 0.08)", color: "var(--warning)" }}>Appt Booked</th>}
-                  {table1VisibleCols.includes("closedLeads") && <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "var(--danger)" }}>Closed Leads</th>}
-                  {table1VisibleCols.includes("bookedLeads") && <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)" }}>Booked Leads</th>}
-                  {table1VisibleCols.includes("margin") && <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)" }}>Margin ($)</th>}
-                  {table1VisibleCols.includes("interested") && <th>Interested Stage</th>}
-                  {table1VisibleCols.includes("contacted") && <th>Contacted Stage</th>}
-                  {table1VisibleCols.includes("notes") && <th>Notes Count</th>}
-                  {table1VisibleCols.includes("generalConv") && <th>General Conversion (%)</th>}
+                  {table1VisibleCols.includes("referrals") && <th style={{ backgroundColor: "rgba(129, 140, 248, 0.08)", color: "#818cf8" }}>Ref</th>}
+                  {table1VisibleCols.includes("apptBooked") && <th style={{ backgroundColor: "rgba(201, 179, 54, 0.08)", color: "var(--warning)" }}>Appt</th>}
+                  {table1VisibleCols.includes("closedLeads") && <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "var(--danger)" }}>Closed</th>}
+                  {table1VisibleCols.includes("bookedLeads") && <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)" }}>Booked</th>}
+                  {table1VisibleCols.includes("margin") && <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)" }}>Margin</th>}
+                  {table1VisibleCols.includes("interested") && <th>Interest</th>}
+                  {table1VisibleCols.includes("contacted") && <th>Contact</th>}
+                  {table1VisibleCols.includes("notes") && <th>Notes</th>}
+                  {table1VisibleCols.includes("generalConv") && <th>Conv %</th>}
                 </tr>
               </thead>
               <tbody>
@@ -2080,58 +2083,58 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             </div>
           </div>
           <div className="table-container">
-            <table className="print-table" style={{ fontSize: "0.78rem" }}>
+            <table className="print-table table-compact">
               <thead>
                 <tr>
                   <th style={{ minWidth: "130px" }}>Agent</th>
                   {table3VisibleCols.includes("outboundCount") && (
                     <th style={{ backgroundColor: "rgba(219, 131, 36, 0.08)", color: "#fb923c", whiteSpace: "nowrap" }}>
-                      Out Calls
+                      OUT CNT
                     </th>
                   )}
                   {table3VisibleCols.includes("outboundAttended") && (
                     <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
-                      Out Answered
+                      OUT ANS
                     </th>
                   )}
                   {table3VisibleCols.includes("outboundMissed") && (
                     <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "var(--danger)", whiteSpace: "nowrap" }}>
-                      Out Missed
+                      OUT MISS
                     </th>
                   )}
                   {table3VisibleCols.includes("outboundMinutes") && (
                     <th style={{ backgroundColor: "rgba(219, 131, 36, 0.08)", color: "#fb923c", whiteSpace: "nowrap" }}>
-                      Out Mins
+                      OUT MINS
                     </th>
                   )}
                   {table3VisibleCols.includes("outboundAvgDuration") && (
                     <th style={{ backgroundColor: "rgba(219, 131, 36, 0.08)", color: "#fb923c", whiteSpace: "nowrap" }}>
-                      Out Avg Dur
+                      OUT AVG
                     </th>
                   )}
                   {table3VisibleCols.includes("inboundCount") && (
                     <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
-                      In Calls
+                      IN CNT
                     </th>
                   )}
                   {table3VisibleCols.includes("inboundAttended") && (
                     <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
-                      In Answered
+                      IN ANS
                     </th>
                   )}
                   {table3VisibleCols.includes("inboundMissed") && (
                     <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "var(--danger)", whiteSpace: "nowrap" }}>
-                      In Missed
+                      IN MISS
                     </th>
                   )}
                   {table3VisibleCols.includes("inboundMinutes") && (
                     <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
-                      In Mins
+                      IN MINS
                     </th>
                   )}
                   {table3VisibleCols.includes("inboundAvgDuration") && (
                     <th style={{ backgroundColor: "rgba(113, 167, 88, 0.08)", color: "var(--success)", whiteSpace: "nowrap" }}>
-                      In Avg Dur
+                      IN AVG
                     </th>
                   )}
                 </tr>

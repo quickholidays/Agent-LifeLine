@@ -2130,3 +2130,30 @@ select option {
     text-align: center !important;
 }
 
+.table-compact th,
+.table-compact td {
+    padding: 0.45rem 0.5rem !important;
+    font-size: 0.72rem !important;
+}
+
+/* Custom styled horizontal scrollbar for tables */
+.table-container {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(219, 131, 36, 0.4) rgba(0, 0, 0, 0.05);
+}
+
+.table-container::-webkit-scrollbar {
+    height: 6px;
+    display: block !important;
+}
+.table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.01);
+}
+.table-container::-webkit-scrollbar-thumb {
+    background: rgba(219, 131, 36, 0.4);
+    border-radius: 4px;
+}
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(219, 131, 36, 0.8);
+}
+
