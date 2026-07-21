@@ -6,16 +6,16 @@ import React, { useState, useEffect, useRef } from "react";
 const MOCK_CONVERSATIONS = [
   {
     id: "conv_1",
-    agentName: "Lisa Evans",
-    fullName: "John Smith",
+    agentName: "Agent 11",
+    fullName: "Contact 1",
     phone: "+44 7700 900077",
-    email: "john.smith@gmail.com",
+    email: "contact1@gmail.com",
     channel: "TYPE_SMS", // SMS
     lastMessage: "Yes, works for me.",
     lastTime: "15:35",
     messages: [
       { id: "m1_1", body: "Hi, I saw your ad about the visa application. How much is the fee?", direction: "inbound", timestamp: "15:30" },
-      { id: "m1_2", body: "Hello John! The government visa fee is £180. We also charge a documentation service fee. Let me know if you would like to book a call to check your eligibility?", direction: "outbound", timestamp: "15:32" },
+      { id: "m1_2", body: "Hello Contact 1! The government visa fee is £180. We also charge a documentation service fee. Let me know if you would like to book a call to check your eligibility?", direction: "outbound", timestamp: "15:32" },
       { id: "m1_3", body: "Yes please, any slots today?", direction: "inbound", timestamp: "15:33" },
       { id: "m1_4", body: "I have a slot at 3:45 PM BST. Does that work?", direction: "outbound", timestamp: "15:34" },
       { id: "m1_5", body: "Yes, works for me.", direction: "inbound", timestamp: "15:35" },
@@ -24,83 +24,83 @@ const MOCK_CONVERSATIONS = [
   },
   {
     id: "conv_2",
-    agentName: "Lisa Evans",
-    fullName: "Maria Santos",
+    agentName: "Agent 11",
+    fullName: "Contact 2",
     phone: "+44 7700 900122",
-    email: "maria.santos@outlook.com",
+    email: "contact2@outlook.com",
     channel: "TYPE_IG_DIRECT", // Instagram
     lastMessage: "Excellent choice. We have a dedicated team for UK student visas.",
     lastTime: "16:15",
     messages: [
       { id: "m2_1", body: "Hi! Direct messaging you from Instagram. Do you help with student visas?", direction: "inbound", timestamp: "16:05" },
-      { id: "m2_2", body: "Yes Maria, we do! Which university are you looking at?", direction: "outbound", timestamp: "16:10" },
+      { id: "m2_2", body: "Yes Contact 2, we do! Which university are you looking at?", direction: "outbound", timestamp: "16:10" },
       { id: "m2_3", body: "I'm applying to UCL.", direction: "inbound", timestamp: "16:12" },
       { id: "m2_4", body: "Excellent choice. We have a dedicated team for UK student visas.", direction: "outbound", timestamp: "16:15" }
     ]
   },
   {
     id: "conv_3",
-    agentName: "Amber Williams",
-    fullName: "Charity Mwaniki",
+    agentName: "Agent 1",
+    fullName: "Contact 3",
     phone: "+254 712 345678",
-    email: "charity.m@yahoo.com",
+    email: "contact3@yahoo.com",
     channel: "TYPE_FB_MESSENGER", // Facebook Messenger
     lastMessage: "I will keep you updated. Have a great day!",
     lastTime: "12:20",
     messages: [
       { id: "m3_1", body: "Hello, I sent my documents yesterday. Can you confirm if you received them?", direction: "inbound", timestamp: "12:15" },
-      { id: "m3_2", body: "Hi Charity! Yes, I received them. They are currently being verified by our compliance team.", direction: "outbound", timestamp: "12:17" },
+      { id: "m3_2", body: "Hi Contact 3! Yes, I received them. They are currently being verified by our compliance team.", direction: "outbound", timestamp: "12:17" },
       { id: "m3_3", body: "Perfect. Let me know if you need anything else.", direction: "inbound", timestamp: "12:19" },
       { id: "m3_4", body: "I will keep you updated. Have a great day!", direction: "outbound", timestamp: "12:20" }
     ]
   },
   {
     id: "conv_4",
-    agentName: "Amber Williams",
-    fullName: "David Vance",
+    agentName: "Agent 1",
+    fullName: "Contact 4",
     phone: "+1 202 555 0143",
-    email: "david.vance@gmail.com",
+    email: "contact4@gmail.com",
     channel: "TYPE_WHATSAPP", // WhatsApp
     lastMessage: "Awesome, thank you!",
     lastTime: "10:45",
     messages: [
-      { id: "m4_1", body: "Hey Amber, what's the update on my appointment?", direction: "inbound", timestamp: "10:40" },
-      { id: "m4_2", body: "Hi David! It's booked for July 25th at 10 AM.", direction: "outbound", timestamp: "10:42" },
+      { id: "m4_1", body: "Hey Agent 1, what's the update on my appointment?", direction: "inbound", timestamp: "10:40" },
+      { id: "m4_2", body: "Hi Contact 4! It's booked for July 25th at 10 AM.", direction: "outbound", timestamp: "10:42" },
       { id: "m4_3", body: "Awesome, thank you!", direction: "inbound", timestamp: "10:45" }
     ]
   },
   {
     id: "conv_5",
-    agentName: "Jasmine Taylor",
-    fullName: "Sarah Connor",
+    agentName: "Agent 8",
+    fullName: "Contact 5",
     phone: "+44 7700 900554",
-    email: "sconnor@cyberdyne.com",
+    email: "contact5@cyberdyne.com",
     channel: "TYPE_EMAIL", // Email
     lastMessage: "You should receive a confirmation email shortly.",
     lastTime: "14:15",
     messages: [
       { id: "m5_1", body: "Hello team, I need to postpone my appointment scheduled for tomorrow.", direction: "inbound", timestamp: "14:00" },
-      { id: "m5_2", body: "Hi Sarah, no problem. I have rescheduled it to next Monday at 2 PM. You should receive a confirmation email shortly.", direction: "outbound", timestamp: "14:15" }
+      { id: "m5_2", body: "Hi Contact 5, no problem. I have rescheduled it to next Monday at 2 PM. You should receive a confirmation email shortly.", direction: "outbound", timestamp: "14:15" }
     ]
   },
   {
     id: "conv_6",
-    agentName: "Jasmine Taylor",
-    fullName: "Alan Walker",
+    agentName: "Agent 8",
+    fullName: "Contact 6",
     phone: "+47 900 12 345",
-    email: "alan@faded.no",
+    email: "contact6@faded.no",
     channel: "TYPE_SMS", // SMS
-    lastMessage: "Hello Alan, our documentation fee is non-refundable.",
+    lastMessage: "Hello Contact 6, our documentation fee is non-refundable.",
     lastTime: "09:12",
     messages: [
       { id: "m6_1", body: "Hi, can I get a refund if my application is rejected?", direction: "inbound", timestamp: "09:05" },
-      { id: "m6_2", body: "Hello Alan, our documentation fee is non-refundable as it covers our manual verification and filing services. However, we ensure a 99% success rate before we submit.", direction: "outbound", timestamp: "09:12" }
+      { id: "m6_2", body: "Hello Contact 6, our documentation fee is non-refundable as it covers our manual verification and filing services. However, we ensure a 99% success rate before we submit.", direction: "outbound", timestamp: "09:12" }
     ]
   },
   {
     id: "conv_7",
-    agentName: "Lisa Evans",
-    fullName: "Jasmine Adams",
+    agentName: "Agent 11",
+    fullName: "Contact 7",
     phone: "+44 7700 900888",
     email: "-",
     channel: "TYPE_CALL", // Call Log

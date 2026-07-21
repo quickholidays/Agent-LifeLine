@@ -1,5 +1,5 @@
 {
-  "Amber Williams": {
+  "Agent 1": {
     "total_actions": 16,
     "first_action": "2026-07-17T13:42:15.000Z",
     "last_action": "2026-07-17T21:28:21.000Z",
@@ -73,19 +73,19 @@
         "timestamp": "2026-07-17T13:42:15.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Germany</p><div style=\\\"padding-left: 0px!important;; --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: #93c5fd80; --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: inherit; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(96, 113, 121); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;\\\" class=\\\"chat-tail\\\"></div><p style=\\\"margin:0px; padding-left: 0px!important;\\\">4 August</p><div style=\\\"padding-left: 0px!important;; --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: #93c5fd80; --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: inherit; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(96, 113, 121); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;\\\" class=\\\"chat-tail\\\"><p style=\\\"margin:0px; padding-left: 0px!important;\\\"><span style=\\\"color: rgb(16, 24, 40); font-size: 14px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Ubuntu, Cantarell, 'Helvetica Neue', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; color: rgb(16, 24, 40)\\\">Manchester</span><br>Right now is one but maybe three..</p><p style=\\\"margin:0px; padding-left: 0px!important;\\\"></p></div>\",\"contactId\":\"0HKmVQrvWOm47md3iHmz\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"rtdl4BwUzGaKrO20CyP2\"},{\"objectKey\":\"contact\",\"recordId\":\"0HKmVQrvWOm47md3iHmz\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Germany</p><div style=\\\"padding-left: 0px!important;; --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: #93c5fd80; --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: inherit; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(96, 113, 121); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;\\\" class=\\\"chat-tail\\\"></div><p style=\\\"margin:0px; padding-left: 0px!important;\\\">4 August</p><div style=\\\"padding-left: 0px!important;; --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: #93c5fd80; --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: inherit; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(96, 113, 121); font-family: sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;\\\" class=\\\"chat-tail\\\"><p style=\\\"margin:0px; padding-left: 0px!important;\\\"><span style=\\\"color: rgb(16, 24, 40); font-size: 14px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Ubuntu, Cantarell, 'Helvetica Neue', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; color: rgb(16, 24, 40)\\\">Manchester</span><br>Right now is one but maybe three..</p><p style=\\\"margin:0px; padding-left: 0px!important;\\\"></p></div>\",\"contactId\":\"ContactID_1\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_80\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_1\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:01:24.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">any <br>London<br>any dates<br>2 PERSON</p>\",\"contactId\":\"hpMYnEVgzwWea97x1kFz\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"G6ygBfAj7vYfZJ91zpjl\"},{\"objectKey\":\"contact\",\"recordId\":\"hpMYnEVgzwWea97x1kFz\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">any <br>London<br>any dates<br>2 PERSON</p>\",\"contactId\":\"ContactID_74\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_38\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_74\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:07:27.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Manchester<br>one person<br>get appointment in july or August..</p>\",\"contactId\":\"XcWXk59mwwWqwyHQfX9W\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"JKgk7B7CziOy9BHBLkmN\"},{\"objectKey\":\"contact\",\"recordId\":\"XcWXk59mwwWqwyHQfX9W\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Manchester<br>one person<br>get appointment in july or August..</p>\",\"contactId\":\"ContactID_62\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_43\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_62\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:42:21.000Z",
@@ -103,25 +103,25 @@
         "timestamp": "2026-07-17T15:48:54.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">cut the call...</p>\",\"contactId\":\"8NEXsIhKS523mEDfdC0D\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"PhI0KMwb5m53i91Ez0CH\"},{\"objectKey\":\"contact\",\"recordId\":\"8NEXsIhKS523mEDfdC0D\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">cut the call...</p>\",\"contactId\":\"ContactID_13\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_53\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_13\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:54:34.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\"> We can apply once your wife has recovered... </p>\",\"contactId\":\"KPYEAi75Aobt3vsMjUem\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"GLChGcI9SabApV8Dwf7S\"},{\"objectKey\":\"contact\",\"recordId\":\"KPYEAi75Aobt3vsMjUem\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\"> We can apply once your wife has recovered... </p>\",\"contactId\":\"ContactID_34\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_39\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_34\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:27:24.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Not interest...</p>\",\"contactId\":\"WbNOH8Px6fZyPBnm8IXr\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"9TpaDvjgtxjmfyVHKusl\"},{\"objectKey\":\"contact\",\"recordId\":\"WbNOH8Px6fZyPBnm8IXr\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Not interest...</p>\",\"contactId\":\"ContactID_58\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_20\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_58\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:34:07.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">We have some holiday issues at the moment. I'll discuss it with my husband and let you know. I already have your number saved.</p>\",\"contactId\":\"lAwczP5g2go7mtF44zoe\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"f2ESIUip8igMm0OjF3Ms\"},{\"objectKey\":\"contact\",\"recordId\":\"lAwczP5g2go7mtF44zoe\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">We have some holiday issues at the moment. I'll discuss it with my husband and let you know. I already have your number saved.</p>\",\"contactId\":\"ContactID_84\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_67\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_84\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:49:10.000Z",
@@ -133,7 +133,7 @@
         "timestamp": "2026-07-17T16:50:22.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">on ads you guys said it’s take about one week.</p>\",\"contactId\":\"0HKmVQrvWOm47md3iHmz\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"rtdl4BwUzGaKrO20CyP2\"},{\"objectKey\":\"contact\",\"recordId\":\"0HKmVQrvWOm47md3iHmz\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">on ads you guys said it’s take about one week.</p>\",\"contactId\":\"ContactID_1\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_80\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_1\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:17:16.000Z",
@@ -145,7 +145,7 @@
         "timestamp": "2026-07-17T20:27:39.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">I'm don..</p>\",\"contactId\":\"yYABoPqpWYHrt0AgOzEu\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"bZeKJU02br9oLhGdFvcG\"},{\"objectKey\":\"contact\",\"recordId\":\"yYABoPqpWYHrt0AgOzEu\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">I'm don..</p>\",\"contactId\":\"ContactID_99\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_65\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_99\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:31:42.000Z",
@@ -170,154 +170,154 @@
     "calls": [
       {
         "timestamp": "2026-07-17T17:05:32.000Z",
-        "contact_name": "Athar Khan",
+        "contact_name": "Contact 34",
         "duration": "01:30",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:34:06.000Z",
-        "contact_name": "Alma findlay",
+        "contact_name": "Contact 18",
         "duration": "-",
         "status": "Busy",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:28:45.000Z",
-        "contact_name": "Syed Shah",
+        "contact_name": "Contact 193",
         "duration": "00:09",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:28:07.000Z",
-        "contact_name": "Muhammad Usama Umer Butt",
+        "contact_name": "Contact 137",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:26:08.000Z",
-        "contact_name": "Kristine Smith",
+        "contact_name": "Contact 107",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:12:45.000Z",
-        "contact_name": "Elham Waziry",
+        "contact_name": "Contact 55",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:11:22.000Z",
-        "contact_name": "Gagandeep Khaneja",
+        "contact_name": "Contact 72",
         "duration": "00:46",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:53:11.000Z",
-        "contact_name": "Theodore",
+        "contact_name": "Contact 200",
         "duration": "00:02",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:42:12.000Z",
-        "contact_name": "Elham Waziry",
+        "contact_name": "Contact 55",
         "duration": "00:19",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:41:36.000Z",
-        "contact_name": "Elham Waziry",
+        "contact_name": "Contact 55",
         "duration": "00:12",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:28:59.000Z",
-        "contact_name": "avtar singh",
+        "contact_name": "Contact 211",
         "duration": "00:43",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:56:48.000Z",
-        "contact_name": "Ajlan Melethil",
+        "contact_name": "Contact 14",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:48:11.000Z",
-        "contact_name": "G𝔢𝔢𝔱𝔞𝔫𝔧𝔞𝔩𝔦",
+        "contact_name": "Contact 82",
         "duration": "00:13",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:45:35.000Z",
-        "contact_name": "HAMZA NASEER",
+        "contact_name": "Contact 83",
         "duration": "00:08",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:43:22.000Z",
-        "contact_name": "Samikshya Bhandari",
+        "contact_name": "Contact 172",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:41:36.000Z",
-        "contact_name": "Dominic Otieno",
+        "contact_name": "Contact 50",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:34:10.000Z",
-        "contact_name": "Samikshya Bhandari",
+        "contact_name": "Contact 172",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:29:28.000Z",
-        "contact_name": "Gagandeep Khaneja",
+        "contact_name": "Contact 72",
         "duration": "00:36",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:04:09.000Z",
-        "contact_name": "Abidi Rim",
+        "contact_name": "Contact 5",
         "duration": "02:28",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:02:08.000Z",
-        "contact_name": "Athar Khan",
+        "contact_name": "Contact 34",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:59:00.000Z",
-        "contact_name": "Athar Khan",
+        "contact_name": "Contact 34",
         "duration": "02:30",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T09:58:13.000Z",
-        "contact_name": "Athar Khan",
+        "contact_name": "Contact 34",
         "duration": "00:15",
         "status": "Answered",
         "direction": "outbound"
@@ -353,7 +353,51 @@
       "inboundAvgDuration": 2.5
     }
   },
-  "Annie Adams": {
+  "Agent 2": {
+    "total_actions": 0,
+    "first_action": null,
+    "last_action": null,
+    "workday_span": 0,
+    "active_duration": 0,
+    "total_break_duration": 0,
+    "sessions": [],
+    "breaks": [],
+    "module_counts": {},
+    "action_counts": {},
+    "actions_list": [],
+    "assigned_opportunities": 3,
+    "calls": [],
+    "segmentations": {
+      "newLeads": 2,
+      "bookedLeads": 0,
+      "apptBookedLeads": 0,
+      "closedLeads": 0,
+      "newLeadsToday": 2,
+      "bookedLeadsToday": 0,
+      "apptBookedLeadsToday": 0
+    },
+    "margin_added_today": 0,
+    "stage_interested_today": 0,
+    "stage_contacted_today": 0,
+    "notes_updated_today": 0,
+    "general_conv_rate": 0,
+    "new_leads_today": 2,
+    "converted_today": 0,
+    "today_conv_rate": 0,
+    "call_metrics": {
+      "outboundCount": 0,
+      "outboundAttended": 0,
+      "outboundMissed": 0,
+      "outboundMinutes": 0,
+      "outboundAvgDuration": 0,
+      "inboundCount": 0,
+      "inboundAttended": 0,
+      "inboundMissed": 0,
+      "inboundMinutes": 0,
+      "inboundAvgDuration": 0
+    }
+  },
+  "Agent 3": {
     "total_actions": 7,
     "first_action": "2026-07-17T15:30:04.000Z",
     "last_action": "2026-07-17T21:28:17.000Z",
@@ -424,7 +468,7 @@
         "timestamp": "2026-07-17T21:27:36.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"PT63O8gtG9A4vf8Vjo3d\",\"name\":\"Valerian Denis\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"8bdf89e6-7b51-4990-81b1-00d1072786b4\",\"status\":\"open\",\"assignedTo\":\"aEOeAtCePb4blCXyB0fY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"New Lead\"}"
+        "details": "{\"contactId\":\"ContactID_44\",\"name\":\"Valerian Denis\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"8bdf89e6-7b51-4990-81b1-00d1072786b4\",\"status\":\"open\",\"assignedTo\":\"aEOeAtCePb4blCXyB0fY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"New Lead\"}"
       },
       {
         "timestamp": "2026-07-17T21:28:17.000Z",
@@ -437,28 +481,28 @@
     "calls": [
       {
         "timestamp": "2026-07-17T11:48:28.000Z",
-        "contact_name": "Harold Carew",
+        "contact_name": "Contact 86",
         "duration": "00:45",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:29:57.000Z",
-        "contact_name": "Dr. Vivek Jadhav",
+        "contact_name": "Contact 51",
         "duration": "07:51",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:11:58.000Z",
-        "contact_name": "Tsigereda Solomon",
+        "contact_name": "Contact 203",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:15:01.000Z",
-        "contact_name": "Tsigereda Solomon",
+        "contact_name": "Contact 203",
         "duration": "00:34",
         "status": "Answered",
         "direction": "outbound"
@@ -494,7 +538,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Bella Evans": {
+  "Agent 4": {
     "total_actions": 30,
     "first_action": "2026-07-17T13:57:51.000Z",
     "last_action": "2026-07-17T21:30:08.000Z",
@@ -596,25 +640,25 @@
         "timestamp": "2026-07-17T13:58:03.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Voicemail</p>\",\"contactId\":\"k33uro86OHErUALnyzNe\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"xegkrC0k3QQnPnBMBmXG\"},{\"objectKey\":\"contact\",\"recordId\":\"k33uro86OHErUALnyzNe\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Voicemail</p>\",\"contactId\":\"ContactID_81\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_85\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_81\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:02:37.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said , I will call you after lunch ... Today </p>\",\"contactId\":\"OK1T3NSCoopFXsCqlz98\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"LGQIWZEcdlIoPebWX3U8\"},{\"objectKey\":\"contact\",\"recordId\":\"OK1T3NSCoopFXsCqlz98\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said , I will call you after lunch ... Today </p>\",\"contactId\":\"ContactID_39\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_45\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_39\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:27:18.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said I am busy now ... I will give you a call later </p>\",\"contactId\":\"k33uro86OHErUALnyzNe\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"xegkrC0k3QQnPnBMBmXG\"},{\"objectKey\":\"contact\",\"recordId\":\"k33uro86OHErUALnyzNe\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said I am busy now ... I will give you a call later </p>\",\"contactId\":\"ContactID_81\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_85\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_81\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:59:20.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said , I will send by Monday ...<br>Center London ... Country France <br>He said Wants to travel by the end of August </p>\",\"contactId\":\"z0wlYQnUMtgfvCMoCz8s\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"jwVhS8oAPD3OGhTrPwbO\"},{\"objectKey\":\"contact\",\"recordId\":\"z0wlYQnUMtgfvCMoCz8s\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said , I will send by Monday ...<br>Center London ... Country France <br>He said Wants to travel by the end of August </p>\",\"contactId\":\"ContactID_101\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_73\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_101\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:59:57.000Z",
@@ -626,13 +670,13 @@
         "timestamp": "2026-07-17T15:01:43.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No chance </p>\",\"contactId\":\"TwBfJ5S2XW0yv1Id9dDq\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"IlJqVvOy05lPLYmvaLvF\"},{\"objectKey\":\"contact\",\"recordId\":\"TwBfJ5S2XW0yv1Id9dDq\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No chance </p>\",\"contactId\":\"ContactID_50\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_41\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_50\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:07:06.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said ... I am not going <br>My friend is not here ... when i plan again i will text you</p>\",\"contactId\":\"LIFq38poMBS4ne2akqIA\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"SiGRF0bGN6TlmzFANdQ5\"},{\"objectKey\":\"contact\",\"recordId\":\"LIFq38poMBS4ne2akqIA\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said ... I am not going <br>My friend is not here ... when i plan again i will text you</p>\",\"contactId\":\"ContactID_35\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_58\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_35\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:07:22.000Z",
@@ -644,7 +688,7 @@
         "timestamp": "2026-07-17T15:15:11.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Call him 04: 30 Today </p>\",\"contactId\":\"R9DP7W8Cgar1KfxiFcgM\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"kmHAwdP5Z8o7jbN7Txoe\"},{\"objectKey\":\"contact\",\"recordId\":\"R9DP7W8Cgar1KfxiFcgM\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Call him 04: 30 Today </p>\",\"contactId\":\"ContactID_45\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_74\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_45\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:15:34.000Z",
@@ -656,7 +700,7 @@
         "timestamp": "2026-07-17T15:29:19.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No ans </p>\",\"contactId\":\"DxbeNtIp8bz94v1DAuTP\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"llDVZkL40ZREmROWk6vP\"},{\"objectKey\":\"contact\",\"recordId\":\"DxbeNtIp8bz94v1DAuTP\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No ans </p>\",\"contactId\":\"ContactID_23\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_76\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_23\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:05:53.000Z",
@@ -734,13 +778,13 @@
         "timestamp": "2026-07-17T18:50:17.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No response </p>\",\"contactId\":\"tuX1gv0I0UwT9AYO3H5Y\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"YaB60ktKzG5qJv6jz2iJ\"},{\"objectKey\":\"contact\",\"recordId\":\"tuX1gv0I0UwT9AYO3H5Y\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No response </p>\",\"contactId\":\"ContactID_95\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_62\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_95\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:54:45.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said , Reach me by the end of this month .. the I will be having 3 month statemnts </p>\",\"contactId\":\"es0GYluOjE5z17Lsv3di\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"8rEiKihbmmEFcHs7seUK\"},{\"objectKey\":\"contact\",\"recordId\":\"es0GYluOjE5z17Lsv3di\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He said , Reach me by the end of this month .. the I will be having 3 month statemnts </p>\",\"contactId\":\"ContactID_71\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_18\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_71\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:55:12.000Z",
@@ -752,7 +796,7 @@
         "timestamp": "2026-07-17T19:25:55.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Voicemail</p>\",\"contactId\":\"yssGZP1cEPABYIbWmpFH\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Ou3WcAWNpwzXmcGJ3bwq\"},{\"objectKey\":\"contact\",\"recordId\":\"yssGZP1cEPABYIbWmpFH\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Voicemail</p>\",\"contactId\":\"ContactID_100\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_51\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_100\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:29:39.000Z",
@@ -764,189 +808,189 @@
         "timestamp": "2026-07-17T21:30:08.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Booked ...<br></p>\",\"contactId\":\"OK1T3NSCoopFXsCqlz98\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"LGQIWZEcdlIoPebWX3U8\"},{\"objectKey\":\"contact\",\"recordId\":\"OK1T3NSCoopFXsCqlz98\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Booked ...<br></p>\",\"contactId\":\"ContactID_39\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_45\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_39\"}]}"
       }
     ],
     "assigned_opportunities": 37,
     "calls": [
       {
         "timestamp": "2026-07-17T16:06:36.000Z",
-        "contact_name": "Adnan Shareef",
+        "contact_name": "Contact 9",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:06:14.000Z",
-        "contact_name": "Mark Emdee",
+        "contact_name": "Contact 121",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:05:31.000Z",
-        "contact_name": "Marlon Buultjens",
+        "contact_name": "Contact 122",
         "duration": "00:11",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:39:12.000Z",
-        "contact_name": "Marlon Buultjens",
+        "contact_name": "Contact 122",
         "duration": "00:38",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:31:25.000Z",
-        "contact_name": "Adnan Shareef",
+        "contact_name": "Contact 9",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:31:23.000Z",
-        "contact_name": "Marlon Buultjens",
+        "contact_name": "Contact 122",
         "duration": "01:09",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:30:27.000Z",
-        "contact_name": "Marlon Buultjens",
+        "contact_name": "Contact 122",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:25:27.000Z",
-        "contact_name": "Els Els",
+        "contact_name": "Contact 57",
         "duration": "-",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:20:31.000Z",
-        "contact_name": "Patrick Anning",
+        "contact_name": "Contact 158",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:19:59.000Z",
-        "contact_name": "Fidelis Onosiwe",
+        "contact_name": "Contact 69",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:51:27.000Z",
-        "contact_name": "Elijah Koranteng",
+        "contact_name": "Contact 56",
         "duration": "01:03",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:22:25.000Z",
-        "contact_name": "Azhar Sharif",
+        "contact_name": "Contact 38",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:21:26.000Z",
-        "contact_name": "Azhar Sharif",
+        "contact_name": "Contact 38",
         "duration": "-",
         "status": "Missed",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T13:25:04.000Z",
-        "contact_name": "Dene Hibbert",
+        "contact_name": "Contact 47",
         "duration": "02:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:42:31.000Z",
-        "contact_name": "Mark Emdee",
+        "contact_name": "Contact 121",
         "duration": "00:18",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:28:28.000Z",
-        "contact_name": "Hilton Caswell",
+        "contact_name": "Contact 92",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:23:10.000Z",
-        "contact_name": "Bilal Zafar Ranjha",
+        "contact_name": "Contact 40",
         "duration": "00:25",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:11:54.000Z",
-        "contact_name": "Nil Hac",
+        "contact_name": "Contact 145",
         "duration": "00:54",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:05:14.000Z",
-        "contact_name": "Kazi Sipuzzaman",
+        "contact_name": "Contact 105",
         "duration": "00:34",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:32:07.000Z",
-        "contact_name": "Tazul Islam",
+        "contact_name": "Contact 197",
         "duration": "01:42",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:29:21.000Z",
-        "contact_name": "Adnan Shareef",
+        "contact_name": "Contact 9",
         "duration": "00:30",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:28:26.000Z",
-        "contact_name": "Mark Emdee",
+        "contact_name": "Contact 121",
         "duration": "00:32",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:10:36.000Z",
-        "contact_name": "Azhar Sharif",
+        "contact_name": "Contact 38",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:09:12.000Z",
-        "contact_name": "Azhar Sharif",
+        "contact_name": "Contact 38",
         "duration": "00:43",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T09:59:50.000Z",
-        "contact_name": "Marlon Buultjens",
+        "contact_name": "Contact 122",
         "duration": "00:59",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:56:38.000Z",
-        "contact_name": "Azhar Sharif",
+        "contact_name": "Contact 38",
         "duration": "00:35",
         "status": "Answered",
         "direction": "outbound"
@@ -982,7 +1026,7 @@
       "inboundAvgDuration": 0.7166666666666667
     }
   },
-  "Chris Morgan": {
+  "Agent 5": {
     "total_actions": 38,
     "first_action": "2026-07-17T21:36:08.000Z",
     "last_action": "2026-07-17T22:09:25.000Z",
@@ -1241,28 +1285,28 @@
     "calls": [
       {
         "timestamp": "2026-07-17T17:05:47.000Z",
-        "contact_name": "Gush Singh",
+        "contact_name": "Contact 81",
         "duration": "00:16",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:19:38.000Z",
-        "contact_name": "Emmanuel Boansi",
+        "contact_name": "Contact 60",
         "duration": "00:23",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:55:09.000Z",
-        "contact_name": "Hebert Rwodzi",
+        "contact_name": "Contact 91",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:49:38.000Z",
-        "contact_name": "Hebert Rwodzi",
+        "contact_name": "Contact 91",
         "duration": "01:08",
         "status": "Answered",
         "direction": "outbound"
@@ -1298,7 +1342,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Daniel Evans": {
+  "Agent 6": {
     "total_actions": 3,
     "first_action": "2026-07-17T13:23:33.000Z",
     "last_action": "2026-07-17T21:25:39.000Z",
@@ -1367,28 +1411,28 @@
     "calls": [
       {
         "timestamp": "2026-07-17T17:31:42.000Z",
-        "contact_name": "Atif",
+        "contact_name": "Contact 35",
         "duration": "02:05",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T17:28:04.000Z",
-        "contact_name": "Atif",
+        "contact_name": "Contact 35",
         "duration": "00:08",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:54:18.000Z",
-        "contact_name": "Atif",
+        "contact_name": "Contact 35",
         "duration": "43:02",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:53:12.000Z",
-        "contact_name": "Fizan Ali",
+        "contact_name": "Contact 70",
         "duration": "00:43",
         "status": "Answered",
         "direction": "outbound"
@@ -1424,7 +1468,7 @@
       "inboundAvgDuration": 2.0833333333333335
     }
   },
-  "Emily Jones": {
+  "Agent 7": {
     "total_actions": 10,
     "first_action": "2026-07-17T13:15:30.000Z",
     "last_action": "2026-07-17T16:22:32.000Z",
@@ -1476,13 +1520,13 @@
         "timestamp": "2026-07-17T13:15:30.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin: 0px; padding-left: 0px !important;\\\">sent mail/not on whatsapp</p>\",\"contactId\":\"350FGmlqmokqtWHsLEYZ\",\"deleted\":false,\"relations\":[{\"objectKey\":\"contact\",\"recordId\":\"350FGmlqmokqtWHsLEYZ\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin: 0px; padding-left: 0px !important;\\\">sent mail/not on whatsapp</p>\",\"contactId\":\"ContactID_6\",\"deleted\":false,\"relations\":[{\"objectKey\":\"contact\",\"recordId\":\"ContactID_6\"}]}"
       },
       {
         "timestamp": "2026-07-17T13:53:18.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">call in the afternoon</p>\",\"contactId\":\"qjWMGZhyEsU0jd4G5ayv\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"jQcdEWJFiyvnMgqTcFU4\"},{\"objectKey\":\"contact\",\"recordId\":\"qjWMGZhyEsU0jd4G5ayv\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">call in the afternoon</p>\",\"contactId\":\"ContactID_89\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_72\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_89\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:18:53.000Z",
@@ -1500,13 +1544,13 @@
         "timestamp": "2026-07-17T15:25:43.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">call at 5</p>\",\"contactId\":\"vkOQQdhVlFFFW5vreDG5\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"5939zANQaSZ6qqySeo58\"},{\"objectKey\":\"contact\",\"recordId\":\"vkOQQdhVlFFFW5vreDG5\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">call at 5</p>\",\"contactId\":\"ContactID_96\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_10\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_96\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:48:50.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin: 0px; padding-left: 0px !important;\\\">germany/ 1 applicant/ ILR/ LONDON/ 2nd week of august/ </p>\",\"contactId\":\"AMvAKZEVPMLu47AETlqj\",\"deleted\":false,\"relations\":[{\"objectKey\":\"contact\",\"recordId\":\"AMvAKZEVPMLu47AETlqj\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin: 0px; padding-left: 0px !important;\\\">germany/ 1 applicant/ ILR/ LONDON/ 2nd week of august/ </p>\",\"contactId\":\"ContactID_17\",\"deleted\":false,\"relations\":[{\"objectKey\":\"contact\",\"recordId\":\"ContactID_17\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:01:39.000Z",
@@ -1518,7 +1562,7 @@
         "timestamp": "2026-07-17T16:02:04.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">spain/3 applicants</p>\",\"contactId\":\"TupQk3Dgm1izjd9xydCe\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"BCSuEJ0p0hL6HdzYtoDL\"},{\"objectKey\":\"contact\",\"recordId\":\"TupQk3Dgm1izjd9xydCe\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">spain/3 applicants</p>\",\"contactId\":\"ContactID_49\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_27\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_49\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:02:22.000Z",
@@ -1537,168 +1581,168 @@
     "calls": [
       {
         "timestamp": "2026-07-17T12:36:34.000Z",
-        "contact_name": "Ajuma Rosemary Edime",
+        "contact_name": "Contact 15",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:35:32.000Z",
-        "contact_name": "Ajuma Rosemary Edime",
+        "contact_name": "Contact 15",
         "duration": "00:24",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T12:26:52.000Z",
-        "contact_name": "Roni Christian",
+        "contact_name": "Contact 169",
         "duration": "00:27",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:22:45.000Z",
-        "contact_name": "Ajuma Rosemary Edime",
+        "contact_name": "Contact 15",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:21:09.000Z",
-        "contact_name": "Faro Shonhiwa",
+        "contact_name": "Contact 67",
         "duration": "01:01",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:19:30.000Z",
-        "contact_name": "Mr DAKURAH",
+        "contact_name": "Contact 135",
         "duration": "00:26",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:46:04.000Z",
-        "contact_name": "Zabiullah Jabran",
+        "contact_name": "Contact 210",
         "duration": "05:17",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:38:39.000Z",
-        "contact_name": "Godswill chukwudi onwuzurike",
+        "contact_name": "Contact 77",
         "duration": "00:28",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:38:02.000Z",
-        "contact_name": "Mutasim sediqi",
+        "contact_name": "Contact 138",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:26:45.000Z",
-        "contact_name": "ⓢⓗⓔⓛⓛⓞ②⑤",
+        "contact_name": "Contact 222",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:24:29.000Z",
-        "contact_name": "Gurpal Singh",
+        "contact_name": "Contact 79",
         "duration": "00:44",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:21:26.000Z",
-        "contact_name": "Megha",
+        "contact_name": "Contact 125",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:19:48.000Z",
-        "contact_name": "Linuka Chathwara",
+        "contact_name": "Contact 113",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:19:02.000Z",
-        "contact_name": "Ash Rah",
+        "contact_name": "Contact 29",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:17:18.000Z",
-        "contact_name": "Idil ali",
+        "contact_name": "Contact 95",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:16:57.000Z",
-        "contact_name": "Renuka Maruthambadi Viswanathan",
+        "contact_name": "Contact 167",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:16:21.000Z",
-        "contact_name": "Ashif nedumparambil",
+        "contact_name": "Contact 31",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:13:26.000Z",
-        "contact_name": "Aisy Espinosa",
+        "contact_name": "Contact 12",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:00:04.000Z",
-        "contact_name": "Godswill chukwudi onwuzurike",
+        "contact_name": "Contact 77",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:54:30.000Z",
-        "contact_name": "Rayyan Shaibu Omar",
+        "contact_name": "Contact 164",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:49:43.000Z",
-        "contact_name": "Hoang Tra My Do",
+        "contact_name": "Contact 93",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:30:31.000Z",
-        "contact_name": "Tari Choga",
+        "contact_name": "Contact 196",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:29:19.000Z",
-        "contact_name": "Tari Choga",
+        "contact_name": "Contact 196",
         "duration": "00:16",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T08:06:05.000Z",
-        "contact_name": "Moinul Tushar",
+        "contact_name": "Contact 133",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
@@ -1734,7 +1778,7 @@
       "inboundAvgDuration": 0.4
     }
   },
-  "Emma Evans": {
+  "Agent 8": {
     "total_actions": 7,
     "first_action": "2026-07-17T18:28:48.000Z",
     "last_action": "2026-07-17T21:32:25.000Z",
@@ -1788,7 +1832,7 @@
         "timestamp": "2026-07-17T18:29:23.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"ssFS1QxWk981MZJjRFEM\",\"name\":\"Depin\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"8bdf89e6-7b51-4990-81b1-00d1072786b4\",\"status\":\"open\",\"assignedTo\":\"fSgz0TuRRv1UgjWJruPL\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"New Lead\"}"
+        "details": "{\"contactId\":\"ContactID_93\",\"name\":\"Depin\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"8bdf89e6-7b51-4990-81b1-00d1072786b4\",\"status\":\"open\",\"assignedTo\":\"fSgz0TuRRv1UgjWJruPL\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"New Lead\"}"
       },
       {
         "timestamp": "2026-07-17T18:29:57.000Z",
@@ -1800,7 +1844,7 @@
         "timestamp": "2026-07-17T18:41:19.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">greece, 135GBP, 1 ,london, august</p>\",\"contactId\":\"b8cATg17wCmxxASniMTa\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"sqILBKXZEkity3BYCBfl\"},{\"objectKey\":\"contact\",\"recordId\":\"b8cATg17wCmxxASniMTa\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">greece, 135GBP, 1 ,london, august</p>\",\"contactId\":\"ContactID_64\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_81\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_64\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:41:30.000Z",
@@ -1819,70 +1863,70 @@
     "calls": [
       {
         "timestamp": "2026-07-17T17:12:17.000Z",
-        "contact_name": "mobashar kiani",
+        "contact_name": "Contact 215",
         "duration": "00:42",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:53:35.000Z",
-        "contact_name": "Johyci Rani",
+        "contact_name": "Contact 99",
         "duration": "01:49",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:50:16.000Z",
-        "contact_name": "Johyci Rani",
+        "contact_name": "Contact 99",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:40:44.000Z",
-        "contact_name": "Shanesz Varney",
+        "contact_name": "Contact 179",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:39:52.000Z",
-        "contact_name": "Maria Belen",
+        "contact_name": "Contact 120",
         "duration": "00:22",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:19:31.000Z",
-        "contact_name": "Razib Chakraborty",
+        "contact_name": "Contact 165",
         "duration": "00:21",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:04:57.000Z",
-        "contact_name": "mobashar kiani",
+        "contact_name": "Contact 215",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:21:38.000Z",
-        "contact_name": "Řu Čhee",
+        "contact_name": "Contact 220",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:17:10.000Z",
-        "contact_name": "Maria Belen",
+        "contact_name": "Contact 120",
         "duration": "00:31",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T08:04:43.000Z",
-        "contact_name": "Lawal Saheed",
+        "contact_name": "Contact 111",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
@@ -1918,7 +1962,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Jasmine Taylor": {
+  "Agent 9": {
     "total_actions": 26,
     "first_action": "2026-07-17T13:34:22.000Z",
     "last_action": "2026-07-17T22:36:40.000Z",
@@ -2004,7 +2048,7 @@
         "timestamp": "2026-07-17T13:34:22.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Contacted over the whatsapp</p>\",\"contactId\":\"HxkGOHbtBldcIHwOQaWf\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"yd53HX3wwdvbJ3QjHtD7\"},{\"objectKey\":\"contact\",\"recordId\":\"HxkGOHbtBldcIHwOQaWf\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Contacted over the whatsapp</p>\",\"contactId\":\"ContactID_32\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_87\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_32\"}]}"
       },
       {
         "timestamp": "2026-07-17T13:34:40.000Z",
@@ -2052,31 +2096,31 @@
         "timestamp": "2026-07-17T18:12:14.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Already applied</p>\",\"contactId\":\"XVHV7cGDIpYoB5kb3XyY\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"FxZqtudgUmRIgzL8SDQG\"},{\"objectKey\":\"contact\",\"recordId\":\"XVHV7cGDIpYoB5kb3XyY\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Already applied</p>\",\"contactId\":\"ContactID_61\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_37\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_61\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:15:01.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"2DBHIXKMmxFplN3Nc9fE\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"31TFqP8iHtsFCcgtExzp\"},{\"objectKey\":\"contact\",\"recordId\":\"2DBHIXKMmxFplN3Nc9fE\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"ContactID_5\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_4\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_5\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:16:01.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Voicemail</p>\",\"contactId\":\"PAKU7soDHsdm6jSkuYXg\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"3succ0ZIqg0U5VrpWh5s\"},{\"objectKey\":\"contact\",\"recordId\":\"PAKU7soDHsdm6jSkuYXg\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Voicemail</p>\",\"contactId\":\"ContactID_43\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_5\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_43\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:17:27.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"Vp2uVEdqwVanRupJEJTd\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"6waO81SHWfzJMNKq7Uia\"},{\"objectKey\":\"contact\",\"recordId\":\"Vp2uVEdqwVanRupJEJTd\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"ContactID_54\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_12\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_54\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:18:32.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"EBi5rJbwNuYKcEDx7GOP\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"718rD6eUXkyBpgHoawQm\"},{\"objectKey\":\"contact\",\"recordId\":\"EBi5rJbwNuYKcEDx7GOP\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"ContactID_25\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_13\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_25\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:20:31.000Z",
@@ -2112,7 +2156,7 @@
         "timestamp": "2026-07-17T19:36:02.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"P7dM0UELEEZm7DY2QYAl\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"4DCslRDANy5kXBnNCYwS\"},{\"objectKey\":\"contact\",\"recordId\":\"P7dM0UELEEZm7DY2QYAl\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"ContactID_42\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_6\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_42\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:41:37.000Z",
@@ -2136,592 +2180,592 @@
         "timestamp": "2026-07-17T22:36:40.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">the client respond me sorry you got the wrong number</p>\",\"contactId\":\"MMqYQyK2xv323JfM0WhT\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"j1Ki4Dd8lA9TWAIxWCCD\"},{\"objectKey\":\"contact\",\"recordId\":\"MMqYQyK2xv323JfM0WhT\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">the client respond me sorry you got the wrong number</p>\",\"contactId\":\"ContactID_37\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_71\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_37\"}]}"
       },
       {
         "timestamp": "2026-07-17T22:36:40.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">sorry you got the wrong number</p>\",\"contactId\":\"MMqYQyK2xv323JfM0WhT\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"j1Ki4Dd8lA9TWAIxWCCD\"},{\"objectKey\":\"contact\",\"recordId\":\"MMqYQyK2xv323JfM0WhT\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">sorry you got the wrong number</p>\",\"contactId\":\"ContactID_37\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_71\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_37\"}]}"
       },
       {
         "timestamp": "2026-07-17T22:36:40.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">our plan is changed now </p>\",\"contactId\":\"W9TXe3XP8d1gUjXW8sVM\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"mWk23OH4N0TCjY3QpgEM\"},{\"objectKey\":\"contact\",\"recordId\":\"W9TXe3XP8d1gUjXW8sVM\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">our plan is changed now </p>\",\"contactId\":\"ContactID_56\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_78\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_56\"}]}"
       },
       {
         "timestamp": "2026-07-17T22:36:40.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">our plan is changed now </p>\",\"contactId\":\"W9TXe3XP8d1gUjXW8sVM\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"mWk23OH4N0TCjY3QpgEM\"},{\"objectKey\":\"contact\",\"recordId\":\"W9TXe3XP8d1gUjXW8sVM\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">our plan is changed now </p>\",\"contactId\":\"ContactID_56\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_78\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_56\"}]}"
       }
     ],
     "assigned_opportunities": 142,
     "calls": [
       {
         "timestamp": "2026-07-17T17:21:06.000Z",
-        "contact_name": "Ashja Habib",
+        "contact_name": "Contact 32",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:15:36.000Z",
-        "contact_name": "Muhammad Iftikhar",
+        "contact_name": "Contact 136",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:14:36.000Z",
-        "contact_name": "Sitthanathan Paramasivam",
+        "contact_name": "Contact 181",
         "duration": "-",
         "status": "Busy",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:14:10.000Z",
-        "contact_name": "Sean mcsweeney",
+        "contact_name": "Contact 175",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:13:57.000Z",
-        "contact_name": "OkikiolaiFe",
+        "contact_name": "Contact 150",
         "duration": "00:02",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:11:46.000Z",
-        "contact_name": "Primrose Mushai Chikomboya",
+        "contact_name": "Contact 160",
         "duration": "00:29",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:11:04.000Z",
-        "contact_name": "Ҩѧѕїм Снөцԁнѧяү",
+        "contact_name": "Contact 221",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:10:00.000Z",
-        "contact_name": "Panchal Manish",
+        "contact_name": "Contact 156",
         "duration": "00:23",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:08:01.000Z",
-        "contact_name": "osahon samuel ebomwonyi",
+        "contact_name": "Contact 216",
         "duration": "01:06",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T16:56:39.000Z",
-        "contact_name": "Gelson Ricardo vicente",
+        "contact_name": "Contact 73",
         "duration": "00:12",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:43:56.000Z",
-        "contact_name": "Jayantilal Rama",
+        "contact_name": "Contact 98",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:38:01.000Z",
-        "contact_name": "Abdul Rafiu Adejobi",
+        "contact_name": "Contact 1",
         "duration": "00:40",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:35:40.000Z",
-        "contact_name": "Unknown",
+        "contact_name": "Contact 204",
         "duration": "00:46",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:35:09.000Z",
-        "contact_name": "Mary Dale Deocampo",
+        "contact_name": "Contact 123",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:34:58.000Z",
-        "contact_name": "Juliana Addo",
+        "contact_name": "Contact 100",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:34:47.000Z",
-        "contact_name": "Mais Eltag",
+        "contact_name": "Contact 116",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:34:12.000Z",
-        "contact_name": "Mehmud ismail",
+        "contact_name": "Contact 126",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:31:52.000Z",
-        "contact_name": "raza shah",
+        "contact_name": "Contact 217",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:31:40.000Z",
-        "contact_name": "Mohammed  Salifu",
+        "contact_name": "Contact 131",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:31:08.000Z",
-        "contact_name": "Gurpinder kaur",
+        "contact_name": "Contact 80",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:30:11.000Z",
-        "contact_name": "Manjinder kaur",
+        "contact_name": "Contact 119",
         "duration": "00:24",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:29:51.000Z",
-        "contact_name": "Rana Sanwal",
+        "contact_name": "Contact 162",
         "duration": "-",
         "status": "Busy",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:29:31.000Z",
-        "contact_name": "Emmanuel Abaka Ampah",
+        "contact_name": "Contact 59",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:29:24.000Z",
-        "contact_name": "Muhammad Iftikhar",
+        "contact_name": "Contact 136",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:28:32.000Z",
-        "contact_name": "Harsey Joy Punzalan",
+        "contact_name": "Contact 89",
         "duration": "-",
         "status": "Busy",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:28:10.000Z",
-        "contact_name": "Tonz Salvatore",
+        "contact_name": "Contact 202",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:27:28.000Z",
-        "contact_name": "Mohamed",
+        "contact_name": "Contact 130",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:26:50.000Z",
-        "contact_name": "Harold Malapitan",
+        "contact_name": "Contact 87",
         "duration": "00:30",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:23:47.000Z",
-        "contact_name": "Srinivas",
+        "contact_name": "Contact 185",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:15:03.000Z",
-        "contact_name": "Imran Javed",
+        "contact_name": "Contact 96",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:12:04.000Z",
-        "contact_name": "Harpreet singh",
+        "contact_name": "Contact 88",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:11:04.000Z",
-        "contact_name": "Ann Tess Jay",
+        "contact_name": "Contact 21",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:09:30.000Z",
-        "contact_name": "Ann Tess Jay",
+        "contact_name": "Contact 21",
         "duration": "00:51",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T15:52:56.000Z",
-        "contact_name": "Ann Tess Jay",
+        "contact_name": "Contact 21",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:45:12.000Z",
-        "contact_name": "Ann Tess Jay",
+        "contact_name": "Contact 21",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:42:52.000Z",
-        "contact_name": "Arjun Musuvathy",
+        "contact_name": "Contact 25",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:42:16.000Z",
-        "contact_name": "Glamorous Art",
+        "contact_name": "Contact 75",
         "duration": "00:19",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:41:40.000Z",
-        "contact_name": "Safi Jabeen",
+        "contact_name": "Contact 170",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:36:50.000Z",
-        "contact_name": "Asad Mokhtari",
+        "contact_name": "Contact 27",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:35:44.000Z",
-        "contact_name": "Nahiyan Abu",
+        "contact_name": "Contact 141",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:05:24.000Z",
-        "contact_name": "Abigail Ezenwelu",
+        "contact_name": "Contact 6",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:04:17.000Z",
-        "contact_name": "Abigail Ezenwelu",
+        "contact_name": "Contact 6",
         "duration": "00:19",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T14:58:11.000Z",
-        "contact_name": "Shally",
+        "contact_name": "Contact 178",
         "duration": "00:03",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:57:06.000Z",
-        "contact_name": "Safi Jabeen",
+        "contact_name": "Contact 170",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:55:38.000Z",
-        "contact_name": "Imran Javed",
+        "contact_name": "Contact 96",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:55:05.000Z",
-        "contact_name": "osahon samuel ebomwonyi",
+        "contact_name": "Contact 216",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:54:29.000Z",
-        "contact_name": "Abigail Ezenwelu",
+        "contact_name": "Contact 6",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:54:20.000Z",
-        "contact_name": "Jana Palmra",
+        "contact_name": "Contact 97",
         "duration": "-",
         "status": "Busy",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:53:37.000Z",
-        "contact_name": "Kwaku Owusu Oteng",
+        "contact_name": "Contact 108",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:52:18.000Z",
-        "contact_name": "Sitthanathan Paramasivam",
+        "contact_name": "Contact 181",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:50:33.000Z",
-        "contact_name": "Mohammed Ameen",
+        "contact_name": "Contact 132",
         "duration": "00:11",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:49:05.000Z",
-        "contact_name": "Vishal Bhadani",
+        "contact_name": "Contact 209",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:47:30.000Z",
-        "contact_name": "Monika Frand",
+        "contact_name": "Contact 134",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:46:39.000Z",
-        "contact_name": "Abdurakhmon",
+        "contact_name": "Contact 2",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:45:54.000Z",
-        "contact_name": "Emeka Anuebunwa",
+        "contact_name": "Contact 58",
         "duration": "00:09",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:41:51.000Z",
-        "contact_name": "Abigail Ezenwelu",
+        "contact_name": "Contact 6",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:39:03.000Z",
-        "contact_name": "Gagan singh",
+        "contact_name": "Contact 71",
         "duration": "-",
         "status": "Busy",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:37:54.000Z",
-        "contact_name": "THINUJAN Murugananthasothy",
+        "contact_name": "Contact 194",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:20:09.000Z",
-        "contact_name": "Aldi Celi",
+        "contact_name": "Contact 17",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:19:53.000Z",
-        "contact_name": "Leanne Cabiles",
+        "contact_name": "Contact 112",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:17:49.000Z",
-        "contact_name": "Oluwatoyin Yakubu",
+        "contact_name": "Contact 152",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:17:40.000Z",
-        "contact_name": "Juliana Addo",
+        "contact_name": "Contact 100",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:16:46.000Z",
-        "contact_name": "Shaheen Sombare",
+        "contact_name": "Contact 177",
         "duration": "00:23",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:15:18.000Z",
-        "contact_name": "Dinesha lakmini kariyawasam",
+        "contact_name": "Contact 49",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:14:44.000Z",
-        "contact_name": "Ammad Akhtar",
+        "contact_name": "Contact 19",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:13:47.000Z",
-        "contact_name": "Oluwatoyin Yakubu",
+        "contact_name": "Contact 152",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:11:08.000Z",
-        "contact_name": "Omar Sharif",
+        "contact_name": "Contact 153",
         "duration": "00:44",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:11:00.000Z",
-        "contact_name": "Omar Sharif",
+        "contact_name": "Contact 153",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:10:04.000Z",
-        "contact_name": "Omar Sharif",
+        "contact_name": "Contact 153",
         "duration": "-",
         "status": "Missed",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T14:09:58.000Z",
-        "contact_name": "Fernandes T'Hannah",
+        "contact_name": "Contact 68",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:08:43.000Z",
-        "contact_name": "Mehmud ismail",
+        "contact_name": "Contact 126",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:08:15.000Z",
-        "contact_name": "Ankush Rana",
+        "contact_name": "Contact 20",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:06:57.000Z",
-        "contact_name": "Omar Sharif",
+        "contact_name": "Contact 153",
         "duration": "00:03",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:04:18.000Z",
-        "contact_name": "Chris Joseph",
+        "contact_name": "Contact 44",
         "duration": "02:16",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:58:08.000Z",
-        "contact_name": "Arman Mir",
+        "contact_name": "Contact 26",
         "duration": "00:35",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:27:20.000Z",
-        "contact_name": "Samjhana kumari yadav",
+        "contact_name": "Contact 173",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:26:20.000Z",
-        "contact_name": "Samjhana kumari yadav",
+        "contact_name": "Contact 173",
         "duration": "00:20",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T10:20:26.000Z",
-        "contact_name": "Samjhana kumari yadav",
+        "contact_name": "Contact 173",
         "duration": "00:47",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T08:11:15.000Z",
-        "contact_name": "Sajeel Rajput",
+        "contact_name": "Contact 171",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T08:07:27.000Z",
-        "contact_name": "Omer Hussain",
+        "contact_name": "Contact 154",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-16T16:03:58.000Z",
-        "contact_name": "Omer Hussain",
+        "contact_name": "Contact 154",
         "duration": "-",
         "status": "Ringing",
         "direction": "inbound"
@@ -2757,7 +2801,7 @@
       "inboundAvgDuration": 0.65
     }
   },
-  "Jennie Miller": {
+  "Agent 10": {
     "total_actions": 11,
     "first_action": "2026-07-17T14:54:52.000Z",
     "last_action": "2026-07-17T20:15:30.000Z",
@@ -2877,28 +2921,28 @@
     "calls": [
       {
         "timestamp": "2026-07-17T12:28:54.000Z",
-        "contact_name": "Ève Mulholland",
+        "contact_name": "Contact 219",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:18:55.000Z",
-        "contact_name": "Annoshka Dilhara",
+        "contact_name": "Contact 22",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:17:55.000Z",
-        "contact_name": "Annoshka Dilhara",
+        "contact_name": "Contact 22",
         "duration": "-",
         "status": "Missed",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T10:14:35.000Z",
-        "contact_name": "Annoshka Dilhara",
+        "contact_name": "Contact 22",
         "duration": "00:15",
         "status": "Answered",
         "direction": "outbound"
@@ -2934,7 +2978,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Jessica Jessie": {
+  "Agent 11": {
     "total_actions": 20,
     "first_action": "2026-07-17T18:05:17.000Z",
     "last_action": "2026-07-17T21:42:59.000Z",
@@ -2976,7 +3020,7 @@
         "timestamp": "2026-07-17T18:05:17.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Dont pick the call.</p>\",\"contactId\":\"SfnWpkxmeeDedE7urCLe\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"BJMXUl7oyNZhsGeQfOEl\"},{\"objectKey\":\"contact\",\"recordId\":\"SfnWpkxmeeDedE7urCLe\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Dont pick the call.</p>\",\"contactId\":\"ContactID_46\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_28\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_46\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:27:57.000Z",
@@ -2988,7 +3032,7 @@
         "timestamp": "2026-07-17T21:28:15.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Deposited collected </p>\",\"contactId\":\"FFpir9JHSxi4Umrd6vkz\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"8BtMCz85LTkriixzLhXG\"},{\"objectKey\":\"contact\",\"recordId\":\"FFpir9JHSxi4Umrd6vkz\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Deposited collected </p>\",\"contactId\":\"ContactID_28\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_15\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_28\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:29:49.000Z",
@@ -3012,7 +3056,7 @@
         "timestamp": "2026-07-17T21:30:19.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"t2kjuBXDtTmgJmUk71D5\",\"name\":\"Kethujan\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
+        "details": "{\"contactId\":\"ContactID_94\",\"name\":\"Kethujan\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
       },
       {
         "timestamp": "2026-07-17T21:34:16.000Z",
@@ -3036,7 +3080,7 @@
         "timestamp": "2026-07-17T21:36:13.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"BjcZHeR4pnF0ZNcqBJKi\",\"name\":\"Idris\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
+        "details": "{\"contactId\":\"ContactID_18\",\"name\":\"Idris\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
       },
       {
         "timestamp": "2026-07-17T21:37:37.000Z",
@@ -3054,7 +3098,7 @@
         "timestamp": "2026-07-17T21:39:17.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"yRsc8ZCRgQGL8sTrdJgr\",\"name\":\"Guarab Lama\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
+        "details": "{\"contactId\":\"ContactID_98\",\"name\":\"Guarab Lama\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
       },
       {
         "timestamp": "2026-07-17T21:39:49.000Z",
@@ -3078,7 +3122,7 @@
         "timestamp": "2026-07-17T21:41:57.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"9Puzix54aDCOMRKO5Qtj\",\"name\":\"Savann\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
+        "details": "{\"contactId\":\"ContactID_15\",\"name\":\"Savann\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"kapO09gkzCcOcFCMXvOY\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
       },
       {
         "timestamp": "2026-07-17T21:42:58.000Z",
@@ -3097,42 +3141,42 @@
     "calls": [
       {
         "timestamp": "2026-07-17T14:35:23.000Z",
-        "contact_name": "Ashley Shamu",
+        "contact_name": "Contact 33",
         "duration": "00:45",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:34:03.000Z",
-        "contact_name": "Chintal Soni",
+        "contact_name": "Contact 43",
         "duration": "00:52",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:31:20.000Z",
-        "contact_name": "Daisy Cortez",
+        "contact_name": "Contact 45",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:55:48.000Z",
-        "contact_name": "Daisy Cortez",
+        "contact_name": "Contact 45",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:19:49.000Z",
-        "contact_name": "Ashley Shamu",
+        "contact_name": "Contact 33",
         "duration": "00:45",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:50:27.000Z",
-        "contact_name": "Syed Saqib Hussain",
+        "contact_name": "Contact 192",
         "duration": "01:58",
         "status": "Answered",
         "direction": "outbound"
@@ -3168,7 +3212,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Lisa Evans": {
+  "Agent 12": {
     "total_actions": 75,
     "first_action": "2026-07-17T14:38:36.000Z",
     "last_action": "2026-07-17T21:26:13.000Z",
@@ -3244,7 +3288,7 @@
         "timestamp": "2026-07-17T14:38:36.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"73iCQB1pj1mtDVIhjIg8\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"6IyLIgaJkrFNsACMB0LA\"},{\"objectKey\":\"contact\",\"recordId\":\"73iCQB1pj1mtDVIhjIg8\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_12\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_11\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_12\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:38:46.000Z",
@@ -3256,7 +3300,7 @@
         "timestamp": "2026-07-17T14:45:57.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">september plan </p>\",\"contactId\":\"8miTOjvlnMJwsS2tfPe0\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Oj7KtSkVHSihDBvGFdrS\"},{\"objectKey\":\"contact\",\"recordId\":\"8miTOjvlnMJwsS2tfPe0\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">september plan </p>\",\"contactId\":\"ContactID_14\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_50\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_14\"}]}"
       },
       {
         "timestamp": "2026-07-17T14:46:10.000Z",
@@ -3280,7 +3324,7 @@
         "timestamp": "2026-07-17T15:43:12.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"qyexDbmjcD5ZPyO2wj5S\",\"name\":\"Naz Samal Saber\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
+        "details": "{\"contactId\":\"ContactID_90\",\"name\":\"Naz Samal Saber\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"d74fb55f-454e-4cab-9af7-b18c2012cf78\",\"status\":\"open\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Deposit Collected\"}"
       },
       {
         "timestamp": "2026-07-17T15:43:12.000Z",
@@ -3304,91 +3348,91 @@
         "timestamp": "2026-07-17T16:50:20.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"OfGCjEXYL7aA75HMhWF1\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"9bPGJaSveExygBDPGubB\"},{\"objectKey\":\"contact\",\"recordId\":\"OfGCjEXYL7aA75HMhWF1\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_40\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_21\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_40\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:50:50.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"kvezlNCJnMbjAHywEudF\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"N92ckcldzhtozs2TND5v\"},{\"objectKey\":\"contact\",\"recordId\":\"kvezlNCJnMbjAHywEudF\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_83\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_46\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_83\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:51:31.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"BlmvaTQW2n14wqRize28\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"9bdsPdZWetJP941dOd14\"},{\"objectKey\":\"contact\",\"recordId\":\"BlmvaTQW2n14wqRize28\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_19\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_22\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_19\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:52:21.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"izJuqEVhnYB06QLuXpW9\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"DEE4mlbGjMj3ENoQ7WkP\"},{\"objectKey\":\"contact\",\"recordId\":\"izJuqEVhnYB06QLuXpW9\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_77\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_32\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_77\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:52:53.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"VMUQC6vZ0QKFNGSGDmLc\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"DYO1dkSnAQmXMKrEcVsq\"},{\"objectKey\":\"contact\",\"recordId\":\"VMUQC6vZ0QKFNGSGDmLc\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_52\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_33\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_52\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:55:36.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"lqTwlr0S3NiBHfmrjsCt\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"BVxtMZSI4TcvhD5Owd3C\"},{\"objectKey\":\"contact\",\"recordId\":\"lqTwlr0S3NiBHfmrjsCt\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_85\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_29\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_85\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:56:45.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">VM SENT</p>\",\"contactId\":\"DMmAvDX46kOIyEFliljV\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"AUcQSh4NkIeEX1gWLFzw\"},{\"objectKey\":\"contact\",\"recordId\":\"DMmAvDX46kOIyEFliljV\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">VM SENT</p>\",\"contactId\":\"ContactID_22\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_23\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_22\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:57:14.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"kRwGYzU1qCchOCFyD5As\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"E8k9gf1qyLICxMTsmv29\"},{\"objectKey\":\"contact\",\"recordId\":\"kRwGYzU1qCchOCFyD5As\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_82\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_35\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_82\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:57:29.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"kRwGYzU1qCchOCFyD5As\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"E8k9gf1qyLICxMTsmv29\"},{\"objectKey\":\"contact\",\"recordId\":\"kRwGYzU1qCchOCFyD5As\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_82\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_35\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_82\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:01:23.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"OjJNjqVpHIimeur6PvSP\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Rnx8tPyK7DYJJy5q1Xqa\"},{\"objectKey\":\"contact\",\"recordId\":\"OjJNjqVpHIimeur6PvSP\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_41\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_55\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_41\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:07:33.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">His son's wedding</p>\",\"contactId\":\"hvOW5NFJFIJFH93ETGMh\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"aVOPPpXRS6AB4LuPxO1G\"},{\"objectKey\":\"contact\",\"recordId\":\"hvOW5NFJFIJFH93ETGMh\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">His son's wedding</p>\",\"contactId\":\"ContactID_75\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_64\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_75\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:12:20.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"FYRiKdGgpJNiT0aBhEZg\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"E9dOZecqWgaXhvFClWeN\"},{\"objectKey\":\"contact\",\"recordId\":\"FYRiKdGgpJNiT0aBhEZg\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_29\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_36\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_29\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:19:12.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Busy and could not hear me. </p>\",\"contactId\":\"bPrgtpA6evFyZXvoLxz4\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"NJb98d284xT77rzFMZN6\"},{\"objectKey\":\"contact\",\"recordId\":\"bPrgtpA6evFyZXvoLxz4\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Busy and could not hear me. </p>\",\"contactId\":\"ContactID_66\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_47\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_66\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:20:49.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"M4SGe3zvgwXJbk8FPHtY\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Ak0JrTfSXQp9AqG587AI\"},{\"objectKey\":\"contact\",\"recordId\":\"M4SGe3zvgwXJbk8FPHtY\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_36\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_25\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_36\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:34:17.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Connection issue, will call later. </p>\",\"contactId\":\"AEah5A8AuZXeMAbIvKjk\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"tUYVQJ1ICFrbkQWxuuVJ\"},{\"objectKey\":\"contact\",\"recordId\":\"AEah5A8AuZXeMAbIvKjk\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">Connection issue, will call later. </p>\",\"contactId\":\"ContactID_16\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_83\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_16\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:34:26.000Z",
@@ -3400,7 +3444,7 @@
         "timestamp": "2026-07-17T17:40:53.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"s11LHqOiEdxIUXWx9iMe\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Awnf2wQrUc1pbWCPRwIo\"},{\"objectKey\":\"contact\",\"recordId\":\"s11LHqOiEdxIUXWx9iMe\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_92\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_26\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_92\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:05:05.000Z",
@@ -3418,7 +3462,7 @@
         "timestamp": "2026-07-17T18:12:14.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">he said will share documents in an hour</p>\",\"contactId\":\"hKB6s3TbLNJFTf1DtNEE\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"JFBbu6LPQCVA69jJc2sc\"},{\"objectKey\":\"contact\",\"recordId\":\"hKB6s3TbLNJFTf1DtNEE\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">he said will share documents in an hour</p>\",\"contactId\":\"ContactID_73\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_42\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_73\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:12:34.000Z",
@@ -3430,13 +3474,13 @@
         "timestamp": "2026-07-17T18:14:29.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">uploaded on Manchester and still is waiting</p>\",\"contactId\":\"yDXwXfIVieipLNEihdSy\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"T98pspEPjwpZ3AGrg9Qf\"},{\"objectKey\":\"contact\",\"recordId\":\"yDXwXfIVieipLNEihdSy\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">uploaded on Manchester and still is waiting</p>\",\"contactId\":\"ContactID_97\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_59\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_97\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:35:30.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He is on a skilled worker visa, and Spain is visa-free for his country. </p>\",\"contactId\":\"pa9z0WxWGmnAHimX1u9m\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"0ZlAW709sYbFyYFNVps2\"},{\"objectKey\":\"contact\",\"recordId\":\"pa9z0WxWGmnAHimX1u9m\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He is on a skilled worker visa, and Spain is visa-free for his country. </p>\",\"contactId\":\"ContactID_88\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_1\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_88\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:35:50.000Z",
@@ -3454,7 +3498,7 @@
         "timestamp": "2026-07-17T18:38:20.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"XEH4Hdno99HnbzREzeCN\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"NzGXYVNPq98Szvdko29F\"},{\"objectKey\":\"contact\",\"recordId\":\"XEH4Hdno99HnbzREzeCN\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_60\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_48\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_60\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:40:11.000Z",
@@ -3472,19 +3516,19 @@
         "timestamp": "2026-07-17T18:42:00.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"2BCeauv6eM4HVGrT22XU\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"bi4oolBQ6RZMDo83tqVU\"},{\"objectKey\":\"contact\",\"recordId\":\"2BCeauv6eM4HVGrT22XU\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_4\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_66\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_4\"}]}"
       },
       {
         "timestamp": "2026-07-17T19:17:37.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"C3NOH7Wuau1JVfsOzcky\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"y2hkO7CfgiggshPbN5k5\"},{\"objectKey\":\"contact\",\"recordId\":\"C3NOH7Wuau1JVfsOzcky\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_20\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_86\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_20\"}]}"
       },
       {
         "timestamp": "2026-07-17T19:18:16.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"mW5uluR6C562fDuKcPiZ\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"h7TLHxRcNUmIZ1eC38Wc\"},{\"objectKey\":\"contact\",\"recordId\":\"mW5uluR6C562fDuKcPiZ\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_86\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_69\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_86\"}]}"
       },
       {
         "timestamp": "2026-07-17T19:25:12.000Z",
@@ -3502,7 +3546,7 @@
         "timestamp": "2026-07-17T19:26:27.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"Gq9vESXu6reZDA1kigZN\",\"name\":\"S Hamalaw\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"7799ac27-ee27-47b7-823f-8bbe426d8e52\",\"status\":\"open\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Visa Status\"}"
+        "details": "{\"contactId\":\"ContactID_30\",\"name\":\"S Hamalaw\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"7799ac27-ee27-47b7-823f-8bbe426d8e52\",\"status\":\"open\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Visa Status\"}"
       },
       {
         "timestamp": "2026-07-17T19:40:06.000Z",
@@ -3520,7 +3564,7 @@
         "timestamp": "2026-07-17T19:41:03.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"TnOQsIfZxSSJayR9ZjPL\",\"name\":\"Saran\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"7799ac27-ee27-47b7-823f-8bbe426d8e52\",\"status\":\"open\",\"source\":\"Referal\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Visa Status\"}"
+        "details": "{\"contactId\":\"ContactID_48\",\"name\":\"Saran\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"7799ac27-ee27-47b7-823f-8bbe426d8e52\",\"status\":\"open\",\"source\":\"Referal\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Visa Status\"}"
       },
       {
         "timestamp": "2026-07-17T19:41:43.000Z",
@@ -3550,7 +3594,7 @@
         "timestamp": "2026-07-17T19:43:27.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"a02ohrx2S7Z4d0Qtl5SQ\",\"name\":\"S\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"41329989-73ec-4dca-8636-9868627173b0\",\"status\":\"open\",\"source\":\"Referal\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Interested\"}"
+        "details": "{\"contactId\":\"ContactID_63\",\"name\":\"S\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"41329989-73ec-4dca-8636-9868627173b0\",\"status\":\"open\",\"source\":\"Referal\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Interested\"}"
       },
       {
         "timestamp": "2026-07-17T19:44:48.000Z",
@@ -3574,7 +3618,7 @@
         "timestamp": "2026-07-17T19:46:26.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"iVI5eofCl0trlBWpc0GT\",\"name\":\"Soran\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"41329989-73ec-4dca-8636-9868627173b0\",\"status\":\"open\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Interested\"}"
+        "details": "{\"contactId\":\"ContactID_76\",\"name\":\"Soran\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"41329989-73ec-4dca-8636-9868627173b0\",\"status\":\"open\",\"assignedTo\":\"Kqc8eB2D8lRwnzCfjlg6\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"Interested\"}"
       },
       {
         "timestamp": "2026-07-17T19:46:53.000Z",
@@ -3592,97 +3636,97 @@
         "timestamp": "2026-07-17T20:19:44.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"6s8B7cbK6kc2yojtQbrg\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"PCfnms0sOh8QemPJM4zd\"},{\"objectKey\":\"contact\",\"recordId\":\"6s8B7cbK6kc2yojtQbrg\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_10\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_52\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_10\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:22:21.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"n4AEXAmRCPhGjP2pJP5O\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"nsOnek6pf1rOeOX8HSYa\"},{\"objectKey\":\"contact\",\"recordId\":\"n4AEXAmRCPhGjP2pJP5O\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_87\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_79\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_87\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:23:18.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"VwgSYR0TdHjSd61rlg84\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"QzMr1OdtR9fb4wvYjvh6\"},{\"objectKey\":\"contact\",\"recordId\":\"VwgSYR0TdHjSd61rlg84\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_55\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_54\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_55\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:25:06.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">VM SENT</p>\",\"contactId\":\"cSbtY9KYWXl1R2lS5iG1\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"SV9RvEoeo1Fi6gly7q0b\"},{\"objectKey\":\"contact\",\"recordId\":\"cSbtY9KYWXl1R2lS5iG1\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">VM SENT</p>\",\"contactId\":\"ContactID_67\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_56\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_67\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:26:27.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">VM SENT</p>\",\"contactId\":\"gyUKMWi0Kc5pSQ3ZBgwd\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"4Z6rGh3lbIqjY8Rlq5EB\"},{\"objectKey\":\"contact\",\"recordId\":\"gyUKMWi0Kc5pSQ3ZBgwd\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">VM SENT</p>\",\"contactId\":\"ContactID_72\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_7\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_72\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:37:50.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">she was busy, all the details are shared and she will come back after reviewing services, tht are shared on email. </p>\",\"contactId\":\"AEah5A8AuZXeMAbIvKjk\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"tUYVQJ1ICFrbkQWxuuVJ\"},{\"objectKey\":\"contact\",\"recordId\":\"AEah5A8AuZXeMAbIvKjk\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">she was busy, all the details are shared and she will come back after reviewing services, tht are shared on email. </p>\",\"contactId\":\"ContactID_16\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_83\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_16\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:40:31.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"D6nQYJHKFhTIkSa612kc\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"ITSnR0TiMSIfIC1mNh0k\"},{\"objectKey\":\"contact\",\"recordId\":\"D6nQYJHKFhTIkSa612kc\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_21\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_40\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_21\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:41:16.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"EJm3UpF44upS6sQQkReH\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"JLAhUP0ya6uHlQDRmlTu\"},{\"objectKey\":\"contact\",\"recordId\":\"EJm3UpF44upS6sQQkReH\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_26\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_44\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_26\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:41:56.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"dKfsC1zSWZGiMVOlHAHG\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"0c0y4SvBSJXMmeYrDBgQ\"},{\"objectKey\":\"contact\",\"recordId\":\"dKfsC1zSWZGiMVOlHAHG\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_69\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_2\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_69\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:10:39.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"0fXNFqF7GtqVYqigprRM\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"ZqSRfxNCm4kOI4mVdqBy\"},{\"objectKey\":\"contact\",\"recordId\":\"0fXNFqF7GtqVYqigprRM\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_2\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_63\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_2\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:11:04.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"eK9X2seQ1f1zDFgtZr5x\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Tg2DFJmiKxky3sp85ded\"},{\"objectKey\":\"contact\",\"recordId\":\"eK9X2seQ1f1zDFgtZr5x\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_70\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_60\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_70\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:11:40.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"UPiscmdOB7KMvGKs9CG1\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"VRPnYzvwKadiodVi8gBB\"},{\"objectKey\":\"contact\",\"recordId\":\"UPiscmdOB7KMvGKs9CG1\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_51\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_61\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_51\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:12:21.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"F35Ym2Cw09bb8rWSRmId\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"hABIAreXybBS89lD3P6m\"},{\"objectKey\":\"contact\",\"recordId\":\"F35Ym2Cw09bb8rWSRmId\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_27\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_70\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_27\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:13:02.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"IvxMlSUBpYOZ4hefSkG0\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"O04oQSDRoipfYT8Je4ie\"},{\"objectKey\":\"contact\",\"recordId\":\"IvxMlSUBpYOZ4hefSkG0\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_33\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_49\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_33\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:13:55.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"Tc7x1ZbLYm7lgHTeu7S8\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"AXRLYkThgqW768YY00EN\"},{\"objectKey\":\"contact\",\"recordId\":\"Tc7x1ZbLYm7lgHTeu7S8\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_47\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_24\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_47\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:15:56.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"3zSCWOTxE2x8FnIFvuha\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"9DoUKQ448t3MWF73x24X\"},{\"objectKey\":\"contact\",\"recordId\":\"3zSCWOTxE2x8FnIFvuha\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">NR</p>\",\"contactId\":\"ContactID_7\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_19\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_7\"}]}"
       },
       {
         "timestamp": "2026-07-17T21:26:13.000Z",
@@ -3695,399 +3739,399 @@
     "calls": [
       {
         "timestamp": "2026-07-17T18:09:01.000Z",
-        "contact_name": "Julie Conteh",
+        "contact_name": "Contact 101",
         "duration": "-",
         "status": "Missed",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T17:16:10.000Z",
-        "contact_name": "Testimony Adeleke",
+        "contact_name": "Contact 199",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:15:38.000Z",
-        "contact_name": "NABIL KHAN",
+        "contact_name": "Contact 139",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:14:08.000Z",
-        "contact_name": "Emy Jay",
+        "contact_name": "Contact 62",
         "duration": "00:33",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:13:18.000Z",
-        "contact_name": "Subhan",
+        "contact_name": "Contact 187",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:12:49.000Z",
-        "contact_name": "ladislav milko",
+        "contact_name": "Contact 214",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:11:59.000Z",
-        "contact_name": "Nicole Mutsago",
+        "contact_name": "Contact 144",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:11:25.000Z",
-        "contact_name": "Faizii Malik",
+        "contact_name": "Contact 66",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:10:53.000Z",
-        "contact_name": "Sowmiya Panchamoorthy",
+        "contact_name": "Contact 184",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:09:52.000Z",
-        "contact_name": "Julie Conteh",
+        "contact_name": "Contact 101",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:43:50.000Z",
-        "contact_name": "Ahad Islam",
+        "contact_name": "Contact 10",
         "duration": "00:26",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:41:31.000Z",
-        "contact_name": "Victoria Okedele",
+        "contact_name": "Contact 206",
         "duration": "00:03",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:40:43.000Z",
-        "contact_name": "Mahtab Saeed",
+        "contact_name": "Contact 115",
         "duration": "00:23",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:39:50.000Z",
-        "contact_name": "Gurbax Singh",
+        "contact_name": "Contact 78",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:26:40.000Z",
-        "contact_name": "Esther Chukwudi Nonso-Onu",
+        "contact_name": "Contact 64",
         "duration": "10:16",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:25:27.000Z",
-        "contact_name": "Vanessa Anne",
+        "contact_name": "Contact 205",
         "duration": "00:22",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:24:01.000Z",
-        "contact_name": "Abhii",
+        "contact_name": "Contact 4",
         "duration": "00:40",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:22:33.000Z",
-        "contact_name": "Dean Kimmins",
+        "contact_name": "Contact 46",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:21:22.000Z",
-        "contact_name": "Achever Nina",
+        "contact_name": "Contact 7",
         "duration": "00:42",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:20:03.000Z",
-        "contact_name": "Lydia Omari Asante",
+        "contact_name": "Contact 114",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:19:07.000Z",
-        "contact_name": "Vikkie Affy Nyong",
+        "contact_name": "Contact 207",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:17:56.000Z",
-        "contact_name": "Akshay Ranbhise",
+        "contact_name": "Contact 16",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:16:59.000Z",
-        "contact_name": "Malik Usama",
+        "contact_name": "Contact 118",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:55:54.000Z",
-        "contact_name": "Bolaji Mustapha",
+        "contact_name": "Contact 41",
         "duration": "00:02",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:54:37.000Z",
-        "contact_name": "Malik Usama",
+        "contact_name": "Contact 118",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:48:27.000Z",
-        "contact_name": "Bolaji Mustapha",
+        "contact_name": "Contact 41",
         "duration": "00:08",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:44:34.000Z",
-        "contact_name": "Bolaji Mustapha",
+        "contact_name": "Contact 41",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:44:02.000Z",
-        "contact_name": "Bolaji Mustapha",
+        "contact_name": "Contact 41",
         "duration": "-",
         "status": "Missed",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T14:41:23.000Z",
-        "contact_name": "Esteffe Rose Directo",
+        "contact_name": "Contact 63",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:37:01.000Z",
-        "contact_name": "Malik Hassan Naseer",
+        "contact_name": "Contact 117",
         "duration": "01:00",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:27:11.000Z",
-        "contact_name": "Mfundo Innocent Nyembe",
+        "contact_name": "Contact 127",
         "duration": "06:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:24:47.000Z",
-        "contact_name": "OYINKANSOLA",
+        "contact_name": "Contact 148",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:23:19.000Z",
-        "contact_name": "OYINKANSOLA",
+        "contact_name": "Contact 148",
         "duration": "00:50",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T14:22:48.000Z",
-        "contact_name": "OYINKANSOLA",
+        "contact_name": "Contact 148",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:12:49.000Z",
-        "contact_name": "Sunday Samuel Anikoh",
+        "contact_name": "Contact 189",
         "duration": "00:51",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:10:32.000Z",
-        "contact_name": "Suhana Mahommadalhaj Diwan",
+        "contact_name": "Contact 188",
         "duration": "00:29",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:38:54.000Z",
-        "contact_name": "Badmus Dolapo",
+        "contact_name": "Contact 39",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:33:32.000Z",
-        "contact_name": "Esther Chukwudi Nonso-Onu",
+        "contact_name": "Contact 64",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:21:56.000Z",
-        "contact_name": "Esther Chukwudi Nonso-Onu",
+        "contact_name": "Contact 64",
         "duration": "02:19",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:20:12.000Z",
-        "contact_name": "Aymen Ghaffar",
+        "contact_name": "Contact 37",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:17:22.000Z",
-        "contact_name": "Halima Ogunbiyi",
+        "contact_name": "Contact 85",
         "duration": "01:08",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:14:51.000Z",
-        "contact_name": "Halima Ogunbiyi",
+        "contact_name": "Contact 85",
         "duration": "-",
         "status": "Busy",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:05:10.000Z",
-        "contact_name": "Ranjith Ranis",
+        "contact_name": "Contact 163",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:01:02.000Z",
-        "contact_name": "Atif Hasan",
+        "contact_name": "Contact 36",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:58:09.000Z",
-        "contact_name": "Matilda Ankrah",
+        "contact_name": "Contact 124",
         "duration": "00:35",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:57:06.000Z",
-        "contact_name": "Tehseen Rana",
+        "contact_name": "Contact 198",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:55:53.000Z",
-        "contact_name": "Remi",
+        "contact_name": "Contact 166",
         "duration": "00:33",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:53:55.000Z",
-        "contact_name": "Mitesh Gavai",
+        "contact_name": "Contact 129",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:52:43.000Z",
-        "contact_name": "LAKSHMIPRIYA",
+        "contact_name": "Contact 109",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:52:10.000Z",
-        "contact_name": "Nematullokh Izatulloyev",
+        "contact_name": "Contact 143",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:51:09.000Z",
-        "contact_name": "Siva Hare",
+        "contact_name": "Contact 182",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:50:38.000Z",
-        "contact_name": "Faisal Awan",
+        "contact_name": "Contact 65",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:49:38.000Z",
-        "contact_name": "Ashaye Sukeke Sunkanmi",
+        "contact_name": "Contact 30",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:46:23.000Z",
-        "contact_name": "Georges Bertrand yabal Mooh",
+        "contact_name": "Contact 74",
         "duration": "15:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:39:18.000Z",
-        "contact_name": "Semeera Small",
+        "contact_name": "Contact 176",
         "duration": "01:48",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:38:16.000Z",
-        "contact_name": "Hafiz Furqan",
+        "contact_name": "Contact 84",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:26:15.000Z",
-        "contact_name": "Bolaji Mustapha",
+        "contact_name": "Contact 41",
         "duration": "06:19",
         "status": "Answered",
         "direction": "outbound"
@@ -4123,7 +4167,7 @@
       "inboundAvgDuration": 0.8333333333333334
     }
   },
-  "Nail Niyami": {
+  "Agent 13": {
     "total_actions": 7,
     "first_action": "2026-07-17T14:54:08.000Z",
     "last_action": "2026-07-17T21:39:45.000Z",
@@ -4208,63 +4252,63 @@
     "calls": [
       {
         "timestamp": "2026-07-17T12:52:21.000Z",
-        "contact_name": "Gloria Ajakpofo",
+        "contact_name": "Contact 76",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:49:29.000Z",
-        "contact_name": "Gloria Ajakpofo",
+        "contact_name": "Contact 76",
         "duration": "02:11",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T09:36:57.000Z",
-        "contact_name": "Minahil niazi",
+        "contact_name": "Contact 128",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T08:16:42.000Z",
-        "contact_name": "Gloria Ajakpofo",
+        "contact_name": "Contact 76",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T08:15:20.000Z",
-        "contact_name": "Minahil niazi",
+        "contact_name": "Contact 128",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-16T16:22:11.000Z",
-        "contact_name": "Minahil niazi",
+        "contact_name": "Contact 128",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-16T16:02:04.000Z",
-        "contact_name": "Minahil niazi",
+        "contact_name": "Contact 128",
         "duration": "10:20",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-16T16:00:29.000Z",
-        "contact_name": "Minahil niazi",
+        "contact_name": "Contact 128",
         "duration": "-",
         "status": "Voicemail",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-16T16:00:10.000Z",
-        "contact_name": "Minahil niazi",
+        "contact_name": "Contact 128",
         "duration": "-",
         "status": "Answered",
         "direction": "outbound"
@@ -4300,7 +4344,7 @@
       "inboundAvgDuration": 2.183333333333333
     }
   },
-  "Nancy Watson": {
+  "Agent 14": {
     "total_actions": 13,
     "first_action": "2026-07-17T13:41:37.000Z",
     "last_action": "2026-07-17T20:22:42.000Z",
@@ -4374,25 +4418,25 @@
         "timestamp": "2026-07-17T13:41:37.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">no response</p><p style=\\\"margin:0px; padding-left: 0px!important;\\\"></p>\",\"contactId\":\"VMUtbBq7ng3xNwaNii6Y\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"7msAxKuyNspnvP0zapcA\"},{\"objectKey\":\"contact\",\"recordId\":\"VMUtbBq7ng3xNwaNii6Y\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">no response</p><p style=\\\"margin:0px; padding-left: 0px!important;\\\"></p>\",\"contactId\":\"ContactID_53\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_14\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_53\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:58:36.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He has posponed the plan for now . he wll lemme knwo whneever he wanna proced</p>\",\"contactId\":\"VMUtbBq7ng3xNwaNii6Y\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"7msAxKuyNspnvP0zapcA\"},{\"objectKey\":\"contact\",\"recordId\":\"VMUtbBq7ng3xNwaNii6Y\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">He has posponed the plan for now . he wll lemme knwo whneever he wanna proced</p>\",\"contactId\":\"ContactID_53\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_14\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_53\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:59:07.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">cut the calll</p>\",\"contactId\":\"4IJNRvAGxks5h8ZswPrv\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"lsDnyhxBhlvys4K2XUgD\"},{\"objectKey\":\"contact\",\"recordId\":\"4IJNRvAGxks5h8ZswPrv\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">cut the calll</p>\",\"contactId\":\"ContactID_8\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_77\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_8\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:07:23.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">call cut </p>\",\"contactId\":\"6z3qxy3NPHfALwgnLgyA\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Bf801dAvcucwpfduxVtC\"},{\"objectKey\":\"contact\",\"recordId\":\"6z3qxy3NPHfALwgnLgyA\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">call cut </p>\",\"contactId\":\"ContactID_11\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_30\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_11\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:10:16.000Z",
@@ -4404,31 +4448,31 @@
         "timestamp": "2026-07-17T18:37:59.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">no response</p>\",\"contactId\":\"22Y6Mm0ZJQoCsnatg13R\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"4mJ9ox3wkXTt8U5PCV5M\"},{\"objectKey\":\"contact\",\"recordId\":\"22Y6Mm0ZJQoCsnatg13R\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">no response</p>\",\"contactId\":\"ContactID_3\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_8\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_3\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:38:48.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No response</p>\",\"contactId\":\"b8pgo1PnLgkVoSLg5Lkw\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"tC5y3Wl0NmaImSWwwQ6U\"},{\"objectKey\":\"contact\",\"recordId\":\"b8pgo1PnLgkVoSLg5Lkw\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No response</p>\",\"contactId\":\"ContactID_65\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_82\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_65\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:39:24.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">unreachabel</p>\",\"contactId\":\"6cEWSYRn6rmuEGL4itM5\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"4qhjULlHyUFpviIwLvRA\"},{\"objectKey\":\"contact\",\"recordId\":\"6cEWSYRn6rmuEGL4itM5\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">unreachabel</p>\",\"contactId\":\"ContactID_9\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_9\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_9\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:42:34.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">no response</p>\",\"contactId\":\"jbm4BKyX8bpCs2ekEEXK\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"zDI9w2ik7cEK0BjLOx6P\"},{\"objectKey\":\"contact\",\"recordId\":\"jbm4BKyX8bpCs2ekEEXK\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">no response</p>\",\"contactId\":\"ContactID_80\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_88\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_80\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:46:46.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"OJkPweL3iHo69f36YmBw\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"krt0LumpiV7BypMbKoyY\"},{\"objectKey\":\"contact\",\"recordId\":\"OJkPweL3iHo69f36YmBw\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">No Response</p>\",\"contactId\":\"ContactID_38\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_75\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_38\"}]}"
       },
       {
         "timestamp": "2026-07-17T20:21:13.000Z",
@@ -4446,175 +4490,175 @@
         "timestamp": "2026-07-17T20:22:42.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">spain , 135 GBP deceember , dates not confirmed .</p>\",\"contactId\":\"X4Gv9tC10GNHnpIVK8Zd\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"DmSAGj9De1Zvu6QHAMzv\"},{\"objectKey\":\"contact\",\"recordId\":\"X4Gv9tC10GNHnpIVK8Zd\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">spain , 135 GBP deceember , dates not confirmed .</p>\",\"contactId\":\"ContactID_59\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_34\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_59\"}]}"
       }
     ],
     "assigned_opportunities": 28,
     "calls": [
       {
         "timestamp": "2026-07-17T15:38:32.000Z",
-        "contact_name": "Edith Zarate",
+        "contact_name": "Contact 53",
         "duration": "05:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:08:24.000Z",
-        "contact_name": "Vishal",
+        "contact_name": "Contact 208",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:07:21.000Z",
-        "contact_name": "Vishal",
+        "contact_name": "Contact 208",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:07:00.000Z",
-        "contact_name": "Vishal",
+        "contact_name": "Contact 208",
         "duration": "-",
         "status": "Voicemail",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T15:06:07.000Z",
-        "contact_name": "Vishal",
+        "contact_name": "Contact 208",
         "duration": "-",
         "status": "Missed",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T14:45:44.000Z",
-        "contact_name": "Humawar Rauf",
+        "contact_name": "Contact 94",
         "duration": "00:15",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:43:35.000Z",
-        "contact_name": "Norah mashupika",
+        "contact_name": "Contact 146",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:41:45.000Z",
-        "contact_name": "Dewan Haque",
+        "contact_name": "Contact 48",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:39:07.000Z",
-        "contact_name": "Vishal",
+        "contact_name": "Contact 208",
         "duration": "00:21",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:37:21.000Z",
-        "contact_name": "Emmanuel Opeyemi Olorundare",
+        "contact_name": "Contact 61",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:00:08.000Z",
-        "contact_name": "Ahmed Farhan",
+        "contact_name": "Contact 11",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:06:57.000Z",
-        "contact_name": "Ojoma Achadu",
+        "contact_name": "Contact 149",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:06:43.000Z",
-        "contact_name": "Latifa",
+        "contact_name": "Contact 110",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:06:33.000Z",
-        "contact_name": "Asaf Kajahussain",
+        "contact_name": "Contact 28",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:04:23.000Z",
-        "contact_name": "Nauman Liaqat",
+        "contact_name": "Contact 142",
         "duration": "00:33",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:04:08.000Z",
-        "contact_name": "Abendnego Makama",
+        "contact_name": "Contact 3",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:02:25.000Z",
-        "contact_name": "Emmanuel Opeyemi Olorundare",
+        "contact_name": "Contact 61",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:01:16.000Z",
-        "contact_name": "Ajay Grg",
+        "contact_name": "Contact 13",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T13:00:07.000Z",
-        "contact_name": "Nagina Kanwal",
+        "contact_name": "Contact 140",
         "duration": "00:17",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:58:31.000Z",
-        "contact_name": "Sarah",
+        "contact_name": "Contact 174",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:49:37.000Z",
-        "contact_name": "Karwan qadr",
+        "contact_name": "Contact 104",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:58:51.000Z",
-        "contact_name": "Dewan Haque",
+        "contact_name": "Contact 48",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:44:05.000Z",
-        "contact_name": "Karwan qadr",
+        "contact_name": "Contact 104",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:41:52.000Z",
-        "contact_name": "Karwan qadr",
+        "contact_name": "Contact 104",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
@@ -4650,7 +4694,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Riya Jones": {
+  "Agent 15": {
     "total_actions": 2,
     "first_action": "2026-07-17T16:58:25.000Z",
     "last_action": "2026-07-17T17:12:31.000Z",
@@ -4690,42 +4734,42 @@
     "calls": [
       {
         "timestamp": "2026-07-17T13:20:12.000Z",
-        "contact_name": "Sima Bhurtel",
+        "contact_name": "Contact 180",
         "duration": "00:30",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:59:10.000Z",
-        "contact_name": "Sima Bhurtel",
+        "contact_name": "Contact 180",
         "duration": "00:23",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:53:37.000Z",
-        "contact_name": "Sima Bhurtel",
+        "contact_name": "Contact 180",
         "duration": "00:59",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:21:07.000Z",
-        "contact_name": "Sohail Mohamed",
+        "contact_name": "Contact 183",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:52:09.000Z",
-        "contact_name": "Sohail Mohamed",
+        "contact_name": "Contact 183",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:43:09.000Z",
-        "contact_name": "Sohail Mohamed",
+        "contact_name": "Contact 183",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
@@ -4761,7 +4805,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Rose Morgan": {
+  "Agent 16": {
     "total_actions": 6,
     "first_action": "2026-07-17T18:56:50.000Z",
     "last_action": "2026-07-17T21:26:32.000Z",
@@ -4837,140 +4881,140 @@
     "calls": [
       {
         "timestamp": "2026-07-17T17:38:22.000Z",
-        "contact_name": "Syed Muhammad Raza Naqvi",
+        "contact_name": "Contact 190",
         "duration": "-",
         "status": "Voicemail",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T17:23:08.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "-",
         "status": "Missed",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T16:26:53.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:26:28.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "01:38",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:25:36.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "00:30",
         "status": "Answered",
         "direction": "inbound"
       },
       {
         "timestamp": "2026-07-17T16:22:39.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "00:35",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:09:32.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "00:47",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:08:06.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "00:48",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:06:11.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "00:46",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:02:24.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "00:51",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:00:12.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "-",
         "status": "Ringing",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:16:58.000Z",
-        "contact_name": "Syed Muhammad Raza Naqvi",
+        "contact_name": "Contact 190",
         "duration": "00:17",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T15:12:06.000Z",
-        "contact_name": "Tareq Mahmud Kakon",
+        "contact_name": "Contact 195",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:59:59.000Z",
-        "contact_name": "umme habiba",
+        "contact_name": "Contact 218",
         "duration": "00:49",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:57:16.000Z",
-        "contact_name": "Archana Gupta",
+        "contact_name": "Contact 24",
         "duration": "00:55",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:56:00.000Z",
-        "contact_name": "Bushra Sufian",
+        "contact_name": "Contact 42",
         "duration": "00:36",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:01:34.000Z",
-        "contact_name": "Ekun Joel Ariyo",
+        "contact_name": "Contact 54",
         "duration": "00:42",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:58:29.000Z",
-        "contact_name": "Nulece Shala",
+        "contact_name": "Contact 147",
         "duration": "00:32",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:40:47.000Z",
-        "contact_name": "Pangwana Dube",
+        "contact_name": "Contact 157",
         "duration": "00:33",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:15:07.000Z",
-        "contact_name": "Adelowo Babatunde",
+        "contact_name": "Contact 8",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
@@ -5006,7 +5050,7 @@
       "inboundAvgDuration": 0.5
     }
   },
-  "Sara Evans": {
+  "Agent 17": {
     "total_actions": 10,
     "first_action": "2026-07-17T16:29:25.000Z",
     "last_action": "2026-07-17T18:34:53.000Z",
@@ -5066,19 +5110,19 @@
         "timestamp": "2026-07-17T16:29:50.000Z",
         "module": "OPPORTUNITY",
         "action": "CREATED",
-        "details": "{\"contactId\":\"HBks8CDrZ52dII2ZbxrI\",\"name\":\"Saikirishna\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"8bdf89e6-7b51-4990-81b1-00d1072786b4\",\"status\":\"open\",\"assignedTo\":\"HFvtN21xFkPjs7VpU3Gx\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"New Lead\"}"
+        "details": "{\"contactId\":\"ContactID_31\",\"name\":\"Saikirishna\",\"pipelineId\":\"fRpcqLyoAljah9No3uza\",\"pipelineStageId\":\"8bdf89e6-7b51-4990-81b1-00d1072786b4\",\"status\":\"open\",\"assignedTo\":\"HFvtN21xFkPjs7VpU3Gx\",\"isAttribute\":true,\"pipelineName\":\"Lead Flow\",\"pipelineStageName\":\"New Lead\"}"
       },
       {
         "timestamp": "2026-07-17T16:30:05.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">will apply next year</p>\",\"contactId\":\"HBks8CDrZ52dII2ZbxrI\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"8PxN6GsnKug0okcSmro6\"},{\"objectKey\":\"contact\",\"recordId\":\"HBks8CDrZ52dII2ZbxrI\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">will apply next year</p>\",\"contactId\":\"ContactID_31\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_16\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_31\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:57:56.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">will apply after August</p>\",\"contactId\":\"csSsCJHdXhAWrNdulgAB\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"CQShuwjuQcdkKyPrecNl\"},{\"objectKey\":\"contact\",\"recordId\":\"csSsCJHdXhAWrNdulgAB\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">will apply after August</p>\",\"contactId\":\"ContactID_68\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_31\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_68\"}]}"
       },
       {
         "timestamp": "2026-07-17T17:01:09.000Z",
@@ -5096,7 +5140,7 @@
         "timestamp": "2026-07-17T18:34:44.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">will send documents in evening</p>\",\"contactId\":\"rGBpZWBu1y72f2UMayK9\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"SeR2ewFXQTPTkC6ytoCt\"},{\"objectKey\":\"contact\",\"recordId\":\"rGBpZWBu1y72f2UMayK9\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">will send documents in evening</p>\",\"contactId\":\"ContactID_91\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_57\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_91\"}]}"
       },
       {
         "timestamp": "2026-07-17T18:34:53.000Z",
@@ -5109,28 +5153,28 @@
     "calls": [
       {
         "timestamp": "2026-07-17T16:33:00.000Z",
-        "contact_name": "Richard Boateng",
+        "contact_name": "Contact 168",
         "duration": "00:22",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:31:37.000Z",
-        "contact_name": "Hasham Sadi",
+        "contact_name": "Contact 90",
         "duration": "00:26",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T14:46:38.000Z",
-        "contact_name": "P_R",
+        "contact_name": "Contact 155",
         "duration": "00:23",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:02:20.000Z",
-        "contact_name": "Oladayo Emmanuel Olaoluwa",
+        "contact_name": "Contact 151",
         "duration": "00:30",
         "status": "Answered",
         "direction": "outbound"
@@ -5166,7 +5210,7 @@
       "inboundAvgDuration": 0
     }
   },
-  "Sophia Smith": {
+  "Agent 18": {
     "total_actions": 8,
     "first_action": "2026-07-17T13:17:02.000Z",
     "last_action": "2026-07-17T16:25:21.000Z",
@@ -5219,7 +5263,7 @@
         "timestamp": "2026-07-17T13:17:02.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">schengen visa september student visa london 2 </p>\",\"contactId\":\"jJBpzz1y92OQSpCjFGQ8\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"8UYYs7cuDTkKyZVJPyIS\"},{\"objectKey\":\"contact\",\"recordId\":\"jJBpzz1y92OQSpCjFGQ8\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">schengen visa september student visa london 2 </p>\",\"contactId\":\"ContactID_79\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_17\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_79\"}]}"
       },
       {
         "timestamp": "2026-07-17T13:21:51.000Z",
@@ -5231,7 +5275,7 @@
         "timestamp": "2026-07-17T15:05:37.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">be patient </p>\",\"contactId\":\"WBo5a9Oa3XdG9zmD3cAO\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"0tOWhxaqssWZeebD8Quw\"},{\"objectKey\":\"contact\",\"recordId\":\"WBo5a9Oa3XdG9zmD3cAO\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">be patient </p>\",\"contactId\":\"ContactID_57\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_3\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_57\"}]}"
       },
       {
         "timestamp": "2026-07-17T15:06:44.000Z",
@@ -5255,174 +5299,174 @@
         "timestamp": "2026-07-17T16:06:08.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">spain london dpendent visa 1 person do it in 50GBP I GAVE THE REATE OF 135</p>\",\"contactId\":\"E3qoKrrW5EydFtUj3R9b\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"fQdiHDlqZR7lhrQM1t2U\"},{\"objectKey\":\"contact\",\"recordId\":\"E3qoKrrW5EydFtUj3R9b\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">spain london dpendent visa 1 person do it in 50GBP I GAVE THE REATE OF 135</p>\",\"contactId\":\"ContactID_24\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_68\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_24\"}]}"
       },
       {
         "timestamp": "2026-07-17T16:25:21.000Z",
         "module": "NOTE",
         "action": "CREATED",
-        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">not available </p>\",\"contactId\":\"jBZYr4g6adlObbNgNqG9\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"wS74zAWoGqR9GfHZ9rxw\"},{\"objectKey\":\"contact\",\"recordId\":\"jBZYr4g6adlObbNgNqG9\"}]}"
+        "details": "{\"body\":\"<p style=\\\"margin:0px; padding-left: 0px!important;\\\">not available </p>\",\"contactId\":\"ContactID_78\",\"deleted\":false,\"relations\":[{\"objectKey\":\"opportunity\",\"recordId\":\"Opp_84\"},{\"objectKey\":\"contact\",\"recordId\":\"ContactID_78\"}]}"
       }
     ],
     "assigned_opportunities": 36,
     "calls": [
       {
         "timestamp": "2026-07-17T17:10:00.000Z",
-        "contact_name": "K MD Atikur Rahman",
+        "contact_name": "Contact 102",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:04:21.000Z",
-        "contact_name": "Kabamba Buanga",
+        "contact_name": "Contact 103",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T17:03:43.000Z",
-        "contact_name": "Su Mon Mualcin",
+        "contact_name": "Contact 186",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:46:15.000Z",
-        "contact_name": "K MD Atikur Rahman",
+        "contact_name": "Contact 102",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:44:58.000Z",
-        "contact_name": "bolaji ogidi",
+        "contact_name": "Contact 212",
         "duration": "00:14",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:40:01.000Z",
-        "contact_name": "K MD Atikur Rahman",
+        "contact_name": "Contact 102",
         "duration": "00:06",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T16:37:59.000Z",
-        "contact_name": "Kabamba Buanga",
+        "contact_name": "Contact 103",
         "duration": "00:04",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:25:39.000Z",
-        "contact_name": "Duong Ngoc Nguyen",
+        "contact_name": "Contact 52",
         "duration": "00:15",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:24:27.000Z",
-        "contact_name": "Su Mon Mualcin",
+        "contact_name": "Contact 186",
         "duration": "00:58",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:24:02.000Z",
-        "contact_name": "haddy ndow",
+        "contact_name": "Contact 213",
         "duration": "00:14",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T12:00:24.000Z",
-        "contact_name": "Khushbakhat Subhani",
+        "contact_name": "Contact 106",
         "duration": "05:38",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:37:29.000Z",
-        "contact_name": "Syed Muhammad bilal Hassan",
+        "contact_name": "Contact 191",
         "duration": "01:16",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:32:59.000Z",
-        "contact_name": "Syed Muhammad bilal Hassan",
+        "contact_name": "Contact 191",
         "duration": "00:03",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:31:59.000Z",
-        "contact_name": "Syed Muhammad bilal Hassan",
+        "contact_name": "Contact 191",
         "duration": "00:24",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:18:48.000Z",
-        "contact_name": "Tony Obinna",
+        "contact_name": "Contact 201",
         "duration": "00:07",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:15:25.000Z",
-        "contact_name": "Qazallbash +49",
+        "contact_name": "Contact 161",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T11:07:12.000Z",
-        "contact_name": "Qazallbash +49",
+        "contact_name": "Contact 161",
         "duration": "-",
         "status": "Failed",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:44:18.000Z",
-        "contact_name": "Kabamba Buanga",
+        "contact_name": "Contact 103",
         "duration": "00:46",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:22:01.000Z",
-        "contact_name": "Paul Kizito",
+        "contact_name": "Contact 159",
         "duration": "-",
         "status": "No answer",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T10:07:30.000Z",
-        "contact_name": "Khushbakhat Subhani",
+        "contact_name": "Contact 106",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:48:29.000Z",
-        "contact_name": "bolaji ogidi",
+        "contact_name": "Contact 212",
         "duration": "00:40",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:12:50.000Z",
-        "contact_name": "Anthonia Onyinyechi",
+        "contact_name": "Contact 23",
         "duration": "08:15",
         "status": "Answered",
         "direction": "outbound"
       },
       {
         "timestamp": "2026-07-17T09:12:16.000Z",
-        "contact_name": "bolaji ogidi",
+        "contact_name": "Contact 212",
         "duration": "00:05",
         "status": "Answered",
         "direction": "outbound"
@@ -5451,50 +5495,6 @@
       "outboundMissed": 3,
       "outboundMinutes": 19.583333333333332,
       "outboundAvgDuration": 0.9791666666666666,
-      "inboundCount": 0,
-      "inboundAttended": 0,
-      "inboundMissed": 0,
-      "inboundMinutes": 0,
-      "inboundAvgDuration": 0
-    }
-  },
-  "Anaya Morgan": {
-    "total_actions": 0,
-    "first_action": null,
-    "last_action": null,
-    "workday_span": 0,
-    "active_duration": 0,
-    "total_break_duration": 0,
-    "sessions": [],
-    "breaks": [],
-    "module_counts": {},
-    "action_counts": {},
-    "actions_list": [],
-    "assigned_opportunities": 3,
-    "calls": [],
-    "segmentations": {
-      "newLeads": 2,
-      "bookedLeads": 0,
-      "apptBookedLeads": 0,
-      "closedLeads": 0,
-      "newLeadsToday": 2,
-      "bookedLeadsToday": 0,
-      "apptBookedLeadsToday": 0
-    },
-    "margin_added_today": 0,
-    "stage_interested_today": 0,
-    "stage_contacted_today": 0,
-    "notes_updated_today": 0,
-    "general_conv_rate": 0,
-    "new_leads_today": 2,
-    "converted_today": 0,
-    "today_conv_rate": 0,
-    "call_metrics": {
-      "outboundCount": 0,
-      "outboundAttended": 0,
-      "outboundMissed": 0,
-      "outboundMinutes": 0,
-      "outboundAvgDuration": 0,
       "inboundCount": 0,
       "inboundAttended": 0,
       "inboundMissed": 0,

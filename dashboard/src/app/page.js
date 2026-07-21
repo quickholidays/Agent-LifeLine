@@ -55,48 +55,48 @@ export default function Home() {
   const getMockOutboundMessages = (dateStr) => {
     const mockConvs = [
       {
-        agentName: "Lisa Evans",
-        fullName: "John Smith",
+        agentName: "Agent 11",
+        fullName: "Contact 1",
         messages: [
-          { id: "m1_2", body: "Hello John! The government visa fee is £180. We also charge a documentation service fee. Let me know if you would like to book a call to check your eligibility?", direction: "outbound", timestamp: "15:32" },
+          { id: "m1_2", body: "Hello Contact 1! The government visa fee is £180. We also charge a documentation service fee. Let me know if you would like to book a call to check your eligibility?", direction: "outbound", timestamp: "15:32" },
           { id: "m1_4", body: "I have a slot at 3:45 PM BST. Does that work?", direction: "outbound", timestamp: "15:34" }
         ]
       },
       {
-        agentName: "Lisa Evans",
-        fullName: "Maria Santos",
+        agentName: "Agent 11",
+        fullName: "Contact 2",
         messages: [
-          { id: "m2_2", body: "Yes Maria, we do! Which university are you looking at?", direction: "outbound", timestamp: "16:10" },
+          { id: "m2_2", body: "Yes Contact 2, we do! Which university are you looking at?", direction: "outbound", timestamp: "16:10" },
           { id: "m2_4", body: "Excellent choice. We have a dedicated team for UK student visas.", direction: "outbound", timestamp: "16:15" }
         ]
       },
       {
-        agentName: "Amber Williams",
-        fullName: "Charity Mwaniki",
+        agentName: "Agent 1",
+        fullName: "Contact 3",
         messages: [
-          { id: "m3_2", body: "Hi Charity! Yes, I received them. They are currently being verified by our compliance team.", direction: "outbound", timestamp: "12:17" },
+          { id: "m3_2", body: "Hi Contact 3! Yes, I received them. They are currently being verified by our compliance team.", direction: "outbound", timestamp: "12:17" },
           { id: "m3_4", body: "I will keep you updated. Have a great day!", direction: "outbound", timestamp: "12:20" }
         ]
       },
       {
-        agentName: "Amber Williams",
-        fullName: "David Vance",
+        agentName: "Agent 1",
+        fullName: "Contact 4",
         messages: [
-          { id: "m4_2", body: "Hi David! It's booked for July 25th at 10 AM.", direction: "outbound", timestamp: "10:42" }
+          { id: "m4_2", body: "Hi Contact 4! It's booked for July 25th at 10 AM.", direction: "outbound", timestamp: "10:42" }
         ]
       },
       {
-        agentName: "Jasmine Taylor",
-        fullName: "Sarah Connor",
+        agentName: "Agent 8",
+        fullName: "Contact 5",
         messages: [
-          { id: "m5_2", body: "Hi Sarah, no problem. I have rescheduled it to next Monday at 2 PM. You should receive a confirmation email shortly.", direction: "outbound", timestamp: "14:15" }
+          { id: "m5_2", body: "Hi Contact 5, no problem. I have rescheduled it to next Monday at 2 PM. You should receive a confirmation email shortly.", direction: "outbound", timestamp: "14:15" }
         ]
       },
       {
-        agentName: "Jasmine Taylor",
-        fullName: "Alan Walker",
+        agentName: "Agent 8",
+        fullName: "Contact 6",
         messages: [
-          { id: "m6_2", body: "Hello Alan, our documentation fee is non-refundable as it covers our manual verification and filing services. However, we ensure a 99% success rate before we submit.", direction: "outbound", timestamp: "09:12" }
+          { id: "m6_2", body: "Hello Contact 6, our documentation fee is non-refundable as it covers our manual verification and filing services. However, we ensure a 99% success rate before we submit.", direction: "outbound", timestamp: "09:12" }
         ]
       }
     ];
@@ -461,14 +461,14 @@ export default function Home() {
     if (identifiedBooked) setBookedLeadsFile(identifiedBooked);
     if (identifiedAppt) setApptLeadsFile(identifiedAppt);
     if (identifiedClosed) setClosedLeadsFile(identifiedClosed);
-    
+
     setProcessStatus(`Identified: GHL logs: ${identifiedAudits.length}, Opps: ${identifiedOpps ? "yes" : "no"}, Calls: ${identifiedCalls ? "yes" : "no"}, Segments: ${[identifiedNew, identifiedBooked, identifiedAppt, identifiedClosed].filter(Boolean).length}`);
   };
 
   const processUploadedFiles = async () => {
     if (auditFiles.length === 0) return;
 
-    // Initialize processing steps (7 detailed steps to keep user updated)
+    // Initialize processing steps (8 detailed steps to keep user updated)
     const steps = [
       { id: "read-audit", name: `Parsing ${auditFiles.length} GHL Agent Log file(s)`, status: "processing" },
       { id: "read-opps", name: "Parsing CRM Opportunities Master", status: "pending" },
@@ -476,7 +476,8 @@ export default function Home() {
       { id: "read-segments", name: "Parsing Lead Segmentation files", status: "pending" },
       { id: "compile", name: "Compiling CSV metrics & activity logs", status: "pending" },
       { id: "ghl-sync", name: "Syncing outbound conversations & calls from GHL API", status: "pending" },
-      { id: "build-dashboard", name: "Generating dashboard charts & unified JSON", status: "pending" }
+      { id: "build-dashboard", name: "Generating dashboard charts & unified JSON", status: "pending" },
+      { id: "github-backup", name: "Backing up compiled JSON to private GitHub repo", status: "pending" }
     ];
 
     setProcessingState({
@@ -656,8 +657,40 @@ export default function Home() {
       setIsCustomData(true);
       setSelectedAgent(null);
 
-      // Complete everything!
+      // Complete dashboard build
       steps[6].status = "done";
+      steps[7].status = "processing";
+      setProcessingState({
+        steps: [...steps],
+        progressPercent: 95
+      });
+
+      // Step 8: Commit to GitHub Private Repo
+      try {
+        setProcessStatus("Uploading backup to GitHub...");
+        const backupRes = await fetch("/api/backup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: processed,
+            date: reportDate,
+          }),
+        });
+        
+        if (!backupRes.ok) {
+          const errData = await backupRes.json();
+          console.warn("GitHub backup failed:", errData.error);
+        } else {
+          console.log("GitHub backup completed successfully!");
+        }
+      } catch (backupErr) {
+        console.error("Failed to backup to GitHub:", backupErr);
+      }
+
+      // Complete everything!
+      steps[7].status = "done";
       setProcessingState({
         steps: [...steps],
         progressPercent: 100
@@ -665,13 +698,14 @@ export default function Home() {
 
       await new Promise(resolve => setTimeout(resolve, 800)); // let user see 100% complete
       setProcessingState(null); // close loader
+      setProcessStatus(""); // clear process status indicator
       setShowUploads(false); // return to dashboard
     } catch (err) {
       console.error(err);
       // Mark active step as error
       const activeStep = steps.find(s => s.status === "processing");
       if (activeStep) activeStep.status = "error";
-      
+
       setProcessingState(prev => prev ? {
         ...prev,
         error: err.message
@@ -1049,19 +1083,57 @@ export default function Home() {
                 </button>
 
                 {isCustomData && (
-                  <button
-                    className="btn-primary-small"
-                    onClick={resetToDemoData}
-                    style={{
-                      backgroundColor: "rgba(239, 68, 68, 0.15)",
-                      color: "var(--danger)",
-                      border: "1px solid rgba(239, 68, 68, 0.3)",
-                      padding: "0.65rem 1.5rem",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    <i className="fa-solid fa-rotate-left"></i> Reset to Default Data
-                  </button>
+                  <>
+                    <button
+                      className="btn-primary-small"
+                      onClick={resetToDemoData}
+                      style={{
+                        backgroundColor: "rgba(239, 68, 68, 0.15)",
+                        color: "var(--danger)",
+                        border: "1px solid rgba(239, 68, 68, 0.3)",
+                        padding: "0.65rem 1.5rem",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      <i className="fa-solid fa-rotate-left"></i> Reset to Default Data
+                    </button>
+                    <button
+                      className="btn-primary-small"
+                      onClick={async () => {
+                        setProcessStatus("Uploading backup to GitHub...");
+                        try {
+                          const res = await fetch("/api/backup", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              data: rawAnalysisData,
+                              date: reportDate
+                            })
+                          });
+                          if (res.ok) {
+                            alert(`Success! Backed up to daily_backups/${reportDate}.json on GitHub!`);
+                          } else {
+                            const err = await res.json();
+                            alert(`GitHub Backup failed: ${err.error}`);
+                          }
+                        } catch (err) {
+                          alert(`Backup error: ${err.message}`);
+                        } finally {
+                          setProcessStatus("");
+                        }
+                      }}
+                      style={{
+                        backgroundColor: "rgba(34, 197, 94, 0.15)",
+                        color: "var(--success)",
+                        border: "1px solid rgba(34, 197, 94, 0.3)",
+                        padding: "0.65rem 1.5rem",
+                        fontSize: "0.85rem",
+                        marginLeft: "0.5rem"
+                      }}
+                    >
+                      <i className="fa-solid fa-cloud-arrow-up"></i> Sync to GitHub
+                    </button>
+                  </>
                 )}
 
                 {processStatus && (
@@ -1277,13 +1349,13 @@ export default function Home() {
               </div>
 
               <div style={{ flex: 1, minWidth: "300px", display: "flex", flexDirection: "column" }}>
-                <AgentDetails 
-                  agent={selectedAgent} 
-                  ghlMessages={ghlOutboundMessages} 
-                  reportDate={reportDate} 
+                <AgentDetails
+                  agent={selectedAgent}
+                  ghlMessages={ghlOutboundMessages}
+                  reportDate={reportDate}
                   breakThresholdMinutes={breakThresholdMinutes}
                   setBreakThresholdMinutes={setBreakThresholdMinutes}
-                  onClose={() => setSelectedAgent(null)} 
+                  onClose={() => setSelectedAgent(null)}
                 />
               </div>
             </div>
@@ -1323,11 +1395,11 @@ export default function Home() {
 
         {/* Video background — poster is actual first frame of the video */}
         <div className="hero-video-wrap">
-          <img src="/hero-poster-dark.jpg" alt="" className="hero-poster" aria-hidden="true" />
+          <img src="/hero-poster.jpg" alt="" className="hero-poster" aria-hidden="true" />
           <video
             className="hero-video"
             src="/bg-video.mp4"
-            poster="/hero-poster-dark.jpg"
+            poster="/hero-poster.jpg"
             autoPlay
             muted
             loop

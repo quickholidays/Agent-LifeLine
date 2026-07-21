@@ -61,10 +61,10 @@ export default function Overview({ agents, stageChanges = {}, reportDate = "2026
 
   // Support alerts checklist
   const alerts = [
-    { text: "Inspect Jasmine Taylor's 08h 17m break pattern", resolved: false, label: "Break Alert" },
-    { text: "Verify Lisa Evans's 68 assigned opportunities conversion", resolved: false, label: "Audit" },
-    { text: "Check Chris Morgan's missed call count (23 calls total)", resolved: true, label: "System ok" },
-    { text: "Standardize formatting on Nancy Watson's notes details", resolved: false, label: "Notes" },
+    { text: "Inspect Agent 8's 08h 17m break pattern", resolved: false, label: "Break Alert" },
+    { text: "Verify Agent 11's 68 assigned opportunities conversion", resolved: false, label: "Audit" },
+    { text: "Check Agent 4's missed call count (23 calls total)", resolved: true, label: "System ok" },
+    { text: "Standardize formatting on Agent 13's notes details", resolved: false, label: "Notes" },
   ];
 
   return (
