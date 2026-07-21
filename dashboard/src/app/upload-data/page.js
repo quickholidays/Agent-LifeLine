@@ -28,10 +28,44 @@ export default function UploadDataPage() {
   const [bookedLeadsFile, setBookedLeadsFile] = useState(null);
   const [apptLeadsFile, setApptLeadsFile] = useState(null);
   const [closedLeadsFile, setClosedLeadsFile] = useState(null);
+  const [contactsFile, setContactsFile] = useState(null);
 
   const [uploadMode, setUploadMode] = useState("bulk"); // 'bulk' or 'single'
   const [processStatus, setProcessStatus] = useState("");
   const [processingState, setProcessingState] = useState(null);
+
+  // Custom Alert & Confirm Popup States
+  const [customPopup, setCustomPopup] = useState(null);
+
+  const showCustomConfirm = (message) => {
+    return new Promise((resolve) => {
+      setCustomPopup({
+        type: "confirm",
+        message,
+        onConfirm: () => {
+          setCustomPopup(null);
+          resolve(true);
+        },
+        onCancel: () => {
+          setCustomPopup(null);
+          resolve(false);
+        }
+      });
+    });
+  };
+
+  const showCustomAlert = (message) => {
+    return new Promise((resolve) => {
+      setCustomPopup({
+        type: "alert",
+        message,
+        onConfirm: () => {
+          setCustomPopup(null);
+          resolve();
+        }
+      });
+    });
+  };
 
   // Load theme and GHL configurations on mount
   useEffect(() => {
@@ -46,8 +80,8 @@ export default function UploadDataPage() {
         document.body.classList.remove("light-mode");
       }
 
-      setGhlToken(localStorage.getItem("ghl_token") || "");
-      setGhlLocationId(localStorage.getItem("ghl_location_id") || "");
+      setGhlToken(localStorage.getItem("ghl_token") || process.env.NEXT_PUBLIC_GHL_TOKEN || "");
+      setGhlLocationId(localStorage.getItem("ghl_location_id") || process.env.NEXT_PUBLIC_GHL_LOCATION_ID || "");
     }
   }, []);
 
@@ -92,6 +126,7 @@ export default function UploadDataPage() {
     let identifiedBooked = bookedLeadsFile;
     let identifiedAppt = apptLeadsFile;
     let identifiedClosed = closedLeadsFile;
+    let identifiedContacts = contactsFile;
 
     files.forEach((file) => {
       const name = file.name.toLowerCase();
@@ -123,6 +158,8 @@ export default function UploadDataPage() {
         }
       } else if (name.includes("closed leads") || name.includes("closed_leads")) {
         identifiedClosed = file;
+      } else if (name.includes("export_contacts") || name.includes("export contacts") || name.includes("contact")) {
+        identifiedContacts = file;
       } else {
         identifiedAudits.push(file);
       }
@@ -135,10 +172,11 @@ export default function UploadDataPage() {
     if (identifiedBooked) setBookedLeadsFile(identifiedBooked);
     if (identifiedAppt) setApptLeadsFile(identifiedAppt);
     if (identifiedClosed) setClosedLeadsFile(identifiedClosed);
+    if (identifiedContacts) setContactsFile(identifiedContacts);
   };
 
   // Live GHL API fetch helper
-  const fetchGhlOutboundMessages = async (targetDate, token, locationId, tz = "BST") => {
+  const fetchGhlOutboundMessages = async (targetDate, token, locationId, contactsRows = [], tz = "BST") => {
     try {
       const usersRes = await fetch("/api/ghl", {
         method: "POST",
@@ -159,91 +197,92 @@ export default function UploadDataPage() {
       }
 
       const outboundMsgs = [];
-      let currentStartAfterDate = null;
-      let hasMore = true;
-      let pageCount = 0;
 
-      while (hasMore && pageCount < 5) {
-        pageCount++;
-        const params = {
-          locationId,
-          limit: 20,
-          status: "all",
-          sortBy: "last_message_date",
-          sort: "desc"
-        };
-        if (currentStartAfterDate) {
-          params.startAfterDate = currentStartAfterDate;
-        }
+      // Filter contacts from contactsRows that were created on targetDate (YYYY-MM-DD)
+      const targetContacts = contactsRows.filter(row => {
+        const createdVal = row["Created"] || row["created"] || "";
+        if (!createdVal) return false;
+        const datePart = createdVal.split("T")[0];
+        return datePart === targetDate;
+      });
 
-        const convRes = await fetch("/api/ghl", {
+      console.log(`Syncing GHL chat records for ${targetContacts.length} contacts created on ${targetDate}...`);
+
+      for (const contact of targetContacts) {
+        const contactId = contact["Contact Id"] || contact["contactId"] || contact["id"] || "";
+        if (!contactId) continue;
+
+        // Search for the conversation thread matching this contact ID
+        const searchRes = await fetch("/api/ghl", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             endpoint: "/conversations/search",
             token,
-            params
+            params: {
+              locationId,
+              contactId
+            }
           })
         });
-        const convData = await convRes.json();
-        if (convData.error) throw new Error(convData.error);
-        if (!convData.conversations || convData.conversations.length === 0) {
-          break;
-        }
 
-        for (const c of convData.conversations) {
-          const lastMsgDate = c.lastMessageDate || c.dateUpdated || c.dateCreated;
-          if (!lastMsgDate) continue;
+        if (!searchRes.ok) continue;
+        const searchData = await searchRes.json();
+        const conversations = searchData.conversations || [];
+        if (conversations.length === 0) continue;
 
-          // Check if message date lies in target date YYYY-MM-DD
-          const msgDateObj = new Date(lastMsgDate);
-          const formattedMsgDate = msgDateObj.toISOString().split("T")[0]; // UTC simple
-          
-          if (formattedMsgDate === targetDate) {
-            // Fetch messages in this conversation
-            const msgRes = await fetch("/api/ghl", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                endpoint: `/conversations/${c.id}/messages`,
-                token,
-                params: { limit: 50 }
-              })
-            });
-            const msgData = await msgRes.json();
-            if (msgData.messages && msgData.messages.messages) {
-              const list = msgData.messages.messages
-                .filter(m => m.direction === "outbound" && m.type === "message")
-                .map(m => {
-                  const time = new Date(m.dateAdded).toLocaleTimeString("en-GB", { hour12: false, hour: "2-digit", minute: "2-digit" });
-                  return {
-                    id: m.id,
-                    body: m.body || "",
-                    direction: "outbound",
-                    timestamp: time
-                  };
-                });
-              if (list.length > 0) {
-                outboundMsgs.push({
-                  agentName: userMap[c.userId] || "GHL Agent",
-                  fullName: c.contactName || "Contact",
-                  messages: list
-                });
-              }
-            }
-          }
-        }
+        const conv = conversations[0];
 
-        if (convData.conversations.length < 20) {
-          hasMore = false;
-        } else {
-          const lastConv = convData.conversations[convData.conversations.length - 1];
-          currentStartAfterDate = lastConv.dateUpdated || lastConv.dateCreated;
+        // Fetch messages for this conversation thread
+        const msgRes = await fetch("/api/ghl", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            endpoint: `/conversations/${conv.id}/messages`,
+            token,
+            params: { limit: 100 }
+          })
+        });
+
+        if (!msgRes.ok) continue;
+        const msgData = await msgRes.json();
+        
+        // GHL Messages API returns messages nested under messages.messages
+        const messages = (msgData.messages && msgData.messages.messages) || [];
+
+        // Keep only messages added on the targetDate (exactly on this day, "not before")
+        const dayMessages = messages.filter(m => {
+          if (!m.dateAdded) return false;
+          const datePart = m.dateAdded.split("T")[0];
+          return datePart === targetDate;
+        });
+
+        // Filter and map outbound messages
+        const list = dayMessages
+          .filter(m => m.direction === "outbound" && (m.type === "message" || m.messageType === "TYPE_SMS" || m.messageType === "TYPE_EMAIL"))
+          .map(m => {
+            const timeObj = new Date(m.dateAdded);
+            const time = timeObj.toLocaleTimeString("en-GB", { hour12: false, hour: "2-digit", minute: "2-digit" });
+            return {
+              id: m.id,
+              body: m.body || "",
+              direction: "outbound",
+              timestamp: time
+            };
+          });
+
+        if (list.length > 0) {
+          outboundMsgs.push({
+            agentName: userMap[conv.assignedTo] || userMap[conv.userId] || "GHL Agent",
+            fullName: conv.contactName || conv.fullName || (contact["First Name"] + " " + contact["Last Name"]) || "Contact",
+            messages: list
+          });
         }
       }
+
       return outboundMsgs;
     } catch (e) {
-      console.error("Failed to load GHL messages", e);
+      console.error("Failed to load GHL messages by contact ID", e);
       return [];
     }
   };
@@ -328,6 +367,19 @@ export default function UploadDataPage() {
         closedRows = parseCSV(text);
       }
 
+      let contactsRows = [];
+      if (contactsFile) {
+        const text = await readFileText(contactsFile);
+        contactsRows = parseCSV(text);
+      }
+
+      if (syncConversations && contactsRows.length === 0) {
+        setProcessingState(null);
+        setProcessStatus("");
+        await showCustomAlert("Please upload the Contacts Export CSV file to pull live GHL chat messages.");
+        return;
+      }
+
       steps[3].status = "done";
       steps[4].status = "processing";
       setProcessingState({ steps: [...steps], progressPercent: 60 });
@@ -346,7 +398,8 @@ export default function UploadDataPage() {
         30,
         5,
         timezone,
-        isMarginOnly
+        isMarginOnly,
+        contactsRows
       );
 
       steps[4].status = "done";
@@ -357,8 +410,9 @@ export default function UploadDataPage() {
       let msgList = [];
       if (syncConversations && ghlToken && ghlLocationId) {
         setProcessStatus("Fetching live GHL conversations & outbound messages...");
-        msgList = await fetchGhlOutboundMessages(reportDate, ghlToken, ghlLocationId, timezone);
+        msgList = await fetchGhlOutboundMessages(reportDate, ghlToken, ghlLocationId, contactsRows, timezone);
       }
+      processed.ghl_outbound_messages = msgList;
 
       steps[5].status = "done";
       steps[6].status = "processing";
@@ -377,8 +431,8 @@ export default function UploadDataPage() {
       if (checkRes.ok) {
         const checkData = await checkRes.json();
         if (checkData.exists) {
-          const overwrite = window.confirm(
-            `A backup file for ${reportDate} already exists in your GitHub repository.\n\nDo you want to overwrite it?`
+          const overwrite = await showCustomConfirm(
+            `A backup file for ${reportDate} already exists in your GitHub repository. Do you want to overwrite it?`
           );
           if (!overwrite) {
             setProcessingState(null);
@@ -411,7 +465,7 @@ export default function UploadDataPage() {
       await new Promise(resolve => setTimeout(resolve, 800));
       setProcessingState(null);
       setProcessStatus("");
-      alert(`Successfully processed and saved backup to GitHub for date: ${reportDate}`);
+      await showCustomAlert(`Successfully processed and saved backup to GitHub for date: ${reportDate}`);
 
       // Redirect to main dashboard page with target date parameter
       window.location.href = `/?date=${reportDate}`;
@@ -789,13 +843,31 @@ export default function UploadDataPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* 8. Contacts Export */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-secondary)" }}>
+                      8. Contacts Export:
+                    </label>
+                    <div className="custom-file-input-wrapper">
+                      <input
+                        type="file"
+                        accept=".csv"
+                        onChange={(e) => setContactsFile(e.target.files[0] || null)}
+                      />
+                      <div className="custom-file-label" style={{ borderLeft: "3px solid var(--primary)" }}>
+                        <i className="fa-solid fa-address-book"></i>{" "}
+                        {contactsFile ? contactsFile.name : "Choose Contacts Export..."}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* Identified Summary Status */}
-          {(auditFiles.length > 0 || oppsFile || callsFile || newLeadsFile || bookedLeadsFile || apptLeadsFile || closedLeadsFile) && (
+          {(auditFiles.length > 0 || oppsFile || callsFile || newLeadsFile || bookedLeadsFile || apptLeadsFile || closedLeadsFile || contactsFile) && (
             <div
               style={{
                 background: "var(--bg-color)",
@@ -852,6 +924,12 @@ export default function UploadDataPage() {
                     {closedLeadsFile ? `✓ ${closedLeadsFile.name}` : "Missing"}
                   </strong>
                 </li>
+                <li>
+                  Contacts Export:{" "}
+                  <strong style={{ color: contactsFile ? "var(--success)" : "var(--text-secondary)" }}>
+                    {contactsFile ? `✓ ${contactsFile.name}` : "Missing"}
+                  </strong>
+                </li>
               </ul>
             </div>
           )}
@@ -897,9 +975,9 @@ export default function UploadDataPage() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0, 0, 0, 0.85)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
+            background: "rgba(0, 0, 0, 0.5)",
+            backdropFilter: "blur(5px)",
+            WebkitBackdropFilter: "blur(5px)",
             zIndex: 99999,
             display: "flex",
             alignItems: "center",
@@ -965,6 +1043,118 @@ export default function UploadDataPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Alert & Confirm Popup Modal */}
+      {customPopup && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.65)",
+          backdropFilter: "blur(6px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10000,
+          animation: "popupFadeIn 0.2s ease-out"
+        }}>
+          <div className="card" style={{
+            width: "min(420px, 90%)",
+            padding: "2rem",
+            borderRadius: "16px",
+            border: "1px solid var(--card-border)",
+            backgroundColor: "var(--card-bg)",
+            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.2rem",
+            animation: "popupSlideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)"
+          }}>
+            {/* Header with Icon */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+              <div style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "10px",
+                backgroundColor: customPopup.type === "confirm" ? "rgba(224, 168, 0, 0.15)" : "rgba(34, 197, 94, 0.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: customPopup.type === "confirm" ? "var(--warning)" : "var(--success)"
+              }}>
+                <i className={customPopup.type === "confirm" ? "fa-solid fa-circle-question fa-lg" : "fa-solid fa-circle-check fa-lg"}></i>
+              </div>
+              <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>
+                {customPopup.type === "confirm" ? "Confirm Action" : "Success"}
+              </h3>
+            </div>
+
+            {/* Message Body */}
+            <p style={{
+              margin: 0,
+              fontSize: "0.92rem",
+              lineHeight: 1.5,
+              color: "var(--text-secondary)"
+            }}>
+              {customPopup.message}
+            </p>
+
+            {/* Buttons Group */}
+            <div style={{ display: "flex", gap: "0.8rem", justifyContent: "flex-end", marginTop: "0.4rem" }}>
+              {customPopup.type === "confirm" && (
+                <button
+                  onClick={customPopup.onCancel}
+                  className="btn-secondary"
+                  style={{
+                    padding: "0.6rem 1.2rem",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: "0.85rem",
+                    border: "1px solid var(--card-border)",
+                    backgroundColor: "transparent",
+                    color: "var(--text-primary)",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={customPopup.onConfirm}
+                className="btn-primary"
+                style={{
+                  padding: "0.6rem 1.2rem",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  fontSize: "0.85rem",
+                  border: "none",
+                  backgroundColor: "var(--primary)",
+                  color: "#000",
+                  transition: "all 0.2s"
+                }}
+              >
+                {customPopup.type === "confirm" ? "Overwrite" : "OK"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup Animations */}
+      <style>{`
+        @keyframes popupFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes popupSlideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

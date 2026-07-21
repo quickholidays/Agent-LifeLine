@@ -1,9 +1,0 @@
-"Document ID","Document Name","Module","Action","Modified By (Id)","Modified By (Name)","Date & Time","Details"
-"zzk3UNuNedktNz9RoWdH","Sunil Dulal","OPPORTUNITY","UPDATED","cjRIGbWCUJITyBkvK7t5","Daniel Evans","2026-07-20T08:43:54.192Z","{""pipelineStageId"":""830d34a7-762f-460b-abb9-b1298b97f3f1"",""pipelineId"":""fRpcqLyoAljah9No3uza"",""pipelineName"":""Lead Flow"",""pipelineStageName"":""Contacted""}"
-"V9KLqyWqbhZV942qs6fc","Incorrect WhatsApp number reached over the mail
-
-","NOTE","UPDATED","cjRIGbWCUJITyBkvK7t5","Daniel Evans","2026-07-20T08:43:45.078Z","{""body"":""<p style=\""margin:0px; padding-left: 0px!important;margin: 0px;\"">Incorrect WhatsApp number reached over the mail</p><p style=\""margin:0px; padding-left: 0px!important;margin: 0px;\""></p>""}"
-"V9KLqyWqbhZV942qs6fc","Incorrect WhatsApp number reached over WhatsApp.
-
-","NOTE","CREATED","cjRIGbWCUJITyBkvK7t5","Daniel Evans","2026-07-20T08:43:29.809Z","{""body"":""<p style=\""margin:0px; padding-left: 0px!important;\"">Incorrect WhatsApp number reached over WhatsApp.</p><p style=\""margin:0px; padding-left: 0px!important;\""></p>"",""contactId"":""pigHZBxvUWmzdwZk6JjY"",""deleted"":false,""relations"":[{""objectKey"":""opportunity"",""recordId"":""zzk3UNuNedktNz9RoWdH""},{""objectKey"":""contact"",""recordId"":""pigHZBxvUWmzdwZk6JjY""}]}"
-"G5Ln2P8JrSslyBnut7v6","Gaayathri Thavarajah","OPPORTUNITY","UPDATED","cjRIGbWCUJITyBkvK7t5","Daniel Evans","2026-07-20T08:29:56.449Z","{""pipelineStageId"":""830d34a7-762f-460b-abb9-b1298b97f3f1"",""pipelineId"":""fRpcqLyoAljah9No3uza"",""pipelineName"":""Lead Flow"",""pipelineStageName"":""Contacted""}"

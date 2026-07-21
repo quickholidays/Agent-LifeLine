@@ -2,6 +2,26 @@
 
 import React, { useState, useEffect } from "react";
 import TeamTimeline from "./TeamTimeline";
+import {
+  calculateNewLeads,
+  calculateMarginGenerated,
+  calculateBookedLeads,
+  calculateClosedLeads,
+  calculateApptBooked,
+  calculateInteractedLeads,
+  calculateTotalConversations,
+  calculateCallsPlaced,
+  calculateMissedCalls,
+  calculateNotes,
+  calculateTasks,
+  calculateInterestedStage,
+  calculateContactedStage,
+  calculateReferrals,
+  calculateGeneralConversion,
+  calculateBookedLeadRate,
+  calculateClosedLeadRate,
+  calculateTotalActions
+} from "../utils/metrics";
 
 export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate }) {
   // Enforce specific agent selection by defaulting to the first agent name
@@ -187,140 +207,153 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
   const uniqueContactsMessaged = new Set(agentMessages.map((m) => m.contactName));
   const totalConversations = uniqueContactsMessaged.size;
 
-  // Formatting rates
-  const generalRate = parseFloat(selectedAgent.general_conv_rate || 0).toFixed(1);
-  const bookedRateVal = seg.newLeadsToday > 0 ? (seg.bookedLeadsToday / seg.newLeadsToday) * 100 : 0;
-  const closedRateVal = seg.newLeadsToday > 0 ? (seg.closedLeadsToday / seg.newLeadsToday) * 100 : 0;
-  const bookedRate = parseFloat(bookedRateVal).toFixed(1);
-  const closedRate = parseFloat(closedRateVal).toFixed(1);
+  // Formatting rates using modular metric functions
+  const metricValues = {
+    newLeads: calculateNewLeads(selectedAgent),
+    margin: `£${calculateMarginGenerated(selectedAgent).toLocaleString()}`,
+    booked: calculateBookedLeads(selectedAgent),
+    closed: calculateClosedLeads(selectedAgent),
+    apptBooked: calculateApptBooked(selectedAgent),
+    interactedLeads: calculateInteractedLeads(selectedAgent),
+    totalConversations: calculateTotalConversations(selectedAgentName, rawAnalysisData),
+    callsPlaced: calculateCallsPlaced(selectedAgent),
+    missedCalls: calculateMissedCalls(selectedAgent),
+    notes: calculateNotes(selectedAgent),
+    tasks: calculateTasks(selectedAgent),
+    interested: calculateInterestedStage(selectedAgent),
+    contacted: calculateContactedStage(selectedAgent),
+    referrals: calculateReferrals(selectedAgent),
+    generalRate: calculateGeneralConversion(selectedAgent),
+    bookedRate: calculateBookedLeadRate(selectedAgent),
+    closedRate: calculateClosedLeadRate(selectedAgent),
+    totalActions: calculateTotalActions(selectedAgent)
+  };
 
   // Cards definitions: key, title, value, unit/sub, tooltip description
   const cards = [
     {
       key: "newLeads",
       title: "Today's New Leads",
-      value: seg.newLeadsToday || 0,
+      value: metricValues.newLeads,
       sub: "Active lead intake",
       tooltip: "Total new leads assigned to the agent in GoHighLevel today.",
     },
     {
       key: "margin",
       title: "Margin Generated",
-      value: `£${(selectedAgent.margin_added_today || 0).toLocaleString()}`,
+      value: metricValues.margin,
       sub: "Won opportunities value",
       tooltip: "Sum of margins (in GBP) added to opportunities won today.",
     },
     {
       key: "booked",
       title: "Booked Leads",
-      value: seg.bookedLeadsToday || 0,
+      value: metricValues.booked,
       sub: "Standard conversions",
       tooltip: "Total number of leads successfully converted to a Booked status today.",
     },
     {
       key: "closed",
       title: "Closed Leads",
-      value: seg.closedLeadsToday || 0,
+      value: metricValues.closed,
       sub: "Archived conversions",
       tooltip: "Total number of leads successfully closed/won today.",
     },
     {
       key: "apptBooked",
       title: "Appointment Booked",
-      value: seg.apptBookedLeadsToday || 0,
+      value: metricValues.apptBooked,
       sub: "Meeting slots secured",
       tooltip: "Total number of appointments successfully scheduled for leads today.",
     },
-
     {
       key: "interactedLeads",
       title: "Today Interacted Leads",
-      value: selectedAgent.interacted_leads_today || 0,
+      value: metricValues.interactedLeads,
       sub: "Engaged contact profiles",
       tooltip: "Total unique leads (contacts or opportunities) whom the agent interacted with or updated today.",
     },
-
     {
       key: "totalConversations",
       title: "Total Conversations",
-      value: totalConversations,
+      value: metricValues.totalConversations,
       sub: `${agentMessages.length} Outbound Msgs`,
       tooltip: "Unique contact profiles the agent exchanged GHL text messages with today.",
     },
     {
       key: "callsPlaced",
       title: "Total Calls Placed",
-      value: totalCalls,
+      value: metricValues.callsPlaced,
       sub: "Voice conversations",
       tooltip: "Sum of inbound and outbound voice calls handled by the agent today.",
     },
     {
       key: "missedCalls",
       title: "Missed Inbound Calls",
-      value: missedInbound,
+      value: metricValues.missedCalls,
       sub: "Unattended voice leads",
       tooltip: "Total inbound calls that were missed or unanswered today.",
     },
     {
       key: "notes",
       title: "Notes Added",
-      value: selectedAgent.notes_updated_today || 0,
+      value: metricValues.notes,
       sub: "Notes logged",
       tooltip: "Total number of CRM text notes added to contact profiles today.",
     },
     {
       key: "tasks",
       title: "Tasks Added",
-      value: selectedAgent.tasks_added_today || 0,
+      value: metricValues.tasks,
       sub: "Action task assignments",
       tooltip: "Total follow-up tasks created or scheduled in GHL today.",
     },
     {
       key: "interested",
       title: "Interested Stage",
-      value: selectedAgent.stage_interested_today || 0,
+      value: metricValues.interested,
       sub: "Interested pipeline hits",
       tooltip: "Leads updated or moved into the pipeline's 'Interested' stage today.",
     },
     {
       key: "contacted",
       title: "Contacted Stage",
-      value: selectedAgent.stage_contacted_today || 0,
+      value: metricValues.contacted,
       sub: "Contacted pipeline hits",
       tooltip: "Leads updated or moved into the pipeline's 'Contacted' stage today.",
     },
     {
       key: "referrals",
       title: "Today's Referrals",
-      value: seg.referralsToday || 0,
+      value: metricValues.referrals,
       sub: "Referral counts",
       tooltip: "Total number of referral leads recorded today.",
     },
     {
       key: "generalRate",
       title: "General Conversion",
-      value: `${generalRate}%`,
+      value: metricValues.generalRate,
       sub: "All-time efficiency",
       tooltip: "Lifetime lead conversion percentage (Booked Leads divided by eligible lead base).",
     },
     {
       key: "bookedRate",
       title: "Booked Lead Rate (%)",
-      value: `${bookedRate}%`,
+      value: metricValues.bookedRate,
       sub: "Booked / New Leads",
       tooltip: "Percentage of new leads that got booked today.",
     },
     {
       key: "closedRate",
       title: "Closed Lead Rate (%)",
-      value: `${closedRate}%`,
+      value: metricValues.closedRate,
       sub: "Closed / New Leads",
       tooltip: "Percentage of new leads that got closed today.",
     },
     {
       key: "totalActions",
       title: "Total Actions",
-      value: selectedAgent.actions || 0,
+      value: metricValues.totalActions,
       sub: "Agent activity index",
       tooltip: "Total activity count (CRM edits, calls, status changes, tasks) recorded today.",
     },

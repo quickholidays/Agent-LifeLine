@@ -186,7 +186,8 @@ export function processAgentData(
   maxBreakGapMinutes = 30,
   nominalActionMinutes = 5,
   timezone = "BST",
-  isMarginOnly = false
+  isMarginOnly = false,
+  contactsRows = []
 ) {
   const oppCounts = {};
   const contactToAgent = {};
@@ -208,6 +209,57 @@ export function processAgentData(
     if (phone) {
       const normPhone = normalizePhone(phone);
       if (normPhone) {
+        phoneToAgent[normPhone] = assigned;
+      }
+    }
+  });
+
+  // Helper to populate maps from other source arrays
+  const populateAgentMaps = (rows, agentCol, phoneCol, nameCol) => {
+    rows.forEach(row => {
+      const assigned = normalizeAgentName(row[agentCol] || row["assigned"] || row["Assigned"] || row["Assigned user"] || row["assignedTo"] || row["Assigned To"]);
+      if (!assigned) return;
+
+      const name = row[nameCol];
+      if (name) {
+        const cleanName = name.trim().toLowerCase();
+        if (!contactToAgent[cleanName]) {
+          contactToAgent[cleanName] = assigned;
+        }
+      }
+
+      const phone = row[phoneCol];
+      if (phone) {
+        const normPhone = normalizePhone(phone);
+        if (normPhone && !phoneToAgent[normPhone]) {
+          phoneToAgent[normPhone] = assigned;
+        }
+      }
+    });
+  };
+
+  // Populate from lead segmentations
+  populateAgentMaps(newLeadsRows, "Assigned user", "Phone number", "Opportunity name");
+  populateAgentMaps(bookedLeadsRows, "Assigned user", "Phone number", "Opportunity name");
+  populateAgentMaps(apptBookedLeadsRows, "Assigned user", "Phone number", "Opportunity name");
+  populateAgentMaps(closedLeadsRows, "Assigned user", "Phone number", "Opportunity name");
+
+  // Populate from smart list contacts
+  contactsRows.forEach(row => {
+    const assigned = normalizeAgentName(row["Assigned To"] || row["assignedTo"]);
+    if (!assigned) return;
+
+    const firstName = row["First Name"] || "";
+    const lastName = row["Last Name"] || "";
+    const fullName = `${firstName} ${lastName}`.trim().toLowerCase();
+    if (fullName && !contactToAgent[fullName]) {
+      contactToAgent[fullName] = assigned;
+    }
+
+    const phone = row["Phone"] || row["phone"];
+    if (phone) {
+      const normPhone = normalizePhone(phone);
+      if (normPhone && !phoneToAgent[normPhone]) {
         phoneToAgent[normPhone] = assigned;
       }
     }
@@ -267,7 +319,7 @@ export function processAgentData(
     if (!agent) return;
     initAgentSegment(agent);
 
-    const isReferral = [row["Referal"], row["Referral"], row["referal"], row["referral"]].some(val =>
+    const isReferral = [row["Referal"], row["Referral"], row["referal"], row["referral"], row["Source"], row["source"]].some(val =>
       val && ["referal", "referral", "yes", "true"].includes(String(val).trim().toLowerCase())
     );
 
@@ -450,9 +502,15 @@ export function processAgentData(
   newLeadsRows.forEach((row) => {
     const agent = normalizeAgentName(row["Assigned user"] || row.assigned || findAgent(row["Phone number"], row["Opportunity name"]));
     if (!agent) return;
+
+    const isReferral = [row["Referal"], row["Referral"], row["referal"], row["referal"], row["Source"], row["source"]].some(val =>
+      val && ["referal", "referral", "yes", "true"].includes(String(val).trim().toLowerCase())
+    );
+    if (isReferral) return; // Skip referrals from Today's New Leads details!
+
     if (!agentNewLeadsDetails[agent]) agentNewLeadsDetails[agent] = [];
     agentNewLeadsDetails[agent].push({
-      name: row["Opportunity name"] || row["Primary Contact name"] || "Unknown",
+      name: row["Opportunity name"] || row["Primary Contact name"] || row["Contact name"] || row["Contact Name"] || row["contact_name"] || "Unknown",
       email: row["Email"] || "",
       phone: row["Phone number"] || "",
       tags: row["Tags"] || "",
