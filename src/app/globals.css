@@ -2487,3 +2487,98 @@ select option {
     width: 100%;
     margin-bottom: 0.5rem;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVENESS
+═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+    }
+    
+    .tab-bar {
+        overflow-x: auto;
+        max-width: 100%;
+        padding: 0.35rem;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        top: -1rem;
+        margin-top: -1rem;
+        padding-top: 1rem;
+    }
+
+    .header-controls {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .tab-bar {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+    }
+    
+    .tab-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab-btn {
+        padding: 0.55rem 0.9rem;
+        font-size: 0.82rem;
+        flex-shrink: 0;
+    }
+
+    .hero-content {
+        padding: 1.5rem 1rem;
+        gap: 1.25rem;
+    }
+
+    .hero-headline {
+        font-size: clamp(2.2rem, 6vw, 3.5rem) !important;
+    }
+
+    .hero-subheadline {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0.75rem;
+    }
+
+    .logo-text h1 {
+        font-size: 1.4rem;
+    }
+
+    .logo-text p {
+        font-size: 0.75rem;
+    }
+
+    .hero-headline {
+        font-size: 2rem !important;
+    }
+
+    .hero-cta-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.85rem 1.25rem;
+    }
+}

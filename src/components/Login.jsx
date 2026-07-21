@@ -56,7 +56,7 @@ export default function Login({ onSuccess }) {
   };
 
   return (
-    <div style={{
+    <div className="login-root" style={{
       display: "flex",
       minHeight: "100vh",
       width: "100vw",
@@ -71,7 +71,7 @@ export default function Login({ onSuccess }) {
       `}} />
 
       {/* Left Column: Login Form (40% width, Premium Dark Theme) */}
-      <div style={{
+      <div className="login-form-col" style={{
         flex: "0 0 40%",
         width: "40%",
         display: "flex",
@@ -250,7 +250,7 @@ export default function Login({ onSuccess }) {
       </div>
 
       {/* Right Column: Logo Animation Video (60% width, no text overlays) */}
-      <div style={{
+      <div className="login-video-col" style={{
         flex: "0 0 60%",
         width: "60%",
         position: "relative",
@@ -338,6 +338,38 @@ export default function Login({ onSuccess }) {
         .animated-btn:active {
           transform: translateY(0) scale(0.985);
           box-shadow: 0 4px 10px rgba(209, 92, 46, 0.3) !important;
+        }
+
+        /* Mobile Responsiveness for Login Screen */
+        @media (max-width: 900px) {
+          .login-root {
+            flex-direction: column-reverse !important;
+            min-height: 100vh !important;
+            height: auto !important;
+            overflow-y: auto !important;
+          }
+          .login-form-col {
+            flex: 1 0 auto !important;
+            width: 100% !important;
+            padding: 2.5rem 1.5rem !important;
+            border-right: none !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+            justify-content: flex-start !important;
+          }
+          .login-video-col {
+            flex: 0 0 200px !important;
+            width: 100% !important;
+            min-height: 180px !important;
+          }
+        }
+
+        @media (max-width: 500px) {
+          .login-form-col {
+            padding: 2rem 1.25rem !important;
+          }
+          .login-video-col {
+            flex: 0 0 160px !important;
+          }
         }
       `}</style>
     </div>
