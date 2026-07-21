@@ -15,6 +15,7 @@ import ConversationsWorkspace from "@/components/ConversationsWorkspace";
 import { parseCSV } from "@/utils/csvParser";
 import { processAgentData } from "@/utils/analysisEngine";
 import CustomDatePicker from "@/components/CustomDatePicker";
+import Login from "@/components/Login";
 
 const isNewLead = (lead, newLeadsList) => {
   if (!Array.isArray(newLeadsList) || newLeadsList.length === 0) return false;
@@ -46,7 +47,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showHero, setShowHero] = useState(true);
 
@@ -58,13 +59,40 @@ export default function Home() {
 
   const [reportDate, setReportDate] = useState(() => {
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const year = yesterday.getUTCFullYear();
-    const month = String(yesterday.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(yesterday.getUTCDate()).padStart(2, "0");
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Karachi",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(yesterday);
+    const year = parts.find(p => p.type === "year").value;
+    const month = parts.find(p => p.type === "month").value;
+    const day = parts.find(p => p.type === "day").value;
     return `${year}-${month}-${day}`;
   });
-  const [timezone, setTimezone] = useState("BST");
+  const [timezone, setTimezone] = useState("PKT");
   const [syncConversations, setSyncConversations] = useState(false);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authMounted, setAuthMounted] = useState(false);
+  const [userRole, setUserRole] = useState("admin");
+
+  useEffect(() => {
+    setAuthMounted(true);
+    setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
+    setUserRole(localStorage.getItem("userRole") || "admin");
+    
+    // Load and apply saved theme preference on mount
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    setTheme(savedTheme);
+    if (savedTheme === "light") {
+      document.body.classList.add("light-mode");
+      document.body.classList.remove("dark-mode");
+    } else {
+      document.body.classList.add("dark-mode");
+      document.body.classList.remove("light-mode");
+    }
+  }, []);
   const [showGhlMessages, setShowGhlMessages] = useState(true);
   const [ghlOutboundMessages, setGhlOutboundMessages] = useState([]);
   const [breakThresholdMinutes, setBreakThresholdMinutes] = useState(30);
@@ -774,7 +802,7 @@ export default function Home() {
       case "overview":
         return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} />;
       case "activity-metrics":
-        return <ActivityAndMetrics agents={agentsList} rawAnalysisData={rawAnalysisData} reportDate={reportDate} />;
+        return <ActivityAndMetrics agents={agentsList} rawAnalysisData={rawAnalysisData} reportDate={reportDate} theme={theme} />;
       case "agent-progress":
         return <ProgressWorkspace agents={agentsList} />;
       case "agent-charts":
@@ -794,14 +822,23 @@ export default function Home() {
             activeSection={activeTab}
             reportDate={reportDate}
             ghlMessages={ghlOutboundMessages}
+            timezone={timezone}
           />
         );
       default:
-        return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} />;
+        return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} timezone={timezone} />;
     }
   };
 
   // ── Hero Landing Page ─────────────────────────────────────────────────────
+  if (!authMounted) return null;
+  if (!isLoggedIn) {
+    return <Login onSuccess={(role) => {
+      setIsLoggedIn(true);
+      setUserRole(role);
+    }} />;
+  }
+
   // Loading runs in background while hero shows — no blocking loading screen
   if (showHero) {
     return (
@@ -927,30 +964,32 @@ export default function Home() {
             </h2>
           </div>
           <div className="header-controls">
-            <Link
-              href="/upload-data"
-              className="btn-primary-small"
-              style={{
-                textDecoration: "none",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.45rem",
-                padding: "0.55rem 1.1rem",
-                fontSize: "0.82rem",
-                fontWeight: 700,
-                borderRadius: "30px",
-                border: "1px solid var(--card-border)",
-                background: "var(--card-bg)",
-                color: "var(--text-primary)",
-                boxShadow: "var(--shadow)",
-                transition: "all 0.2s"
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--primary)"}
-              onMouseLeave={(e) => e.currentTarget.style.borderColor = "var(--card-border)"}
-            >
-              <i className="fa-solid fa-cloud-arrow-up"></i>
-              <span>Onboarding Portal</span>
-            </Link>
+            {userRole === "special" && (
+              <Link
+                href="/upload-data"
+                className="btn-primary-small"
+                style={{
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.45rem",
+                  padding: "0.55rem 1.1rem",
+                  fontSize: "0.82rem",
+                  fontWeight: 700,
+                  borderRadius: "30px",
+                  border: "1px solid var(--card-border)",
+                  background: "var(--card-bg)",
+                  color: "var(--text-primary)",
+                  boxShadow: "var(--shadow)",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--primary)"}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = "var(--card-border)"}
+              >
+                <i className="fa-solid fa-cloud-arrow-up"></i>
+                <span>Onboarding Portal</span>
+              </Link>
+            )}
 
             <div style={{ width: "160px" }}>
               <CustomDatePicker value={reportDate} onChange={setReportDate} />
@@ -976,9 +1015,15 @@ export default function Home() {
               <p style={{ color: "var(--text-secondary)", maxWidth: "500px", margin: "0 auto", fontSize: "0.92rem", lineHeight: "1.5" }}>
                 No database backup has been uploaded for <strong>{reportDate}</strong>. Go to the Onboarding Portal to upload daily CRM logs and save them to GitHub.
               </p>
-              <Link href="/upload-data" className="btn-primary-small" style={{ textDecoration: "none", marginTop: "0.5rem", padding: "0.65rem 1.8rem" }}>
-                <i className="fa-solid fa-cloud-arrow-up"></i> Go to Onboarding Portal
-              </Link>
+               {userRole === "special" ? (
+                <Link href="/upload-data" className="btn-primary-small" style={{ textDecoration: "none", marginTop: "0.5rem", padding: "0.65rem 1.8rem" }}>
+                  <i className="fa-solid fa-cloud-arrow-up"></i> Go to Onboarding Portal
+                </Link>
+              ) : (
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.88rem", background: "rgba(255,255,255,0.03)", padding: "0.5rem 1rem", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+                  <i className="fa-solid fa-lock" style={{ marginRight: "0.4rem" }}></i> Backups are read-only. Contact a Special User to upload today's logs.
+                </span>
+              )}
             </section>
           </div>
         ) : (

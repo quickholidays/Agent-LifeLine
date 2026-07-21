@@ -5,17 +5,32 @@ import Link from "next/link";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { parseCSV } from "@/utils/csvParser";
 import { processAgentData, toBST, isJuly17BST } from "@/utils/analysisEngine";
+import Login from "@/components/Login";
 
 export default function UploadDataPage() {
   const [theme, setTheme] = useState("dark");
   const [reportDate, setReportDate] = useState(() => {
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const year = yesterday.getUTCFullYear();
-    const month = String(yesterday.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(yesterday.getUTCDate()).padStart(2, "0");
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Karachi",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(yesterday);
+    const year = parts.find(p => p.type === "year").value;
+    const month = parts.find(p => p.type === "month").value;
+    const day = parts.find(p => p.type === "day").value;
     return `${year}-${month}-${day}`;
   });
-  const [timezone, setTimezone] = useState("BST");
+  const [timezone, setTimezone] = useState("PKT");
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authMounted, setAuthMounted] = useState(false);
+
+  useEffect(() => {
+    setAuthMounted(true);
+    setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
+  }, []);
   const [syncConversations, setSyncConversations] = useState(false);
   const [ghlToken, setGhlToken] = useState("");
   const [ghlLocationId, setGhlLocationId] = useState("");
@@ -842,6 +857,11 @@ export default function UploadDataPage() {
     setCurrentStepIdx(-1);
     window.location.href = `/?date=${reportDate}`;
   };
+
+  if (!authMounted) return null;
+  if (!isLoggedIn) {
+    return <Login onSuccess={() => setIsLoggedIn(true)} />;
+  }
 
   return (
     <div className="upload-layout" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "var(--bg-color)" }}>

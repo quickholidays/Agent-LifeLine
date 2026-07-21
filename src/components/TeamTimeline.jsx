@@ -7,7 +7,7 @@ const CANVAS_MIN_WIDTH = 1200;
 // Max visible height before vertical scroll kicks in
 const MAX_VISIBLE_HEIGHT = 520;
 
-export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, reportDate = "2026-07-17", showGhlMessages = true, ghlMessages = [], hideNames = false }) {
+export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, reportDate = "2026-07-17", showGhlMessages = true, ghlMessages = [], hideNames = false, theme = "dark" }) {
   const canvasRef = useRef(null);
   const namesCanvasRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -241,7 +241,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
       ctx.textAlign = "left";
       ctx.fillText(agent.name, 15, yCenter + 4);
     });
-  }, [agents, selectedAgent, hoveredItem]);
+  }, [agents, selectedAgent, hoveredItem, theme]);
 
   // ── Draw the main timeline canvas ─────────────────────────────────────────
   useEffect(() => {
@@ -467,7 +467,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
         });
       }
     });
-  }, [agents, startHour, endHour, hoveredItem, selectedAgent, canvasWidth, showGhlMessages, ghlMessages, reportDate]);
+  }, [agents, startHour, endHour, hoveredItem, selectedAgent, canvasWidth, showGhlMessages, ghlMessages, reportDate, theme]);
 
   // ── Mouse interaction ─────────────────────────────────────────────────────
   const handleMouseMove = (e) => {

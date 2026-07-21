@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from "react";
 
-export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesList = [], activeSection = "", reportDate = "2026-07-17", ghlMessages = [] }) {
+export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesList = [], activeSection = "", reportDate = "2026-07-17", ghlMessages = [], timezone = "PKT", theme = "dark" }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -391,7 +391,8 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     filterNotesOnly,
     filterOppsOnly,
     filterContactsOnly,
-    containerWidth
+    containerWidth,
+    theme
   ]);
 
   const handleMouseMove = (e) => {
@@ -1319,7 +1320,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
           <h2 style={{ margin: 0 }}>
             <i className="fa-solid fa-file-invoice"></i> Executive Operations Report - {new Date(reportDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}
           </h2>
-          <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>BST (British Summer Time) standard timezone analysis</span>
+          <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>{timezone === "PKT" ? "PKT (Pakistan Standard Time)" : "BST (British Summer Time)"} standard timezone analysis</span>
         </div>
         {activeSection !== "exec-export" && (
           <div style={{ display: "flex", gap: "0.6rem" }}>

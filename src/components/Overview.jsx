@@ -3,7 +3,7 @@
 import React from "react";
 import PieChart from "./PieChart";
 
-export default function Overview({ agents, stageChanges = {}, reportDate = "2026-07-17" }) {
+export default function Overview({ agents, stageChanges = {}, reportDate = "2026-07-17", timezone = "PKT" }) {
   const [selectedAgentName, setSelectedAgentName] = React.useState("all");
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const dropdownRef = React.useRef(null);
@@ -79,7 +79,7 @@ export default function Overview({ agents, stageChanges = {}, reportDate = "2026
             <span className="kpi-title" style={{ color: "rgba(255,255,255,0.8)" }}>Margin Generated Today</span>
             <h3 className="kpi-value">£{totalMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
             <p className="kpi-subtext" style={{ color: "rgba(255,255,255,0.7)" }}>
-              {new Date(reportDate).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} BST additions
+              {new Date(reportDate).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} {timezone} additions
             </p>
           </div>
         </div>

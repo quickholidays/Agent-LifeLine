@@ -23,7 +23,7 @@ import {
   calculateTotalActions
 } from "../utils/metrics";
 
-export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate }) {
+export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate, theme = "dark" }) {
   // Enforce specific agent selection by defaulting to the first agent name
   const [selectedAgentName, setSelectedAgentName] = useState("");
   const [activeCard, setActiveCard] = useState("newLeads");
@@ -1156,6 +1156,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
           onSelectAgent={() => {}}
           reportDate={reportDate}
           hideNames={selectedAgentName === "All Agents" ? false : true}
+          theme={theme}
         />
       </div>
     </div>
