@@ -27,6 +27,13 @@ export default function UploadDataPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authMounted, setAuthMounted] = useState(false);
 
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+    document.cookie = "userRole=; path=/; max-age=0; SameSite=Lax";
+    setIsLoggedIn(false);
+  };
+
   useEffect(() => {
     setAuthMounted(true);
     setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
@@ -876,6 +883,16 @@ export default function UploadDataPage() {
           </Link>
           <button id="theme-toggle" className="btn-theme" onClick={toggleTheme}>
             <i className={`fa-solid ${theme === "dark" ? "fa-moon" : "fa-sun"}`}></i>
+          </button>
+          <button
+            className="btn-theme"
+            title="Logout"
+            onClick={handleLogout}
+            style={{
+              color: "#e26939"
+            }}
+          >
+            <i className="fa-solid fa-right-from-bracket"></i>
           </button>
         </div>
       </header>

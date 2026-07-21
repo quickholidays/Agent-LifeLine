@@ -77,10 +77,21 @@ export default function Home() {
   const [authMounted, setAuthMounted] = useState(false);
   const [userRole, setUserRole] = useState("admin");
 
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("showHero");
+    document.cookie = "userRole=; path=/; max-age=0; SameSite=Lax";
+    setIsLoggedIn(false);
+    setUserRole("admin");
+    setShowHero(true);
+  };
+
   useEffect(() => {
     setAuthMounted(true);
     setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
     setUserRole(localStorage.getItem("userRole") || "admin");
+    setShowHero(localStorage.getItem("showHero") !== "false");
     
     // Load and apply saved theme preference on mount
     const savedTheme = localStorage.getItem("theme") || "dark";
@@ -886,7 +897,10 @@ export default function Home() {
           <button
             id="hero-enter-btn"
             className="hero-cta-btn"
-            onClick={() => setShowHero(false)}
+            onClick={() => {
+              localStorage.setItem("showHero", "false");
+              setShowHero(false);
+            }}
           >
             <span>{loading ? "Preparing Workspace…" : "Enter Workspace"}</span>
             <i className={`fa-solid ${loading ? "fa-spinner fa-spin" : "fa-arrow-right hero-cta-icon"}`} />
@@ -1002,6 +1016,18 @@ export default function Home() {
               onClick={toggleTheme}
             >
               <i className={`fa-solid ${theme === "dark" ? "fa-moon" : "fa-sun"}`}></i>
+            </button>
+
+            <button
+              className="btn-theme"
+              title="Logout"
+              onClick={handleLogout}
+              style={{
+                marginLeft: "0.5rem",
+                color: "#e26939"
+              }}
+            >
+              <i className="fa-solid fa-right-from-bracket"></i>
             </button>
           </div>
         </header>

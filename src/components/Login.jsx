@@ -8,6 +8,7 @@ export default function Login({ onSuccess }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [videoPoster, setVideoPoster] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
   const videoRef = useRef(null);
 
@@ -161,26 +162,48 @@ export default function Login({ onSuccess }) {
               <label htmlFor="password" style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.55rem", color: "#9ca3af" }}>
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Enter password"
-                style={{
-                  width: "100%",
-                  padding: "0.85rem 1.1rem",
-                  borderRadius: "10px",
-                  background: "#161b22",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "white",
-                  fontSize: "0.95rem",
-                  outline: "none",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.2)",
-                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-                }}
-              />
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter password"
+                  style={{
+                    width: "100%",
+                    padding: "0.85rem 3rem 0.85rem 1.1rem",
+                    borderRadius: "10px",
+                    background: "#161b22",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "white",
+                    fontSize: "0.95rem",
+                    outline: "none",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.2)",
+                    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "1rem",
+                    background: "transparent",
+                    border: "none",
+                    color: "#9ca3af",
+                    cursor: "pointer",
+                    fontSize: "1.1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                    outline: "none"
+                  }}
+                >
+                  <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                </button>
+              </div>
             </div>
 
             <button
