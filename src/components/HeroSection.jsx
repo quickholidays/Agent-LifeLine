@@ -1328,8 +1328,8 @@ export default function HeroSection({ isLoggedIn, onLoginSuccess, onEnterWorkspa
               justifyContent: "center",
               padding: isMobile ? "1.5rem" : "3.5rem",
               borderRight: isMobile ? "none" : "1px solid rgba(34, 51, 59, 0.12)",
-              // Remove solid black background and backdrop-filter blur on mobile
-              background: isMobile ? "transparent" : "#0A0908",
+              // Remove solid background on mobile, use brownish theme accent on desktop
+              background: isMobile ? "transparent" : "var(--accent, #5E503F)",
               backdropFilter: "none",
               boxSizing: "border-box",
               zIndex: 20
@@ -1412,7 +1412,7 @@ export default function HeroSection({ isLoggedIn, onLoginSuccess, onEnterWorkspa
               <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
                 <label style={{ fontSize: "0.7rem", fontWeight: 800, color: isMobile ? "rgba(34,51,59,0.6)" : "rgba(198, 172, 143, 0.6)", letterSpacing: "0.15em" }}>USERNAME</label>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                  <UserIcon size={16} style={{ position: "absolute", left: "1rem", color: isMobile ? "#22333B" : "#C6AC8F", opacity: 0.6 }} />
+                  <UserIcon size={16} style={{ position: "absolute", left: "1rem", color: "#22333B", opacity: 0.6 }} />
                   <input
                     type="text"
                     required
@@ -1421,18 +1421,18 @@ export default function HeroSection({ isLoggedIn, onLoginSuccess, onEnterWorkspa
                     placeholder="Enter admin username"
                     style={{
                       width: "100%",
-                      background: isMobile ? "#FFFFFF" : "rgba(34, 51, 59, 0.4)",
-                      border: isMobile ? "1px solid rgba(34,51,59,0.15)" : "1px solid rgba(198,172,143,0.2)",
+                      background: "#FFFFFF",
+                      border: "1px solid rgba(34, 51, 59, 0.15)",
                       borderRadius: "8px",
                       padding: "0.85rem 1rem 0.85rem 2.6rem",
-                      color: isMobile ? "#0A0908" : "#EAE0D5",
+                      color: "#22333B",
                       fontSize: "0.88rem",
                       outline: "none",
                       boxSizing: "border-box",
                       transition: "border-color 0.2s ease"
                     }}
-                    onFocus={(e) => e.target.style.borderColor = isMobile ? "#22333B" : "#C6AC8F"}
-                    onBlur={(e) => e.target.style.borderColor = isMobile ? "rgba(34,51,59,0.15)" : "rgba(198,172,143,0.2)"}
+                    onFocus={(e) => e.target.style.borderColor = "#22333B"}
+                    onBlur={(e) => e.target.style.borderColor = "rgba(34, 51, 59, 0.15)"}
                   />
                 </div>
               </div>
@@ -1441,7 +1441,7 @@ export default function HeroSection({ isLoggedIn, onLoginSuccess, onEnterWorkspa
               <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
                 <label style={{ fontSize: "0.7rem", fontWeight: 800, color: isMobile ? "rgba(34,51,59,0.6)" : "rgba(198, 172, 143, 0.6)", letterSpacing: "0.15em" }}>PASSWORD</label>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                  <KeyRound size={16} style={{ position: "absolute", left: "1rem", color: isMobile ? "#22333B" : "#C6AC8F", opacity: 0.6 }} />
+                  <KeyRound size={16} style={{ position: "absolute", left: "1rem", color: "#22333B", opacity: 0.6 }} />
                   <input
                     type={showPassword ? "text" : "password"}
                     required
@@ -1450,18 +1450,18 @@ export default function HeroSection({ isLoggedIn, onLoginSuccess, onEnterWorkspa
                     placeholder="Enter password"
                     style={{
                       width: "100%",
-                      background: isMobile ? "#FFFFFF" : "rgba(34, 51, 59, 0.4)",
-                      border: isMobile ? "1px solid rgba(34,51,59,0.15)" : "1px solid rgba(198,172,143,0.2)",
+                      background: "#FFFFFF",
+                      border: "1px solid rgba(34, 51, 59, 0.15)",
                       borderRadius: "8px",
                       padding: "0.85rem 2.6rem 0.85rem 2.6rem",
-                      color: isMobile ? "#0A0908" : "#EAE0D5",
+                      color: "#22333B",
                       fontSize: "0.88rem",
                       outline: "none",
                       boxSizing: "border-box",
                       transition: "border-color 0.2s ease"
                     }}
-                    onFocus={(e) => e.target.style.borderColor = isMobile ? "#22333B" : "#C6AC8F"}
-                    onBlur={(e) => e.target.style.borderColor = isMobile ? "rgba(34,51,59,0.15)" : "rgba(198,172,143,0.2)"}
+                    onFocus={(e) => e.target.style.borderColor = "#22333B"}
+                    onBlur={(e) => e.target.style.borderColor = "rgba(34, 51, 59, 0.15)"}
                   />
                   <button
                     type="button"
@@ -1471,7 +1471,7 @@ export default function HeroSection({ isLoggedIn, onLoginSuccess, onEnterWorkspa
                       right: "1rem",
                       background: "transparent",
                       border: "none",
-                      color: isMobile ? "#22333B" : "#C6AC8F",
+                      color: "#22333B",
                       cursor: "pointer",
                       padding: 0,
                       display: "flex",
