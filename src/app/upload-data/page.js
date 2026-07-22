@@ -51,8 +51,9 @@ export default function UploadDataPage() {
   const [apptLeadsFile, setApptLeadsFile] = useState(null);
   const [closedLeadsFile, setClosedLeadsFile] = useState(null);
   const [contactsFile, setContactsFile] = useState(null);
+  const [jsonFile, setJsonFile] = useState(null);
 
-  const [uploadMode, setUploadMode] = useState("bulk"); // 'bulk' or 'single'
+  const [uploadMode, setUploadMode] = useState("bulk"); // 'bulk' or 'single' or 'json'
   const [processStatus, setProcessStatus] = useState("");
   const [processingState, setProcessingState] = useState(null);
 
@@ -76,11 +77,13 @@ export default function UploadDataPage() {
   // Custom Alert & Confirm Popup States
   const [customPopup, setCustomPopup] = useState(null);
 
-  const showCustomConfirm = (message) => {
+  const showCustomConfirm = (message, confirmLabel = "Overwrite", cancelLabel = "Cancel") => {
     return new Promise((resolve) => {
       setCustomPopup({
         type: "confirm",
         message,
+        confirmLabel,
+        cancelLabel,
         onConfirm: () => {
           setCustomPopup(null);
           resolve(true);
@@ -154,6 +157,46 @@ export default function UploadDataPage() {
       reader.onerror = (e) => reject(e);
       reader.readAsText(file);
     });
+  };
+
+  const handleJsonUpload = async (file) => {
+    if (!file) return;
+    try {
+      setJsonFile(file);
+      setStepStatus("processing");
+      setStepDetails("Reading and parsing pre-compiled JSON report file...");
+      setCurrentStepIdx(7);
+      
+      const text = await readFileText(file);
+      const parsedData = JSON.parse(text);
+      
+      if (!parsedData || typeof parsedData !== "object" || !parsedData.agents) {
+        throw new Error("Invalid report file format. Expected a JSON object containing an 'agents' property.");
+      }
+      
+      let dateMatch = file.name.match(/(\d{4}-\d{2}-\d{2})/);
+      let detectedDate = dateMatch ? dateMatch[1] : reportDate;
+      if (dateMatch) {
+        setReportDate(detectedDate);
+      }
+      
+      setCompiledData(parsedData);
+      setStepDetails(`JSON report file parsed successfully.\nTarget Date (detected from file): ${detectedDate}\nTotal agents in report: ${Object.keys(parsedData.agents).length}\n\nAll datasets parsed and compiled successfully! Ready to save.`);
+      setStepStatus("confirm-upload");
+      
+      setProcessingState({
+        progressPercent: 95,
+        steps: [
+          { id: "read-json", name: "Parsing JSON Report File", status: "done" },
+          { id: "confirm-save", name: "Confirming and Saving compiled backup", status: "processing" }
+        ]
+      });
+    } catch (err) {
+      console.error(err);
+      setStepStatus("error");
+      setStepDetails(`Failed to parse JSON file: ${err.message}`);
+      await showCustomAlert(`Invalid JSON Report: ${err.message}`);
+    }
   };
 
   const handleBulkFiles = (e) => {
@@ -763,19 +806,36 @@ export default function UploadDataPage() {
       setStepStatus("processing");
       setStepDetails("Uploading backup to GitHub repository...");
 
+      let dataToUpload = { ...compiledData };
+
       // Check if file exists to warn/confirm overwrite
       const checkRes = await fetch(`/api/backup?date=${reportDate}`);
       if (checkRes.ok) {
         const checkData = await checkRes.json();
         if (checkData.exists) {
           const overwrite = await showCustomConfirm(
-            `A backup file for ${reportDate} already exists in your GitHub repository. Do you want to overwrite it?`
+            `A backup file for ${reportDate} already exists in your GitHub repository. Do you want to overwrite it?`,
+            "Overwrite",
+            "Cancel"
           );
           if (!overwrite) {
             setProcessingState(null);
             setProcessStatus("");
             setCurrentStepIdx(-1);
             return; // Abort
+          }
+
+          const overwriteConvs = await showCustomConfirm(
+            "Do you want to overwrite the GHL conversation / chat history on GitHub as well, or keep the existing conversations from the previous backup?",
+            "Overwrite Chat",
+            "Keep Existing Chat"
+          );
+          if (!overwriteConvs) {
+            const existingData = checkData.data || {};
+            dataToUpload.ghl_outbound_messages = existingData.ghl_outbound_messages || existingData.ghlMessages || [];
+            if (existingData.ghlMessages) {
+              dataToUpload.ghlMessages = existingData.ghlMessages;
+            }
           }
         }
       }
@@ -784,7 +844,7 @@ export default function UploadDataPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          data: compiledData,
+          data: dataToUpload,
           date: reportDate
         })
       });
@@ -839,11 +899,44 @@ export default function UploadDataPage() {
         setStepStatus("processing");
         setStepDetails("Saving report locally on server...");
 
+        let dataToUpload = { ...compiledData };
+
+        const checkRes = await fetch(`/api/backup?date=${reportDate}`);
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
+          if (checkData.exists) {
+            const overwrite = await showCustomConfirm(
+              `A local backup file for ${reportDate} already exists. Do you want to overwrite it?`,
+              "Overwrite",
+              "Cancel"
+            );
+            if (!overwrite) {
+              setProcessingState(null);
+              setProcessStatus("");
+              setCurrentStepIdx(-1);
+              return; // Abort
+            }
+
+            const overwriteConvs = await showCustomConfirm(
+              "Do you want to overwrite the local GHL conversation / chat history as well, or keep the existing conversations from the previous backup?",
+              "Overwrite Chat",
+              "Keep Existing Chat"
+            );
+            if (!overwriteConvs) {
+              const existingData = checkData.data || {};
+              dataToUpload.ghl_outbound_messages = existingData.ghl_outbound_messages || existingData.ghlMessages || [];
+              if (existingData.ghlMessages) {
+                dataToUpload.ghlMessages = existingData.ghlMessages;
+              }
+            }
+          }
+        }
+
         const res = await fetch(`/api/backup?skipGithub=true`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            data: compiledData,
+            data: dataToUpload,
             date: reportDate
           })
         });
@@ -1071,6 +1164,26 @@ export default function UploadDataPage() {
             >
               <i className="fa-solid fa-file-csv"></i> Single Uploads
             </button>
+            <button
+              onClick={() => setUploadMode("json")}
+              style={{
+                background: uploadMode === "json" ? "var(--primary)" : "transparent",
+                color: uploadMode === "json" ? "white" : "var(--text-secondary)",
+                padding: "0.65rem 1.5rem",
+                borderRadius: "8px",
+                border: uploadMode === "json" ? "none" : "1px solid var(--card-border)",
+                fontWeight: 700,
+                fontSize: "0.85rem",
+                cursor: "pointer",
+                boxShadow: uploadMode === "json" ? "0 4px 12px var(--primary-glow)" : "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                transition: "all 0.3s ease"
+              }}
+            >
+              <i className="fa-solid fa-file-code"></i> JSON Report Upload
+            </button>
           </div>
 
           {/* Bulk All-in-One Upload Area */}
@@ -1108,6 +1221,48 @@ export default function UploadDataPage() {
               >
                 <i className="fa-solid fa-plus"></i> Select All Files At Once
               </label>
+            </div>
+          )}
+
+          {/* JSON Upload Area */}
+          {uploadMode === "json" && (
+            <div
+              style={{
+                border: "2px dashed var(--primary)",
+                borderRadius: "12px",
+                padding: "2.5rem 1.5rem",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.6rem",
+                background: "rgba(209, 92, 46, 0.03)",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <i className="fa-solid fa-file-code" style={{ fontSize: "2.5rem", color: "var(--primary)" }}></i>
+              <h3 style={{ fontSize: "1.05rem", fontWeight: 700 }}>Pre-compiled JSON Report Upload</h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", margin: "0 auto", maxWidth: "600px" }}>
+                Select or drag a pre-compiled dashboard JSON report file (e.g. <code>lifeline_report_YYYY-MM-DD.json</code>).
+              </p>
+              <input
+                type="file"
+                accept=".json"
+                onChange={(e) => handleJsonUpload(e.target.files[0] || null)}
+                style={{ display: "none" }}
+                id="json-file-upload-input"
+              />
+              <label
+                htmlFor="json-file-upload-input"
+                className="btn-primary-small"
+                style={{ alignSelf: "center", marginTop: "0.5rem", padding: "0.65rem 1.5rem", cursor: "pointer", fontSize: "0.88rem" }}
+              >
+                <i className="fa-solid fa-file-import"></i> Choose JSON File
+              </label>
+              {jsonFile && (
+                <div style={{ fontSize: "0.78rem", color: "var(--text-primary)", fontWeight: 600, marginTop: "0.5rem" }}>
+                  Selected: {jsonFile.name}
+                </div>
+              )}
             </div>
           )}
 
@@ -1580,7 +1735,7 @@ export default function UploadDataPage() {
                     transition: "all 0.2s"
                   }}
                 >
-                  Cancel
+                  {customPopup.cancelLabel || "Cancel"}
                 </button>
               )}
               <button
@@ -1598,7 +1753,7 @@ export default function UploadDataPage() {
                   transition: "all 0.2s"
                 }}
               >
-                {customPopup.type === "confirm" ? "Overwrite" : "OK"}
+                {customPopup.type === "confirm" ? (customPopup.confirmLabel || "Overwrite") : "OK"}
               </button>
             </div>
           </div>

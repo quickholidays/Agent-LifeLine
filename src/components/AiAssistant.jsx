@@ -10,12 +10,22 @@ export default function AiAssistant({
   reportDate = "",
   userRole = ""
 }) {
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content: "Hello. I am your **Operations AI Assistant**. I have parsed today's performance metrics, note audit logs, and phone calls. Ask me any operations queries like:\n\n* *'Who is the top performing agent today?'*\n* *'What was the longest phone call duration?'*\n* *'Which agents made 0 calls today?'*\n* *'Show me a breakdown of interested leads by agent.'*"
+  const [messages, setMessages] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = sessionStorage.getItem("ai_assistant_messages");
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch (e) {}
+      }
     }
-  ]);
+    return [
+      {
+        role: "assistant",
+        content: "Hello. I am your **Operations AI Assistant**. I have parsed today's performance metrics, note audit logs, and phone calls. Ask me any operations queries like:\n\n* *'Who is the top performing agent today?'*\n* *'What was the longest phone call duration?'*\n* *'Which agents made 0 calls today?'*\n* *'Show me a breakdown of interested leads by agent.'*"
+      }
+    ];
+  });
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [outOfContextCount, setOutOfContextCount] = useState(0);
@@ -23,6 +33,13 @@ export default function AiAssistant({
   const [unresolvedList, setUnresolvedList] = useState([]);
   
   const threadEndRef = useRef(null);
+
+  // Sync messages to session cache
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("ai_assistant_messages", JSON.stringify(messages));
+    }
+  }, [messages]);
 
   // Initialize and check context rules lockouts
   useEffect(() => {

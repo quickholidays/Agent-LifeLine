@@ -518,24 +518,42 @@ export function processAgentData(
     });
   });
 
+  const getRowVal = (row, keys) => {
+    for (const k of keys) {
+      if (row[k] !== undefined) return row[k];
+      const lowerKey = k.toLowerCase();
+      const foundKey = Object.keys(row).find(rk => rk.toLowerCase() === lowerKey);
+      if (foundKey && row[foundKey] !== undefined) return row[foundKey];
+    }
+    return "";
+  };
+
   const agentMarginDetails = {};
   opportunitiesRows.forEach((row) => {
-    const assignedRaw = row.assigned || row.Assigned || row["Assigned user"] || row["Assigned User"];
+    const assignedRaw = row.assigned || row.Assigned || row["Assigned user"] || row["Assigned User"] || row["Assigned To"] || row["assignedTo"];
     if (!assignedRaw) return;
     const assigned = normalizeAgentName(assignedRaw);
 
+    const nameVal = getRowVal(row, ["Opportunity name", "Opportunity Name", "Primary Contact name", "Primary Contact Name", "Contact name", "Contact Name"]);
+    const stageVal = getRowVal(row, ["Stage", "stage"]);
+    const statusVal = getRowVal(row, ["Status", "status"]);
+    const sourceVal = getRowVal(row, ["Source", "source"]);
+    const phoneVal = getRowVal(row, ["Phone number", "Phone Number", "phone", "Phone"]);
+    const emailVal = getRowVal(row, ["Email", "email"]);
+
     if (isMarginOnly) {
-      const leadVal = parseFloat(row["Lead value"] || row["Lead Value"] || 0);
+      const leadVal = parseFloat(getRowVal(row, ["Lead value", "Lead Value", "margin", "Margin", "Margin Amount", "Margin amount"]) || 0);
       if (!agentMarginDetails[assigned]) agentMarginDetails[assigned] = [];
       agentMarginDetails[assigned].push({
-        name: row["Opportunity name"] || row["Primary Contact name"] || "Unknown",
+        name: nameVal || "Unknown",
         margin: leadVal,
         date: targetDateStr,
-        stage: row["Stage"] || "",
-        status: row["Status"] || "",
-        source: row["Source"] || "",
-        phone: row["Phone number"] || "",
-        email: row["Email"] || ""
+        stage: stageVal,
+        status: statusVal,
+        source: sourceVal,
+        phone: phoneVal,
+        email: emailVal,
+        agent: assigned
       });
     } else {
       const marginAddedDate = row["Margin Added Date"] || row["margin_added_date"];
@@ -543,19 +561,19 @@ export function processAgentData(
       const bstMarginDate = toBST(marginAddedDate, targetDateStr, timezone);
       if (isJuly17BST(bstMarginDate, targetDateStr)) {
         const marginValRaw = row["Margin Amount"] || row["Margin amount"] || "0";
-        const leadValRaw = row["Lead value"] || row["Lead Value"] || "0";
         const marginVal = parseFloat(marginValRaw);
         if (!isNaN(marginVal) && marginVal > 0) {
           if (!agentMarginDetails[assigned]) agentMarginDetails[assigned] = [];
           agentMarginDetails[assigned].push({
-            name: row["Opportunity name"] || row["Primary Contact name"] || "Unknown",
+            name: nameVal || "Unknown",
             margin: marginVal,
             date: marginAddedDate,
-            stage: row["Stage"] || "",
-            status: row["Status"] || "",
-            source: row["Source"] || "",
-            phone: row["Phone number"] || "",
-            email: row["Email"] || ""
+            stage: stageVal,
+            status: statusVal,
+            source: sourceVal,
+            phone: phoneVal,
+            email: emailVal,
+            agent: assigned
           });
         }
       }
