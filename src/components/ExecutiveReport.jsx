@@ -1341,7 +1341,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         a.stage_interested_today,
         a.stage_contacted_today,
         a.notes_updated_today,
-        a.general_conv_rate.toFixed(1)
+        (a.general_conv_rate || 0).toFixed(1)
       ];
     });
     downloadCSV(headers, rows, "agent_conversion_report.csv");
@@ -1354,7 +1354,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       a.new_leads_today,
       a.referrals_today || 0,
       a.converted_today,
-      a.today_conv_rate.toFixed(1)
+      (a.today_conv_rate || 0).toFixed(1)
     ]);
     downloadCSV(headers, rows, "lead_sprints_report.csv");
   };
@@ -1372,13 +1372,13 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         call.outboundCount,
         call.outboundAttended,
         call.outboundMissed,
-        call.outboundMinutes.toFixed(1),
-        call.outboundAvgDuration.toFixed(1),
+        (call.outboundMinutes || 0).toFixed(1),
+        (call.outboundAvgDuration || 0).toFixed(1),
         call.inboundCount,
         call.inboundAttended,
         call.inboundMissed,
-        call.inboundMinutes.toFixed(1),
-        call.inboundAvgDuration.toFixed(1)
+        (call.inboundMinutes || 0).toFixed(1),
+        (call.inboundAvgDuration || 0).toFixed(1)
       ];
     });
     downloadCSV(headers, rows, "call_analytics_report.csv");
@@ -2057,7 +2057,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                       {table1VisibleCols.includes("interested") && <td>{a.stage_interested_today}</td>}
                       {table1VisibleCols.includes("contacted") && <td>{a.stage_contacted_today}</td>}
                       {table1VisibleCols.includes("notes") && <td>{a.notes_updated_today}</td>}
-                      {table1VisibleCols.includes("generalConv") && <td style={{ fontWeight: 700 }}>{a.general_conv_rate.toFixed(1)}%</td>}
+                      {table1VisibleCols.includes("generalConv") && <td style={{ fontWeight: 700 }}>{(a.general_conv_rate || 0).toFixed(1)}%</td>}
                     </tr>
                   );
                 })}
@@ -2187,7 +2187,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                       <td style={{ backgroundColor: "rgba(113, 167, 88, 0.02)", color: "var(--success)", fontWeight: 700 }}>{a.converted_today}</td>
                     )}
                     {table2VisibleCols.includes("todayConvRate") && (
-                      <td style={{ backgroundColor: "rgba(201, 179, 54, 0.02)", fontWeight: 700, color: "var(--primary)" }}>{a.today_conv_rate.toFixed(1)}%</td>
+                      <td style={{ backgroundColor: "rgba(201, 179, 54, 0.02)", fontWeight: 700, color: "var(--primary)" }}>{(a.today_conv_rate || 0).toFixed(1)}%</td>
                     )}
                   </tr>
                 ))}
@@ -2373,8 +2373,8 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                       {table3VisibleCols.includes("outboundMissed") && (
                         <td style={{ backgroundColor: "rgba(239, 68, 68, 0.02)", color: "var(--danger)", fontWeight: 600 }}>{call.outboundMissed}</td>
                       )}
-                      {table3VisibleCols.includes("outboundMinutes") && <td>{call.outboundMinutes.toFixed(1)}</td>}
-                      {table3VisibleCols.includes("outboundAvgDuration") && <td style={{ fontWeight: 600 }}>{call.outboundAvgDuration.toFixed(1)}</td>}
+                      {table3VisibleCols.includes("outboundMinutes") && <td>{(call.outboundMinutes || 0).toFixed(1)}</td>}
+                      {table3VisibleCols.includes("outboundAvgDuration") && <td style={{ fontWeight: 600 }}>{(call.outboundAvgDuration || 0).toFixed(1)}</td>}
                       
                       {/* Inbound */}
                       {table3VisibleCols.includes("inboundCount") && <td>{call.inboundCount}</td>}
@@ -2384,8 +2384,8 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                       {table3VisibleCols.includes("inboundMissed") && (
                         <td style={{ backgroundColor: "rgba(239, 68, 68, 0.02)", color: "var(--danger)", fontWeight: 600 }}>{call.inboundMissed}</td>
                       )}
-                      {table3VisibleCols.includes("inboundMinutes") && <td>{call.inboundMinutes.toFixed(1)}</td>}
-                      {table3VisibleCols.includes("inboundAvgDuration") && <td style={{ fontWeight: 600 }}>{call.inboundAvgDuration.toFixed(1)}</td>}
+                      {table3VisibleCols.includes("inboundMinutes") && <td>{(call.inboundMinutes || 0).toFixed(1)}</td>}
+                      {table3VisibleCols.includes("inboundAvgDuration") && <td style={{ fontWeight: 600 }}>{(call.inboundAvgDuration || 0).toFixed(1)}</td>}
                     </tr>
                   );
                 })}
