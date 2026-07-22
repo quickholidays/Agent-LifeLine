@@ -123,55 +123,98 @@ export default function AiAssistant({
 
   const formatText = (text) => {
     if (!text) return null;
-    const lines = text.split("\n");
     
-    return lines.map((line, idx) => {
-      let trimmed = line.trim();
-      if (!trimmed) return <div key={idx} style={{ height: "0.5rem" }} />;
+    const lines = text.split("\n");
+    const formattedBlocks = [];
+    let currentTable = null;
 
-      // 1. Headers (###, ##, #)
-      if (trimmed.startsWith("###")) {
-        const headerText = trimmed.replace(/^###\s*/, "");
-        return <h4 key={idx} style={{ margin: "0.75rem 0 0.35rem 0", fontSize: "0.92rem", fontWeight: 700, color: "var(--text-primary)" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(headerText) }} />;
-      }
-      if (trimmed.startsWith("##")) {
-        const headerText = trimmed.replace(/^##\s*/, "");
-        return <h3 key={idx} style={{ margin: "1rem 0 0.5rem 0", fontSize: "1.05rem", fontWeight: 800, color: "var(--text-primary)" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(headerText) }} />;
-      }
-      if (trimmed.startsWith("#")) {
-        const headerText = trimmed.replace(/^#\s*/, "");
-        return <h2 key={idx} style={{ margin: "1.25rem 0 0.75rem 0", fontSize: "1.2rem", fontWeight: 800, color: "var(--primary)" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(headerText) }} />;
-      }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
 
-      // 2. Unordered lists (* or -)
-      if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
-        const listText = trimmed.replace(/^[\*\-]\s*/, "");
-        return (
-          <li key={idx} style={{ marginLeft: "1.2rem", marginBottom: "0.25rem", listStyleType: "disc" }}>
-            <span dangerouslySetInnerHTML={{ __html: parseInlineStyles(listText) }} />
-          </li>
-        );
-      }
-
-      // 3. Tables (| cell | cell |)
+      // Check if this line is part of a table
       if (trimmed.startsWith("|")) {
         const cells = trimmed.split("|").map(c => c.trim()).filter(c => c !== "");
-        if (cells.length > 0) {
-          if (cells.every(c => c.match(/^[\s\-.:]+$/))) return null;
-          return (
-            <div key={idx} style={{ display: "flex", gap: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "0.35rem 0", fontSize: "0.8rem", width: "100%" }}>
-              {cells.map((cell, cIdx) => (
-                <div key={cIdx} style={{ flex: 1, fontWeight: trimmed.includes("Agent") || trimmed.includes("Metric") ? 700 : 400 }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(cell) }} />
-              ))}
-            </div>
-          );
+        if (cells.length > 0 && !cells.every(c => c.match(/^[\s\-.:]+$/))) {
+          if (!currentTable) {
+            currentTable = [];
+          }
+          currentTable.push(cells);
         }
+        continue;
       }
 
-      // 4. Standard text paragraph
-      return (
-        <p key={idx} style={{ margin: "0 0 0.5rem 0", lineHeight: "1.45" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(trimmed) }} />
-      );
+      // If we finished a table block, push it to formattedBlocks
+      if (currentTable) {
+        formattedBlocks.push({ type: "table", rows: currentTable });
+        currentTable = null;
+      }
+
+      // Process normal blocks
+      if (!trimmed) {
+        formattedBlocks.push({ type: "empty" });
+      } else if (trimmed.startsWith("###")) {
+        formattedBlocks.push({ type: "h4", text: trimmed.replace(/^###\s*/, "") });
+      } else if (trimmed.startsWith("##")) {
+        formattedBlocks.push({ type: "h3", text: trimmed.replace(/^##\s*/, "") });
+      } else if (trimmed.startsWith("#")) {
+        formattedBlocks.push({ type: "h2", text: trimmed.replace(/^#\s*/, "") });
+      } else if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
+        formattedBlocks.push({ type: "li", text: trimmed.replace(/^[\*\-]\s*/, "") });
+      } else {
+        formattedBlocks.push({ type: "p", text: trimmed });
+      }
+    }
+
+    // Push trailing table if exists
+    if (currentTable) {
+      formattedBlocks.push({ type: "table", rows: currentTable });
+    }
+
+    return formattedBlocks.map((block, idx) => {
+      switch (block.type) {
+        case "empty":
+          return <div key={idx} style={{ height: "0.5rem" }} />;
+        case "h4":
+          return <h4 key={idx} style={{ margin: "0.75rem 0 0.35rem 0", fontSize: "0.92rem", fontWeight: 700, color: "var(--text-primary)" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(block.text) }} />;
+        case "h3":
+          return <h3 key={idx} style={{ margin: "1rem 0 0.5rem 0", fontSize: "1.05rem", fontWeight: 800, color: "var(--text-primary)" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(block.text) }} />;
+        case "h2":
+          return <h2 key={idx} style={{ margin: "1.25rem 0 0.75rem 0", fontSize: "1.2rem", fontWeight: 800, color: "var(--primary)" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(block.text) }} />;
+        case "li":
+          return (
+            <li key={idx} style={{ marginLeft: "1.2rem", marginBottom: "0.25rem", listStyleType: "disc" }}>
+              <span dangerouslySetInnerHTML={{ __html: parseInlineStyles(block.text) }} />
+            </li>
+          );
+        case "p":
+          return <p key={idx} style={{ margin: "0 0 0.5rem 0", lineHeight: "1.45" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(block.text) }} />;
+        case "table":
+          return (
+            <div key={idx} style={{ overflowX: "auto", width: "100%", margin: "0.75rem 0", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "8px" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "480px", fontSize: "0.8rem", textAlign: "left" }}>
+                <thead>
+                  <tr style={{ background: "rgba(255,255,255,0.02)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                    {block.rows[0].map((cell, cIdx) => (
+                      <th key={cIdx} style={{ padding: "0.5rem 0.75rem", fontWeight: 700 }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(cell) }} />
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.slice(1).map((row, rIdx) => (
+                    <tr key={rIdx} style={{ borderBottom: rIdx === block.rows.length - 2 ? "none" : "1px solid rgba(255,255,255,0.04)" }}>
+                      {row.map((cell, cIdx) => (
+                        <td key={cIdx} style={{ padding: "0.5rem 0.75rem" }} dangerouslySetInnerHTML={{ __html: parseInlineStyles(cell) }} />
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        default:
+          return null;
+      }
     });
   };
 
@@ -384,6 +427,7 @@ export default function AiAssistant({
                   <div
                     style={{
                       maxWidth: "75%",
+                      minWidth: 0,
                       padding: "0.85rem 1.1rem",
                       borderRadius: "12px",
                       background: m.role === "user" ? "var(--primary)" : "rgba(255,255,255,0.02)",
@@ -480,6 +524,7 @@ export default function AiAssistant({
                   justifyContent: "center",
                   fontSize: "0.85rem",
                   fontWeight: 700,
+                  flexShrink: 0,
                   opacity: (isLoading || !inputText.trim()) ? 0.5 : 1
                 }}
               >
