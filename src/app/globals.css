@@ -1,14 +1,15 @@
 /* Stylesheet - Agent Performance Dashboard */
 
 :root {
-    /* Dark Theme Variables (Default) - Pure Black & Charcoal Theme */
-    --bg-color: #000000;
-    --card-bg: #0a0a0a;
-    --card-border: rgba(255, 255, 255, 0.08);
-    --text-primary: #faefea;
-    --text-secondary: #edbeab;
-    --primary: #d15c2e;
-    --primary-glow: rgba(209, 92, 46, 0.25);
+    /* Dark Theme Variables (Default) - Earthy, Slate-Toned Theme */
+    --bg-color: #0A0908;
+    --card-bg: #22333B;
+    --card-border: rgba(198, 172, 143, 0.15);
+    --border-color: rgba(198, 172, 143, 0.15);
+    --text-primary: #EAE0D5;
+    --text-secondary: #C6AC8F;
+    --primary: #C6AC8F;
+    --primary-glow: rgba(198, 172, 143, 0.25);
     --success: #71a758;
     --success-glow: rgba(113, 167, 88, 0.15);
     --warning: #c9b336;
@@ -17,28 +18,29 @@
     --info-glow: rgba(219, 131, 36, 0.15);
     --danger: #ef4444;
     --danger-glow: rgba(239, 68, 68, 0.15);
-    --accent: #a74a25;
-    --table-header: #1d0d06;
-    --table-hover: rgba(255, 255, 255, 0.03);
-    --glow-color-1: rgba(209, 92, 46, 0.12);
-    --glow-color-2: rgba(219, 131, 36, 0.12);
-    --input-bg: rgba(29, 13, 6, 0.6);
-    --input-border: rgba(255, 255, 255, 0.1);
-    --scrollbar-thumb: rgba(255, 255, 255, 0.15);
-    --scrollbar-track: rgba(0, 0, 0, 0.2);
-    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --accent: #5E503F;
+    --table-header: #5E503F;
+    --table-hover: rgba(198, 172, 143, 0.03);
+    --glow-color-1: rgba(198, 172, 143, 0.08);
+    --glow-color-2: rgba(94, 80, 63, 0.08);
+    --input-bg: rgba(10, 9, 8, 0.6);
+    --input-border: rgba(198, 172, 143, 0.15);
+    --scrollbar-thumb: rgba(198, 172, 143, 0.2);
+    --scrollbar-track: rgba(10, 9, 8, 0.5);
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
     --font-stack: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body.light-mode {
-    /* Light Theme Variables - Spicy Paprika & Cream Theme */
-    --bg-color: #faefea;
-    --card-bg: #ffffff;
-    --card-border: rgba(42, 18, 9, 0.08);
-    --text-primary: #2a1209;
-    --text-secondary: #7d371c;
-    --primary: #d15c2e;
-    --primary-glow: rgba(209, 92, 46, 0.15);
+    /* Light Theme Variables - Almond Cream & Slate Theme */
+    --bg-color: #EAE0D5;
+    --card-bg: #FFFFFF;
+    --card-border: rgba(34, 51, 59, 0.12);
+    --border-color: rgba(34, 51, 59, 0.12);
+    --text-primary: #0A0908;
+    --text-secondary: #22333B;
+    --primary: #22333B;
+    --primary-glow: rgba(34, 51, 59, 0.15);
     --success: #71a758;
     --success-glow: rgba(113, 167, 88, 0.1);
     --warning: #c9b336;
@@ -47,16 +49,16 @@ body.light-mode {
     --info-glow: rgba(219, 131, 36, 0.1);
     --danger: #dc2626;
     --danger-glow: rgba(220, 38, 38, 0.1);
-    --accent: #7d371c;
-    --table-header: #f6ded5;
-    --table-hover: rgba(42, 18, 9, 0.03);
-    --glow-color-1: rgba(209, 92, 46, 0.05);
-    --glow-color-2: rgba(219, 131, 36, 0.05);
+    --accent: #5E503F;
+    --table-header: rgba(94, 80, 63, 0.15);
+    --table-hover: rgba(34, 51, 59, 0.03);
+    --glow-color-1: rgba(34, 51, 59, 0.05);
+    --glow-color-2: rgba(94, 80, 63, 0.05);
     --input-bg: rgba(255, 255, 255, 0.9);
-    --input-border: rgba(42, 18, 9, 0.12);
-    --scrollbar-thumb: rgba(42, 18, 9, 0.15);
+    --input-border: rgba(34, 51, 59, 0.12);
+    --scrollbar-thumb: rgba(34, 51, 59, 0.15);
     --scrollbar-track: rgba(255, 255, 255, 0.5);
-    --shadow: 0 8px 32px 0 rgba(42, 18, 9, 0.04);
+    --shadow: 0 8px 32px 0 rgba(34, 51, 59, 0.05);
 }
 
 /* Reset & Basics */
@@ -262,8 +264,8 @@ header {
     border: 1px solid var(--card-border);
     border-radius: 16px;
     padding: 1.5rem;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     box-shadow: var(--shadow);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     min-width: 0;
@@ -271,7 +273,7 @@ header {
 }
 
 .card:hover {
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(198, 172, 143, 0.35);
 }
 
 .card-header {

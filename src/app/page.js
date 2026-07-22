@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
 import Overview from "@/components/Overview";
 import TeamTimeline from "@/components/TeamTimeline";
@@ -17,6 +18,7 @@ import { processAgentData } from "@/utils/analysisEngine";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import Login from "@/components/Login";
 import AiAssistant from "@/components/AiAssistant";
+import HeroSection from "@/components/HeroSection";
 
 const isNewLead = (lead, newLeadsList) => {
   if (!Array.isArray(newLeadsList) || newLeadsList.length === 0) return false;
@@ -82,6 +84,7 @@ export default function Home() {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userRole");
     localStorage.removeItem("showHero");
+    document.cookie = "isLoggedIn=; path=/; max-age=0; SameSite=Lax";
     document.cookie = "userRole=; path=/; max-age=0; SameSite=Lax";
     setIsLoggedIn(false);
     setUserRole("admin");
@@ -810,23 +813,29 @@ export default function Home() {
       return renderSkeletonScreen();
     }
 
+    let content;
     switch (activeTab) {
       case "overview":
-        return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} />;
+        content = <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} />;
+        break;
       case "activity-metrics":
-        return <ActivityAndMetrics agents={agentsList} rawAnalysisData={rawAnalysisData} reportDate={reportDate} theme={theme} />;
+        content = <ActivityAndMetrics agents={agentsList} rawAnalysisData={rawAnalysisData} reportDate={reportDate} theme={theme} />;
+        break;
       case "agent-progress":
-        return <ProgressWorkspace agents={agentsList} />;
+        content = <ProgressWorkspace agents={agentsList} />;
+        break;
       case "agent-charts":
-        return <AgentCharts agents={agentsList} />;
+        content = <AgentCharts agents={agentsList} />;
+        break;
       case "ghl-conversations":
-        return <ConversationsWorkspace agents={agentsList} defaultDate={reportDate} />;
+        content = <ConversationsWorkspace agents={agentsList} defaultDate={reportDate} />;
+        break;
       case "exec-conversion":
       case "exec-sprints":
       case "exec-calls":
       case "exec-timeline":
       case "exec-export":
-        return (
+        content = (
           <ExecutiveReport
             agents={agentsList}
             bstCallsList={rawAnalysisData.bstCallsList}
@@ -837,8 +846,9 @@ export default function Home() {
             timezone={timezone}
           />
         );
+        break;
       case "ai-assistant":
-        return (
+        content = (
           <AiAssistant
             agents={agentsList}
             bstCallsList={rawAnalysisData.bstCallsList}
@@ -848,13 +858,44 @@ export default function Home() {
             userRole={userRole}
           />
         );
+        break;
       default:
-        return <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} timezone={timezone} />;
+        content = <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} timezone={timezone} />;
     }
+
+    return (
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
+        {content}
+      </motion.div>
+    );
   };
 
   // ── Hero Landing Page ─────────────────────────────────────────────────────
   if (!authMounted) return null;
+  if (showHero) {
+    return (
+      <HeroSection
+        isLoggedIn={isLoggedIn}
+        onLoginSuccess={(role) => {
+          setIsLoggedIn(true);
+          setUserRole(role);
+          localStorage.setItem("showHero", "false");
+          setShowHero(false);
+        }}
+        onEnterWorkspace={() => {
+          localStorage.setItem("showHero", "false");
+          setShowHero(false);
+        }}
+        loading={loading}
+      />
+    );
+  }
+
   if (!isLoggedIn) {
     return <Login onSuccess={(role) => {
       setIsLoggedIn(true);
@@ -862,73 +903,13 @@ export default function Home() {
     }} />;
   }
 
-  // Loading runs in background while hero shows — no blocking loading screen
-  if (showHero) {
-    return (
-      <div className="hero-root hero-dark">
-
-        {/* Video background — poster is actual first frame of the video */}
-        <div className="hero-video-wrap">
-          <img src="/hero-poster.jpg" alt="" className="hero-poster" aria-hidden="true" />
-          <video
-            className="hero-video"
-            src="/bg-video.mp4"
-            poster="/hero-poster.jpg"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            onLoadedMetadata={(e) => {
-              e.target.currentTime = 1;
-            }}
-          />
-          <div className="hero-video-overlay" />
-        </div>
-
-        {/* Centred content */}
-        <div className="hero-content">
-          {/* Logo */}
-          <img
-            src="/logo.png"
-            alt="LifeLine Logo"
-            style={{
-              height: "120px",
-              width: "auto",
-              marginBottom: "0.5rem",
-              filter: "drop-shadow(0 8px 24px rgba(209, 92, 46, 0.25))"
-            }}
-          />
-
-          <h1 className="hero-headline">
-            LifeLine
-            <span className="hero-headline-accent"> Agent Tracking</span>
-          </h1>
-
-          <p className="hero-subheadline">
-            The premium GoHighLevel activity workspace. Know exactly what your agents are doing — every action, every call, every moment of the working day.
-          </p>
-
-          <button
-            id="hero-enter-btn"
-            className="hero-cta-btn"
-            onClick={() => {
-              localStorage.setItem("showHero", "false");
-              setShowHero(false);
-            }}
-          >
-            <span>{loading ? "Preparing Workspace…" : "Enter Workspace"}</span>
-            <i className={`fa-solid ${loading ? "fa-spinner fa-spin" : "fa-arrow-right hero-cta-icon"}`} />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-
-
   return (
-    <div className="app-layout">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="app-layout"
+    >
       {/* Mobile Sidebar Backdrop Overlay */}
       {!sidebarCollapsed && (
         <div
@@ -1076,6 +1057,6 @@ export default function Home() {
           renderActiveTab()
         )}
       </main>
-    </div>
+    </motion.div>
   );
 }
