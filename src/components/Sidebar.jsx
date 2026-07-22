@@ -27,6 +27,7 @@ export default function Sidebar({
     { id: "exec-calls", label: "Call Analytics", icon: "fa-phone-volume" },
     { id: "exec-timeline", label: "Scatter Timeline", icon: "fa-timeline" },
     { id: "exec-export", label: "Export Centre", icon: "fa-file-export" },
+    { id: "ai-assistant", label: "AI Operations", icon: "fa-wand-magic-sparkles" },
   ];
 
   return (

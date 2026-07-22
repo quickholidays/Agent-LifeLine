@@ -16,6 +16,7 @@ import { parseCSV } from "@/utils/csvParser";
 import { processAgentData } from "@/utils/analysisEngine";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import Login from "@/components/Login";
+import AiAssistant from "@/components/AiAssistant";
 
 const isNewLead = (lead, newLeadsList) => {
   if (!Array.isArray(newLeadsList) || newLeadsList.length === 0) return false;
@@ -834,6 +835,17 @@ export default function Home() {
             reportDate={reportDate}
             ghlMessages={ghlOutboundMessages}
             timezone={timezone}
+          />
+        );
+      case "ai-assistant":
+        return (
+          <AiAssistant
+            agents={agentsList}
+            bstCallsList={rawAnalysisData.bstCallsList}
+            bstUpdatesList={rawAnalysisData.bstUpdatesList}
+            ghlMessages={ghlOutboundMessages}
+            reportDate={reportDate}
+            userRole={userRole}
           />
         );
       default:
