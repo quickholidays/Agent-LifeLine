@@ -226,6 +226,7 @@ export async function GET(req) {
       return `${y}-${m}-${day}`;
     };
 
+    const activeConversations = [];
     while (hasMore && pageCount < 50) {
       pageCount++;
       const params = {
@@ -255,7 +256,30 @@ export async function GET(req) {
         const lastMsgDateStr = parseToLocalDate(lastMsgDate);
 
         if (lastMsgDateStr === targetDateStr) {
-          // Fetch messages for this conversation thread
+          activeConversations.push(c);
+        } else if (new Date(lastMsgDate) < new Date(new Date().setHours(0,0,0,0) - 24 * 60 * 60 * 1000 * 2)) {
+          // If conversation date is older than 2 days ago, stop paging
+          foundOlder = true;
+        }
+      }
+
+      if (foundOlder) {
+        console.log(`[GHL Cron Sync] Found older conversations. Stopping pagination.`);
+        break;
+      }
+
+      const lastItem = conversations[conversations.length - 1];
+      currentStartAfterDate = lastItem.lastMessageDate || lastItem.dateUpdated || lastItem.dateCreated;
+    }
+
+    console.log(`[GHL Cron Sync] Found ${activeConversations.length} active conversations for today. Processing in batches of 5...`);
+
+    const batchSize = 5;
+    for (let i = 0; i < activeConversations.length; i += batchSize) {
+      const batch = activeConversations.slice(i, i + batchSize);
+      
+      await Promise.all(batch.map(async (c) => {
+        try {
           const msgData = await queryGhl(`/conversations/${c.id}/messages`, ghlToken, { limit: 50 });
           const messages = (msgData.messages && msgData.messages.messages) || [];
 
@@ -296,19 +320,15 @@ export async function GET(req) {
               }
             });
           }
-        } else if (new Date(lastMsgDate) < new Date(new Date().setHours(0,0,0,0) - 24 * 60 * 60 * 1000 * 2)) {
-          // If conversation date is older than 2 days ago, stop paging
-          foundOlder = true;
+        } catch (err) {
+          console.error(`[GHL Cron Sync] Failed to fetch messages for conv ${c.id}:`, err.message);
         }
-      }
+      }));
 
-      if (foundOlder) {
-        console.log(`[GHL Cron Sync] Found older conversations. Stopping pagination.`);
-        break;
+      // Sleep 1 second between batches to stay well within 10 req/sec limit
+      if (i + batchSize < activeConversations.length) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-
-      const lastItem = conversations[conversations.length - 1];
-      currentStartAfterDate = lastItem.lastMessageDate || lastItem.dateUpdated || lastItem.dateCreated;
     }
 
     console.log(`[GHL Cron Sync] Sync complete. Found ${outboundMessages.length} GHL outbound SMS messages for date ${targetDateStr}.`);
