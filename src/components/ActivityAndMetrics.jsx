@@ -642,7 +642,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
           agent: selectedAgentName,
           contact: msg.contactName || "Unknown",
           category: "GHL Msg",
-          action: "Outbound Text",
+          action: msg.type === "email" || msg.channel === "TYPE_EMAIL" ? "Outbound Email" : "Outbound Text",
           details: msg.body
         }));
       case "callsPlaced":
@@ -1156,6 +1156,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
           selectedAgent={null}
           onSelectAgent={() => {}}
           reportDate={reportDate}
+          ghlMessages={allMessages}
           hideNames={selectedAgentName === "All Agents" ? false : true}
           theme={theme}
         />

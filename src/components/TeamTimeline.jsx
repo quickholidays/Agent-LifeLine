@@ -368,9 +368,9 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
 
       // ── GHL Message markers (if enabled) ────────────────────────────────────────
       if (showGhlMessages) {
-        const agentMessages = ghlMessages.filter((m) => m.agent_name === agent.name);
+        const agentMessages = ghlMessages.filter((m) => (m.agent_name || m.agent || "").toLowerCase() === agent.name.toLowerCase());
         agentMessages.forEach((msg) => {
-          const msgTime = new Date(msg.timestamp);
+          const msgTime = new Date(msg.timestamp || msg.time);
           if (msgTime >= getMinTime() && msgTime <= getMaxTime()) {
             const xVal = getX(msgTime, displayWidth);
             const isHoveredMsg =
@@ -457,9 +457,9 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
 
       // 3. Check GHL Messages
       if (showGhlMessages) {
-        const agentMessages = ghlMessages.filter((m) => m.agent_name === agent.name);
+        const agentMessages = ghlMessages.filter((m) => (m.agent_name || m.agent || "").toLowerCase() === agent.name.toLowerCase());
         agentMessages.forEach((msg) => {
-          const msgTime = new Date(msg.timestamp);
+          const msgTime = new Date(msg.timestamp || msg.time);
           if (msgTime >= getMinTime() && msgTime <= getMaxTime()) {
             const xVal = getX(msgTime, canvasWidth);
             const dist = Math.hypot(x - xVal, y - yCenter);
@@ -565,13 +565,13 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
     }
 
     if (type === "message") {
-      const msgTimeStr = formatIsoToTime(data.timestamp);
+      const msgTimeStr = formatIsoToTime(data.timestamp || data.time);
       return (
         <div className="timeline-canvas-tooltip" style={tooltipStyle}>
           <div style={{ fontWeight: 800, color: "#38bdf8", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.25rem", marginBottom: "0.4rem" }}>
-            GHL Message ({data.direction})
+            GHL Message ({data.direction || "outbound"})
           </div>
-          <div>Contact: {data.contact_name || "Unknown"}</div>
+          <div>Contact: {data.contact_name || data.contactName || "Unknown"}</div>
           <div style={{ fontStyle: "italic", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "200px" }}>
             "{data.body || "No message body"}"
           </div>
