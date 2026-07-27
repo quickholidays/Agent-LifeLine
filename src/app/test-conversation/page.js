@@ -48,8 +48,8 @@ export default function TestConversationPage() {
         document.body.classList.remove("light-mode");
       }
 
-      setGhlToken(localStorage.getItem("ghl_token") || process.env.NEXT_PUBLIC_GHL_TOKEN || "");
-      setGhlLocationId(localStorage.getItem("ghl_location_id") || process.env.NEXT_PUBLIC_GHL_LOCATION_ID || "");
+      setGhlToken(localStorage.getItem("ghl_token") || "");
+      setGhlLocationId(localStorage.getItem("ghl_location_id") || "");
     }
   }, []);
 
