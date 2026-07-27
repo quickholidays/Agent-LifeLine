@@ -274,7 +274,7 @@ export async function GET(req) {
 
     console.log(`[GHL Cron Sync] Found ${activeConversations.length} active conversations for today. Processing in batches of 5...`);
 
-    const batchSize = 5;
+    const batchSize = 10;
     for (let i = 0; i < activeConversations.length; i += batchSize) {
       const batch = activeConversations.slice(i, i + batchSize);
       
@@ -325,9 +325,9 @@ export async function GET(req) {
         }
       }));
 
-      // Sleep 1 second between batches to stay well within 10 req/sec limit
+      // Sleep 600ms between batches to stay within GHL burst rate limits (approx 15 req/sec burst)
       if (i + batchSize < activeConversations.length) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 600));
       }
     }
 
