@@ -462,7 +462,74 @@ export default function Home() {
             });
           }
 
-          const agentsSource = data.agents || data;
+          const agentsSource = [];
+          const rawAgentsSource = data.agents || data || [];
+          const existingAgentsMap = {};
+          
+          if (Array.isArray(rawAgentsSource)) {
+            rawAgentsSource.forEach(stats => {
+              const name = stats.name || stats.name_raw;
+              if (name) {
+                agentsSource.push(stats);
+                existingAgentsMap[name.toLowerCase()] = true;
+              }
+            });
+          }
+          
+          // Dynamically extract agents from calls, audit logs, and GHL messages
+          const extractedAgentNames = new Set();
+          
+          if (Array.isArray(data.calls)) {
+            data.calls.forEach(c => {
+              if (c.agent) extractedAgentNames.add(c.agent);
+            });
+          }
+          
+          if (Array.isArray(data.audit_logs)) {
+            data.audit_logs.forEach(act => {
+              if (act.agent) extractedAgentNames.add(act.agent);
+            });
+          }
+          
+          if (Array.isArray(ghlMessages)) {
+            ghlMessages.forEach(m => {
+              const agentName = m.agent || m.agent_name;
+              if (agentName) extractedAgentNames.add(agentName);
+            });
+          }
+          
+          // Add stubs for missing agents so they are rendered on screen
+          extractedAgentNames.forEach(name => {
+            if (name && !existingAgentsMap[name.toLowerCase()]) {
+              agentsSource.push({
+                name: name,
+                segmentations: {
+                  newLeads: 0,
+                  bookedLeads: 0,
+                  apptBookedLeads: 0,
+                  closedLeads: 0,
+                  newLeadsToday: 0,
+                  bookedLeadsToday: 0,
+                  apptBookedLeadsToday: 0,
+                },
+                call_metrics: {
+                  outboundCount: 0,
+                  outboundAttended: 0,
+                  outboundMissed: 0,
+                  outboundMinutes: 0,
+                  outboundAvgDuration: 0,
+                  inboundCount: 0,
+                  inboundAttended: 0,
+                  inboundMissed: 0,
+                  inboundMinutes: 0,
+                  inboundAvgDuration: 0,
+                },
+                calls: [],
+                actions_list: []
+              });
+              existingAgentsMap[name.toLowerCase()] = true;
+            }
+          });
 
           if (Array.isArray(agentsSource)) {
             parsed = agentsSource.map(stats => {

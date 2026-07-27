@@ -317,7 +317,7 @@ export async function POST(req) {
 
     console.log("[GHL Webhook] Received payload:", JSON.stringify(payload, null, 2));
 
-    const typeLower = (payload.type || payload.messageType || "").toLowerCase();
+    const typeLower = String(payload.type || payload.messageType || "").toLowerCase();
     const isEmail = typeLower === "email" || typeLower === "type_email";
 
     if (isEmail) {
