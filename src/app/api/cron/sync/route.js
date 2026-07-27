@@ -255,9 +255,6 @@ export async function GET(req) {
         const lastMsgDateStr = parseToLocalDate(lastMsgDate);
 
         if (lastMsgDateStr === targetDateStr) {
-          const assignedUserId = c.assignedTo;
-          const mappedAgentName = userMap[assignedUserId] || "Unassigned";
-
           // Fetch messages for this conversation thread
           const msgData = await queryGhl(`/conversations/${c.id}/messages`, ghlToken, { limit: 50 });
           const messages = (msgData.messages && msgData.messages.messages) || [];
@@ -272,15 +269,23 @@ export async function GET(req) {
               const isEmail = typeLower.includes("email");
               const isOutbound = m.direction === "outbound";
 
-              if (msgDateStr === targetDateStr && isOutbound && !isCall && !isEmail) {
+              const bodyLower = String(m.body || "").toLowerCase();
+              const isOpportunityLog = bodyLower.includes("opportunity updated") || 
+                                       bodyLower.includes("opportunity created") || 
+                                       bodyLower.includes("opportunity stage updated");
+
+              if (msgDateStr === targetDateStr && isOutbound && !isCall && !isEmail && !isOpportunityLog) {
                 let cleanBody = m.body || "[SMS Message]";
                 if (cleanBody && (cleanBody.includes("<p>") || cleanBody.includes("<br") || cleanBody.includes("</div>") || cleanBody.includes("<html>"))) {
                   cleanBody = cleanBody.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
                 }
 
+                const msgUserId = m.userId || c.assignedTo;
+                const msgAgentName = userMap[msgUserId] || "Unassigned";
+
                 outboundMessages.push({
                   id: m.id,
-                  agent: mappedAgentName,
+                  agent: msgAgentName,
                   time: new Date(m.dateAdded).toISOString(),
                   body: cleanBody,
                   contactName: c.fullName || "GHL Contact",
