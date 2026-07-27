@@ -836,8 +836,19 @@ export default function UploadDataPage() {
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || `GitHub Backup failed (${res.status})`);
+        let errMessage = `GitHub Backup failed (${res.status})`;
+        try {
+          const err = await res.json();
+          errMessage = err.error || errMessage;
+        } catch (e) {
+          try {
+            const rawText = await res.text();
+            errMessage = `Server Error (${res.status}): ${rawText.slice(0, 150)}`;
+          } catch (textErr) {
+            errMessage = `Server Error (${res.status}): Failed to read error body`;
+          }
+        }
+        throw new Error(errMessage);
       }
 
       setProcessingState(prev => {
@@ -927,8 +938,19 @@ export default function UploadDataPage() {
         });
 
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || `Local Save failed (${res.status})`);
+          let errMessage = `Local Save failed (${res.status})`;
+          try {
+            const err = await res.json();
+            errMessage = err.error || errMessage;
+          } catch (e) {
+            try {
+              const rawText = await res.text();
+              errMessage = `Server Error (${res.status}): ${rawText.slice(0, 150)}`;
+            } catch (textErr) {
+              errMessage = `Server Error (${res.status}): Failed to read error body`;
+            }
+          }
+          throw new Error(errMessage);
         }
 
         await showCustomAlert(`Successfully saved report locally for date: ${reportDate}`);
