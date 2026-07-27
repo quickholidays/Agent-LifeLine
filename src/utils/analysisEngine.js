@@ -8,6 +8,8 @@ export function normalizeAgentName(name) {
   if (!name) return "";
   const clean = name.replace(/\s+/g, " ").trim().toLowerCase();
 
+  if (clean === "unassigned" || clean === "unassigned user") return "";
+
   if (clean === "emily jone" || clean === "emily jones") return "Emily Jones";
   if (clean === "jessica jessie" || clean === "jessica jessy") return "Jessica Jessie";
   if (clean === "daniel evan" || clean === "daniel evans") return "Daniel Evans";
@@ -424,7 +426,7 @@ export function processAgentData(
     const dtVal = row["Date & Time"] || row["date_time"];
     const moduleName = row.Module || row.module;
     const action = row.Action || row.action;
-    const details = row.Details || "";
+    const rawDetails = row.Details || "";
 
     if (!rawAgent || !dtVal) return;
 
@@ -433,6 +435,38 @@ export function processAgentData(
 
     const agentClean = normalizeAgentName(rawAgent);
     if (!agentClean) return;
+
+    // Clean and shrink details JSON string to keep only essential keys
+    let details = rawDetails;
+    if (typeof rawDetails === "string" && rawDetails.startsWith("{") && rawDetails.endsWith("}")) {
+      try {
+        const parsed = JSON.parse(rawDetails);
+        const simplified = {};
+        const keysToKeep = [
+          "contactName", "name", "contactId", "opportunityId", "id", 
+          "pipelineStageName", "status", "title", "description", 
+          "email", "phone", "value", "margin", "amount"
+        ];
+        keysToKeep.forEach(k => {
+          if (parsed[k] !== undefined) simplified[k] = parsed[k];
+        });
+        
+        if (parsed.opportunity) {
+          simplified.opportunity = {
+            id: parsed.opportunity.id,
+            name: parsed.opportunity.name,
+            status: parsed.opportunity.status,
+            pipelineStageId: parsed.opportunity.pipelineStageId
+          };
+        }
+        
+        details = JSON.stringify(simplified);
+      } catch (e) {
+        if (rawDetails.length > 300) details = rawDetails.slice(0, 300);
+      }
+    } else if (typeof rawDetails === "string" && rawDetails.length > 300) {
+      details = rawDetails.slice(0, 300);
+    }
 
     if (!agentActivities[agentClean]) {
       agentActivities[agentClean] = [];
@@ -447,16 +481,16 @@ export function processAgentData(
 
     agentActivities[agentClean].push(activity);
 
-    // Keep all audit logs on the timeline
-    bstUpdatesList.push({
-      agent: agentClean,
-      time: bstTime,
-      module: activity.module,
-      action: activity.action,
-      details,
-    });
-
+    // Keep only today's audit logs on the timeline to prevent massive bloat!
     if (isJuly17BST(bstTime, targetDateStr)) {
+      bstUpdatesList.push({
+        agent: agentClean,
+        time: bstTime,
+        module: activity.module,
+        action: activity.action,
+        details,
+      });
+
       if (moduleName === "OPPORTUNITY" && details) {
         const match = details.match(/"pipelineStageName"\s*:\s*"([^"]+)"/);
         if (match) {

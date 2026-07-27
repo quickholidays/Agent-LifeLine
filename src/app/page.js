@@ -469,7 +469,7 @@ export default function Home() {
           if (Array.isArray(rawAgentsSource)) {
             rawAgentsSource.forEach(stats => {
               const name = stats.name || stats.name_raw;
-              if (name) {
+              if (name && name.toLowerCase() !== "unassigned") {
                 agentsSource.push(stats);
                 existingAgentsMap[name.toLowerCase()] = true;
               }
@@ -477,7 +477,7 @@ export default function Home() {
           } else if (rawAgentsSource && typeof rawAgentsSource === "object") {
             Object.keys(rawAgentsSource).forEach(agentName => {
               const stats = rawAgentsSource[agentName];
-              if (stats) {
+              if (stats && agentName.toLowerCase() !== "unassigned") {
                 const statsCopy = { ...stats, name: stats.name || agentName };
                 agentsSource.push(statsCopy);
                 existingAgentsMap[agentName.toLowerCase()] = true;
@@ -490,26 +490,26 @@ export default function Home() {
           
           if (Array.isArray(data.calls)) {
             data.calls.forEach(c => {
-              if (c.agent) extractedAgentNames.add(c.agent);
+              if (c.agent && c.agent.toLowerCase() !== "unassigned") extractedAgentNames.add(c.agent);
             });
           }
           
           if (Array.isArray(data.audit_logs)) {
             data.audit_logs.forEach(act => {
-              if (act.agent) extractedAgentNames.add(act.agent);
+              if (act.agent && act.agent.toLowerCase() !== "unassigned") extractedAgentNames.add(act.agent);
             });
           }
           
           if (Array.isArray(ghlMessages)) {
             ghlMessages.forEach(m => {
               const agentName = m.agent || m.agent_name;
-              if (agentName) extractedAgentNames.add(agentName);
+              if (agentName && agentName.toLowerCase() !== "unassigned") extractedAgentNames.add(agentName);
             });
           }
           
           // Add stubs for missing agents so they are rendered on screen
           extractedAgentNames.forEach(name => {
-            if (name && !existingAgentsMap[name.toLowerCase()]) {
+            if (name && name.toLowerCase() !== "unassigned" && !existingAgentsMap[name.toLowerCase()]) {
               agentsSource.push({
                 name: name,
                 segmentations: {
