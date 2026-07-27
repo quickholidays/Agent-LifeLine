@@ -202,11 +202,33 @@ export async function GET(req) {
     const fileName = `daily_backups/${date}.json`;
     const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`;
 
+    // Fetch file metadata first
     const getResponse = await fetch(apiUrl, { headers, cache: "no-store" });
     
     if (getResponse.ok) {
       const fileData = await getResponse.json();
-      const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+      let base64Content = "";
+      
+      if (fileData.size <= 1000000) {
+        base64Content = fileData.content;
+      } else {
+        // File is larger than 1MB. Query the Git Blob API to retrieve complete content.
+        const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${fileData.sha}`;
+        const blobResponse = await fetch(blobUrl, { headers, cache: "no-store" });
+        if (blobResponse.ok) {
+          const blobData = await blobResponse.json();
+          base64Content = blobData.content;
+        } else {
+          const errText = await blobResponse.text();
+          return NextResponse.json(
+            { error: `GitHub Blob API Error (${blobResponse.status}): ${errText}` },
+            { status: blobResponse.status }
+          );
+        }
+      }
+      
+      const cleanBase64 = (base64Content || "").replace(/\s/g, "");
+      const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
       const contentJson = JSON.parse(decodedContent);
       return NextResponse.json({ exists: true, data: contentJson });
     } else if (getResponse.status === 404) {
