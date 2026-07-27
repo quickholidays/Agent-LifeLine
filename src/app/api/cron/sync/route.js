@@ -226,7 +226,7 @@ export async function GET(req) {
       return `${y}-${m}-${day}`;
     };
 
-    while (hasMore && pageCount < 10) {
+    while (hasMore && pageCount < 50) {
       pageCount++;
       const params = {
         locationId,
@@ -269,12 +269,14 @@ export async function GET(req) {
               const isEmail = typeLower.includes("email");
               const isOutbound = m.direction === "outbound";
 
-              const bodyLower = String(m.body || "").toLowerCase();
+              const bodyTrimmed = String(m.body || "").trim();
+              const bodyLower = bodyTrimmed.toLowerCase();
               const isOpportunityLog = bodyLower.includes("opportunity updated") || 
                                        bodyLower.includes("opportunity created") || 
                                        bodyLower.includes("opportunity stage updated");
+              const isPlaceholderSms = bodyLower === "[sms message]" || bodyLower === "" || bodyTrimmed.length === 0;
 
-              if (msgDateStr === targetDateStr && isOutbound && !isCall && !isEmail && !isOpportunityLog) {
+              if (msgDateStr === targetDateStr && isOutbound && !isCall && !isEmail && !isOpportunityLog && !isPlaceholderSms) {
                 let cleanBody = m.body || "[SMS Message]";
                 if (cleanBody && (cleanBody.includes("<p>") || cleanBody.includes("<br") || cleanBody.includes("</div>") || cleanBody.includes("<html>"))) {
                   cleanBody = cleanBody.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
