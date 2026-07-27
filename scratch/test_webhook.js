@@ -1,19 +1,8 @@
 const http = require("http");
 
-function sendWebhook(payload) {
+// Helper to make HTTP requests
+function makeRequest(options, payloadString) {
   return new Promise((resolve, reject) => {
-    const payloadString = JSON.stringify(payload);
-    const options = {
-      hostname: "localhost",
-      port: 3000,
-      path: "/api/webhooks/ghl",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(payloadString)
-      }
-    };
-
     const req = http.request(options, (res) => {
       let data = "";
       res.on("data", (chunk) => { data += chunk; });
@@ -24,65 +13,136 @@ function sendWebhook(payload) {
         });
       });
     });
-
     req.on("error", (e) => reject(e));
-    req.write(payloadString);
+    if (payloadString) {
+      req.write(payloadString);
+    }
     req.end();
   });
 }
 
-async function runTests() {
-  console.log("=== RUNNING GHL WEBHOOK VERIFICATION TESTS (SMS ONLY) ===\n");
+async function runIntegratedTest() {
+  const dateStr = "2026-07-27";
+  console.log("=== GHL WEBHOOK & CSV IMPORT INTEGRATED TEST ===\n");
 
-  // TEST 1: Send Email payload (should be ignored)
-  console.log("TEST 1: Sending Outbound Email Webhook (Expected to be ignored)...");
-  try {
-    const res1 = await sendWebhook({
-      type: "Email",
-      direction: "outbound",
-      body: "This is a test email body. It should be ignored.",
-      subject: "Testing Email Ignore",
-      email: "test-email@example.com",
-      contactName: "Email User",
-      contactId: "email_user_123",
-      agentName: "Agent 11"
-    });
-    console.log(`Response Status: ${res1.status}`);
-    console.log("Response Body:", res1.body);
-    const parsed = JSON.parse(res1.body);
-    if (parsed.message && parsed.message.includes("ignored")) {
-      console.log("✅ TEST 1 PASSED: Email was successfully ignored.\n");
-    } else {
-      console.log("❌ TEST 1 FAILED: Email was not ignored.\n");
+  // Step A: Trigger real-time webhook catching for an SMS
+  console.log("Step A: Simulating real-time GHL SMS Webhook trigger...");
+  const smsPayload = {
+    type: "SMS",
+    direction: "outbound",
+    body: "Hello! This is a live GHL SMS caught in real-time.",
+    email: "john.doe@gmail.com",
+    contactName: "John Doe",
+    contactId: "contact_12345",
+    agentName: "Agent 11",
+    date: `${dateStr}T15:00:00.000Z`
+  };
+  
+  const smsPayloadStr = JSON.stringify(smsPayload);
+  const webhookRes = await makeRequest({
+    hostname: "localhost",
+    port: 3000,
+    path: "/api/webhooks/ghl",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(smsPayloadStr)
     }
-  } catch (err) {
-    console.error("❌ TEST 1 ERROR:", err.message);
+  }, smsPayloadStr);
+  
+  console.log(`Webhook Response Status: ${webhookRes.status}`);
+  console.log(`Webhook Response Body: ${webhookRes.body}\n`);
+
+  // Step B: Simulate CSV Import Merging
+  console.log("Step B: Simulating CSV Import and merging process...");
+  
+  // 1. Fetch the existing backup (which contains the SMS from Step A)
+  console.log("1. Fetching existing backup from GitHub/filesystem...");
+  const fetchRes = await makeRequest({
+    hostname: "localhost",
+    port: 3000,
+    path: `/api/backup?date=${dateStr}`,
+    method: "GET"
+  });
+  
+  let existingConversations = [];
+  try {
+    const fetchedData = JSON.parse(fetchRes.body);
+    if (fetchedData.exists && fetchedData.data) {
+      existingConversations = fetchedData.data.ghl_outbound_messages || fetchedData.data.ghlMessages || [];
+      console.log(`Found ${existingConversations.length} existing conversation messages.`);
+    }
+  } catch (e) {
+    console.warn("No existing backup file found to merge. Initializing new compilation.");
   }
 
-  // TEST 2: Send SMS payload (should succeed)
-  console.log("TEST 2: Sending Outbound SMS Webhook (Expected to succeed and be saved)...");
-  try {
-    const res2 = await sendWebhook({
-      type: "SMS",
-      direction: "outbound",
-      body: "Hi! This is a test SMS message sent via GHL webhook. It should be added to Agent 11's conversation list.",
-      email: "test-sms-contact@gmail.com",
-      contactName: "GHL Webhook SMS Contact",
-      contactId: "sms_webhook_test_999",
-      agentName: "Agent 11",
-      date: "2026-07-27T14:00:00.000Z"
-    });
-    console.log(`Response Status: ${res2.status}`);
-    console.log("Response Body:", res2.body);
-    const parsed = JSON.parse(res2.body);
-    if (parsed.success && parsed.parsedRecord && parsed.parsedRecord.type === "sms") {
-      console.log("✅ TEST 2 PASSED: SMS was successfully processed and saved.\n");
-    } else {
-      console.log("❌ TEST 2 FAILED: SMS processing failed.\n");
+  // 2. Compile new CSV data (e.g. Call logs and Audit logs)
+  const compiledCsvData = {
+    agents: [
+      { name: "Agent 11", calls_placed: 1 }
+    ],
+    calls: [
+      {
+        agent: "Agent 11",
+        timestamp: `${dateStr}T15:15:00.000Z`,
+        contact_name: "John Doe",
+        duration: "03:45",
+        direction: "outbound",
+        status: "Answered"
+      }
+    ],
+    audit_logs: [
+      {
+        agent: "Agent 11",
+        timestamp: `${dateStr}T15:15:00.000Z`,
+        module: "CONTACT",
+        action: "Call log imported",
+        details: "Outbound call to John Doe"
+      }
+    ]
+  };
+
+  // 3. Integrate new CSV data with existing webhook conversations
+  const mergedDataToUpload = {
+    ...compiledCsvData,
+    ghl_outbound_messages: existingConversations,
+    ghlMessages: existingConversations
+  };
+
+  // 4. Save the fully integrated report to GitHub
+  console.log("2. Uploading integrated JSON report back to GitHub...");
+  const uploadPayloadStr = JSON.stringify({
+    data: mergedDataToUpload,
+    date: dateStr
+  });
+  
+  const uploadRes = await makeRequest({
+    hostname: "localhost",
+    port: 3000,
+    path: "/api/backup",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(uploadPayloadStr)
     }
-  } catch (err) {
-    console.error("❌ TEST 2 ERROR:", err.message);
-  }
+  }, uploadPayloadStr);
+  
+  console.log(`Upload Response Status: ${uploadRes.status}`);
+  console.log(`Upload Response Body: ${uploadRes.body}\n`);
+
+  // Step C: Verify the integrated JSON document
+  console.log("Step C: Fetching and verifying the final integrated JSON...");
+  const finalFetchRes = await makeRequest({
+    hostname: "localhost",
+    port: 3000,
+    path: `/api/backup?date=${dateStr}`,
+    method: "GET"
+  });
+
+  console.log("\n=== FINAL INTEGRATED JSON (From GitHub) ===");
+  console.log(JSON.stringify(JSON.parse(finalFetchRes.body), null, 2));
 }
 
-runTests();
+runIntegratedTest().catch((e) => {
+  console.error("Test failed:", e.message);
+});

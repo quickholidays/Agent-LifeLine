@@ -711,19 +711,8 @@ export default function UploadDataPage() {
           currentTempData.marginRows
         );
 
-        // Sync Outbound Messages
-        let msgList = [];
-        if (syncConversations && ghlToken && ghlLocationId) {
-          summaryText += `\nFetching conversations for target date ${reportDate} from GHL API...`;
-          try {
-            msgList = await fetchGhlOutboundMessages(reportDate, ghlToken, ghlLocationId, contactsRows, timezone);
-            summaryText += `\nLive Sync Complete: Exchanged messages with ${new Set(msgList.map(m => m.fullName || m.contactName)).size} contacts.`;
-          } catch (err) {
-            summaryText += `\nLive Sync failed, fell back to simulated messages.`;
-            msgList = getMockOutboundMessages(reportDate);
-          }
-        }
-        processed.ghl_outbound_messages = msgList;
+        // Conversations are tracked in real-time by webhook
+        processed.ghl_outbound_messages = [];
         setCompiledData(processed);
 
         setStepDetails(`${summaryText}\n\nAll datasets parsed and compiled successfully!`);
@@ -829,17 +818,10 @@ export default function UploadDataPage() {
             return; // Abort
           }
 
-          const overwriteConvs = await showCustomConfirm(
-            "Do you want to overwrite the GHL conversation / chat history on GitHub as well, or keep the existing conversations from the previous backup?",
-            "Overwrite Chat",
-            "Keep Existing Chat"
-          );
-          if (!overwriteConvs) {
-            const existingData = checkData.data || {};
-            dataToUpload.ghl_outbound_messages = existingData.ghl_outbound_messages || existingData.ghlMessages || [];
-            if (existingData.ghlMessages) {
-              dataToUpload.ghlMessages = existingData.ghlMessages;
-            }
+          const existingData = checkData.data || {};
+          dataToUpload.ghl_outbound_messages = existingData.ghl_outbound_messages || existingData.ghlMessages || [];
+          if (existingData.ghlMessages) {
+            dataToUpload.ghlMessages = existingData.ghlMessages;
           }
         }
       }
@@ -927,18 +909,11 @@ export default function UploadDataPage() {
               return; // Abort
             }
 
-            const overwriteConvs = await showCustomConfirm(
-              "Do you want to overwrite the local GHL conversation / chat history as well, or keep the existing conversations from the previous backup?",
-              "Overwrite Chat",
-              "Keep Existing Chat"
-            );
-            if (!overwriteConvs) {
               const existingData = checkData.data || {};
               dataToUpload.ghl_outbound_messages = existingData.ghl_outbound_messages || existingData.ghlMessages || [];
               if (existingData.ghlMessages) {
                 dataToUpload.ghlMessages = existingData.ghlMessages;
               }
-            }
           }
         }
 
@@ -1036,7 +1011,7 @@ export default function UploadDataPage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem", marginTop: "0.2rem" }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                  Target Report Date
+                  Select Date
                 </label>
                 <CustomDatePicker
                   value={reportDate}
@@ -1065,69 +1040,6 @@ export default function UploadDataPage() {
                   <option value="BST">British Summer Time (BST, UTC+1)</option>
                   <option value="PKT">Pakistan Standard Time (PKT, UTC+5)</option>
                 </select>
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                  Live API Sync
-                </label>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", height: "38px" }}>
-                  <input
-                    type="checkbox"
-                    id="sync-conversations-checkbox"
-                    checked={syncConversations}
-                    onChange={(e) => setSyncConversations(e.target.checked)}
-                    style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "var(--primary)" }}
-                  />
-                  <label htmlFor="sync-conversations-checkbox" style={{ fontSize: "0.85rem", color: "var(--text-primary)", cursor: "pointer", userSelect: "none" }}>
-                    Pull live chat messages
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Row 2: Location ID, Private Integration Key */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                  Location ID
-                </label>
-                <input
-                  type="text"
-                  value={ghlLocationId}
-                  onChange={(e) => handleGhlLocationChange(e.target.value)}
-                  placeholder="e.g. gCr3FJTylSWPTvuQjR6V"
-                  style={{
-                    width: "100%",
-                    padding: "0.6rem 0.8rem",
-                    borderRadius: "8px",
-                    background: "var(--input-bg)",
-                    border: "1px solid var(--input-border)",
-                    color: "var(--text-primary)",
-                    fontSize: "0.88rem",
-                    outline: "none"
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                  Private Integration Key
-                </label>
-                <input
-                  type="password"
-                  value={ghlToken}
-                  onChange={(e) => handleGhlTokenChange(e.target.value)}
-                  placeholder="pit-xxxxxx..."
-                  style={{
-                    width: "100%",
-                    padding: "0.6rem 0.8rem",
-                    borderRadius: "8px",
-                    background: "var(--input-bg)",
-                    border: "1px solid var(--input-border)",
-                    color: "var(--text-primary)",
-                    fontSize: "0.88rem",
-                    outline: "none"
-                  }}
-                />
               </div>
             </div>
           </div>
