@@ -474,6 +474,15 @@ export default function Home() {
                 existingAgentsMap[name.toLowerCase()] = true;
               }
             });
+          } else if (rawAgentsSource && typeof rawAgentsSource === "object") {
+            Object.keys(rawAgentsSource).forEach(agentName => {
+              const stats = rawAgentsSource[agentName];
+              if (stats) {
+                const statsCopy = { ...stats, name: stats.name || agentName };
+                agentsSource.push(statsCopy);
+                existingAgentsMap[agentName.toLowerCase()] = true;
+              }
+            });
           }
           
           // Dynamically extract agents from calls, audit logs, and GHL messages

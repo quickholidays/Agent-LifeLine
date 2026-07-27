@@ -693,6 +693,16 @@ export default function UploadDataPage() {
 
         let summaryText = `Contacts database parsed successfully.\nTotal contacts parsed: ${contactsRows.length}`;
 
+        console.log("=== COMPILING DATA IN BROWSER ===");
+        console.log("auditRows length:", (currentTempData.auditRows || []).length);
+        console.log("originalOppsRows length:", (currentTempData.originalOppsRows || []).length);
+        console.log("callsRows length:", (currentTempData.callsRows || []).length);
+        console.log("newLeadsRows length:", (currentTempData.newLeadsRows || []).length);
+        console.log("bookedRows length:", (currentTempData.bookedRows || []).length);
+        console.log("apptRows length:", (currentTempData.apptRows || []).length);
+        console.log("closedRows length:", (currentTempData.closedRows || []).length);
+        console.log("marginRows length:", (currentTempData.marginRows || []).length);
+
         // Compile everything
         const processed = processAgentData(
           currentTempData.auditRows,
@@ -710,6 +720,8 @@ export default function UploadDataPage() {
           contactsRows,
           currentTempData.marginRows
         );
+
+        console.log("Processed Agents Dictionary Keys:", Object.keys(processed.agents || {}));
 
         // Conversations are tracked in real-time by webhook
         processed.ghl_outbound_messages = [];
