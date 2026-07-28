@@ -146,102 +146,112 @@ export async function POST(req) {
       "User-Agent": "antigravity-agent"
     };
 
-    let sha = null;
-    let reportData = {
-      agents: {},
-      calls: [],
-      audit_logs: [],
-      ghl_outbound_messages: [],
-      ghlMessages: []
-    };
-    let existsOnGithub = false;
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      let sha = null;
+      let reportData = {
+        agents: {},
+        calls: [],
+        audit_logs: [],
+        ghl_outbound_messages: [],
+        ghlMessages: []
+      };
+      let existsOnGithub = false;
 
-    // 3. Fetch existing daily report from GitHub
-    try {
-      const getResponse = await fetch(githubApiUrl, { headers, cache: "no-store" });
-      if (getResponse.ok) {
-        const fileData = await getResponse.json();
-        sha = fileData.sha;
-        existsOnGithub = true;
-        
-        let base64Content = "";
-        if (fileData.size <= 1000000) {
-          base64Content = fileData.content;
-        } else {
-          console.log(`[WhatsApp Webhook] Report size is ${fileData.size} (> 1MB). Fetching via Blob API...`);
-          const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`;
-          const blobResponse = await fetch(blobUrl, { headers, cache: "no-store" });
-          if (blobResponse.ok) {
-            const blobData = await blobResponse.json();
-            base64Content = blobData.content;
+      // 3. Fetch existing daily report from GitHub
+      try {
+        const getResponse = await fetch(githubApiUrl, { headers, cache: "no-store" });
+        if (getResponse.ok) {
+          const fileData = await getResponse.json();
+          sha = fileData.sha;
+          existsOnGithub = true;
+          
+          let base64Content = "";
+          if (fileData.size <= 1000000) {
+            base64Content = fileData.content;
+          } else {
+            console.log(`[WhatsApp Webhook] Attempt ${attempt}: Report size is ${fileData.size} (> 1MB). Fetching via Blob API...`);
+            const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${sha}`;
+            const blobResponse = await fetch(blobUrl, { headers, cache: "no-store" });
+            if (blobResponse.ok) {
+              const blobData = await blobResponse.json();
+              base64Content = blobData.content;
+            }
           }
+          
+          const cleanBase64 = (base64Content || "").replace(/\s/g, "");
+          const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
+          reportData = JSON.parse(decodedContent);
         }
-        
-        const cleanBase64 = (base64Content || "").replace(/\s/g, "");
-        const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
-        reportData = JSON.parse(decodedContent);
+      } catch (err) {
+        console.warn(`[WhatsApp Webhook] Attempt ${attempt}: Failed to fetch existing daily backup from GitHub:`, err.message);
       }
-    } catch (err) {
-      console.warn("[WhatsApp Webhook] Failed to fetch existing daily backup from GitHub:", err.message);
-    }
 
-    // 4. Initialize outbound message arrays if missing
-    if (!reportData.ghl_outbound_messages) {
-      reportData.ghl_outbound_messages = reportData.ghlMessages || [];
-    }
+      // 4. Initialize outbound message arrays if missing
+      if (!reportData.ghl_outbound_messages) {
+        reportData.ghl_outbound_messages = reportData.ghlMessages || [];
+      }
 
-    // 5. Prevent duplicate message additions
-    const isDuplicate = reportData.ghl_outbound_messages.some(msg => msg.id === messageId);
-    if (isDuplicate) {
-      console.log(`[WhatsApp Webhook] Message ID ${messageId} already exists in report. Skipping.`);
-      return NextResponse.json({ success: true, message: "Duplicate message skipped" });
-    }
+      // 5. Prevent duplicate message additions
+      const isDuplicate = reportData.ghl_outbound_messages.some(msg => msg.id === messageId);
+      if (isDuplicate) {
+        console.log(`[WhatsApp Webhook] Message ID ${messageId} already exists in report. Skipping.`);
+        return NextResponse.json({ success: true, message: "Duplicate message skipped" });
+      }
 
-    // 6. Create and append the new WhatsApp message object
-    const newWhatsAppMessage = {
-      id: messageId,
-      agent: agentName || "Unassigned",
-      time: dateObj.toISOString(),
-      body: body,
-      contactName: contactName,
-      type: "whatsapp"
-    };
+      // 6. Create and append the new WhatsApp message object
+      const newWhatsAppMessage = {
+        id: messageId,
+        agent: agentName || "Unassigned",
+        time: dateObj.toISOString(),
+        body: body,
+        contactName: contactName,
+        type: "whatsapp"
+      };
 
-    reportData.ghl_outbound_messages.push(newWhatsAppMessage);
-    reportData.ghlMessages = reportData.ghl_outbound_messages; // sync both keys
+      reportData.ghl_outbound_messages.push(newWhatsAppMessage);
+      reportData.ghlMessages = reportData.ghl_outbound_messages; // sync both keys
 
-    // 7. Update summary message count
-    if (!reportData.summary) {
-      reportData.summary = { total_agents: 0, total_calls: 0, total_actions: 0, total_ghl_messages: 0 };
-    }
-    reportData.summary.total_ghl_messages = reportData.ghl_outbound_messages.length;
+      // 7. Update summary message count
+      if (!reportData.summary) {
+        reportData.summary = { total_agents: 0, total_calls: 0, total_actions: 0, total_ghl_messages: 0 };
+      }
+      reportData.summary.total_ghl_messages = reportData.ghl_outbound_messages.length;
 
-    // 8. Push updated report back to GitHub
-    const putPayload = {
-      message: `n8n-webhook: add WhatsApp message for ${dateStr} - agent ${agentName || "Unassigned"}`,
-      content: Buffer.from(JSON.stringify(reportData, null, 2)).toString("base64")
-    };
-    if (sha) {
-      putPayload.sha = sha;
-    }
+      // 8. Push updated report back to GitHub
+      const putPayload = {
+        message: `n8n-webhook: add WhatsApp message for ${dateStr} - agent ${agentName || "Unassigned"}`,
+        content: Buffer.from(JSON.stringify(reportData, null, 2)).toString("base64")
+      };
+      if (sha) {
+        putPayload.sha = sha;
+      }
 
-    console.log(`[WhatsApp Webhook] Uploading updated report to GitHub...`);
-    const putResponse = await fetch(githubApiUrl, {
-      method: "PUT",
-      headers: {
-        ...headers,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(putPayload)
-    });
+      console.log(`[WhatsApp Webhook] Attempt ${attempt}: Uploading updated report to GitHub...`);
+      const putResponse = await fetch(githubApiUrl, {
+        method: "PUT",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(putPayload)
+      });
 
-    if (putResponse.ok) {
-      console.log(`[WhatsApp Webhook] Successfully updated report on GitHub.`);
-      return NextResponse.json({ success: true, message: "WhatsApp message appended successfully" });
-    } else {
+      if (putResponse.ok) {
+        console.log(`[WhatsApp Webhook] Attempt ${attempt}: Successfully updated report on GitHub.`);
+        return NextResponse.json({ success: true, message: "WhatsApp message appended successfully" });
+      }
+
       const errText = await putResponse.text();
-      console.error(`[WhatsApp Webhook] Failed to upload report to GitHub (${putResponse.status}):`, errText);
-      return NextResponse.json({ error: `GitHub PUT error: ${errText}` }, { status: putResponse.status });
+      console.warn(`[WhatsApp Webhook] Attempt ${attempt}: Failed to upload report to GitHub (${putResponse.status}): ${errText}`);
+      
+      if (attempt < maxAttempts) {
+        const waitTime = 1000 + Math.random() * 2000;
+        console.log(`[WhatsApp Webhook] Conflict or rate-limit. Waiting ${waitTime.toFixed(0)}ms to retry...`);
+        await new Promise(r => setTimeout(r, waitTime));
+      } else {
+        return NextResponse.json({ error: `GitHub PUT error after ${maxAttempts} attempts: ${errText}` }, { status: putResponse.status });
+      }
     }
   } catch (error) {
     console.error("[WhatsApp Webhook] Internal Server Error:", error);
