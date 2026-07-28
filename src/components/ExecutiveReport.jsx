@@ -2,6 +2,26 @@
 
 import React, { useRef, useEffect, useState } from "react";
 
+// Helper to normalize agent names casing/spacing for robust comparison
+function normalizeAgentName(name) {
+  if (!name) return "";
+  const clean = name.replace(/\s+/g, " ").trim().toLowerCase();
+  if (clean === "unassigned" || clean === "unassigned user") return "";
+  if (clean === "emily jone" || clean === "emily jones") return "Emily Jones";
+  if (clean === "jessica jessie" || clean === "jessica jessy") return "Jessica Jessie";
+  if (clean === "daniel evan" || clean === "daniel evans") return "Daniel Evans";
+  if (clean === "bella evan" || clean === "bella evans") return "Bella Evans";
+  if (clean === "annie adams" || clean === "annie adam") return "Annie Adams";
+  if (clean === "anaya morgan") return "Anaya Morgan";
+  if (clean === "amber williams") return "Amber Williams";
+  if (clean === "chris morgan") return "Chris Morgan";
+  if (clean === "lisa evan" || clean === "lisa evans") return "Lisa Evans";
+  if (clean === "jennie miller") return "Jennie Miller";
+  return name.replace(/\s+/g, " ").trim().split(" ")
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
 export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesList = [], activeSection = "", reportDate = "2026-07-17", ghlMessages = [], timezone = "PKT", theme = "dark" }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -296,7 +316,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       // Filter GHL updates
       if (filterGhlUpdates) {
         let updatesForAgent = bstUpdatesList.filter(
-          (up) => up.agent === agent.name && up.time >= getMinTime() && up.time <= getMaxTime()
+          (up) => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime()
         );
 
         updatesForAgent = updatesForAgent.filter(up => {
@@ -344,7 +364,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       // Filter GHL Messages (Outbound Messages)
       if (filterGhlMessages && ghlMessages) {
         let messagesForAgent = ghlMessages.filter(
-          (m) => m.agent === agent.name && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
+          (m) => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
         );
 
         messagesForAgent.forEach((msg) => {
@@ -369,7 +389,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       // Filter Calls
       if (filterCalls) {
         let callsForAgent = bstCallsList.filter(
-          (cl) => cl.agent === agent.name && cl.time >= getMinTime() && cl.time <= getMaxTime()
+          (cl) => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime()
         );
 
         if (filterMissedOnly) {
@@ -458,7 +478,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     // Check GHL updates
     if (filterGhlUpdates) {
       let updatesForAgent = bstUpdatesList.filter(
-        (up) => up.agent === agent.name && up.time >= getMinTime() && up.time <= getMaxTime()
+        (up) => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime()
       );
 
       updatesForAgent = updatesForAgent.filter(up => {
@@ -489,7 +509,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     // Check GHL Outbound Messages
     if (!found && filterGhlMessages && ghlMessages) {
       let messagesForAgent = ghlMessages.filter(
-        (m) => m.agent === agent.name && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
+        (m) => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
       );
 
       for (const msg of messagesForAgent) {
@@ -513,7 +533,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     // Check Call events
     if (!found && filterCalls) {
       let callsForAgent = bstCallsList.filter(
-        (cl) => cl.agent === agent.name && cl.time >= getMinTime() && cl.time <= getMaxTime()
+        (cl) => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime()
       );
 
       if (filterMissedOnly) {
@@ -862,7 +882,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             // GHL Updates (purple dots)
             if (filterGhlUpdates) {
               let updatesForAgent = bstUpdatesList.filter(
-                (up) => up.agent === agent.name && up.time >= getMinTime() && up.time <= getMaxTime()
+                (up) => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime()
               );
               updatesForAgent = updatesForAgent.filter(up => {
                 if (up.module === "NOTE") return filterNotesOnly;
@@ -882,7 +902,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             // GHL Messages (sky blue dots)
             if (filterGhlMessages && ghlMessages) {
               let messagesForAgent = ghlMessages.filter(
-                (m) => m.agent === agent.name && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
+                (m) => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
               );
               messagesForAgent.forEach((msg) => {
                 const xVal = getX(new Date(msg.time).getTime(), pdfWidth);
@@ -896,7 +916,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             // Calls (orange triangles)
             if (filterCalls) {
               let callsForAgent = bstCallsList.filter(
-                (cl) => cl.agent === agent.name && cl.time >= getMinTime() && cl.time <= getMaxTime()
+                (cl) => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime()
               );
               if (filterMissedOnly) {
                 callsForAgent = callsForAgent.filter(cl => cl.status && cl.status.toLowerCase() !== "answered");
@@ -1117,7 +1137,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
           ctx.strokeStyle = "rgba(0, 0, 0, 0.06)"; ctx.beginPath(); ctx.moveTo(0, rowTop + timelineRowHeight); ctx.lineTo(pdfWidth, rowTop + timelineRowHeight); ctx.stroke();
           ctx.fillStyle = "#1e293b"; ctx.font = "600 12px sans-serif"; ctx.textAlign = "left"; ctx.fillText(agent.name, 15, yCenter + 4);
           if (filterGhlUpdates) {
-            bstUpdatesList.filter(up => up.agent === agent.name && up.time >= getMinTime() && up.time <= getMaxTime())
+            bstUpdatesList.filter(up => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime())
               .filter(up => { if (up.module === "NOTE") return filterNotesOnly; if (up.module === "OPPORTUNITY") return filterOppsOnly; if (up.module === "CONTACT") return filterContactsOnly; return false; })
               .forEach(up => {
                 const xVal = getX(up.time.getTime(), pdfWidth);
@@ -1139,7 +1159,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
               });
           }
           if (filterGhlMessages && ghlMessages) {
-            ghlMessages.filter(m => m.agent === agent.name && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime())
+            ghlMessages.filter(m => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime())
               .forEach(msg => {
                 const xVal = getX(new Date(msg.time).getTime(), pdfWidth);
                 const isOutbound = msg.direction?.toLowerCase() === "outbound";
@@ -1150,7 +1170,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
               });
           }
           if (filterCalls) {
-            let calls = bstCallsList.filter(cl => cl.agent === agent.name && cl.time >= getMinTime() && cl.time <= getMaxTime());
+            let calls = bstCallsList.filter(cl => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime());
             if (filterMissedOnly) calls = calls.filter(cl => cl.status && cl.status.toLowerCase() !== "answered");
             calls.forEach(cl => {
               const xVal = getX(cl.time.getTime(), pdfWidth);

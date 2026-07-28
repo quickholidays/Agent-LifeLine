@@ -382,7 +382,7 @@ export default function Home() {
 
       // Load from GitHub or local fallback API for the selected date
       try {
-        const checkRes = await fetch(`/api/backup?date=${reportDate}`);
+        const checkRes = await fetch(`/api/backup?date=${reportDate}&t=${Date.now()}`);
         if (!checkRes.ok) {
           throw new Error(`Failed to check backup status (${checkRes.status})`);
         }
