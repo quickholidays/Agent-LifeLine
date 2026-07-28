@@ -98,6 +98,25 @@ async function parseGhlWebhook(payload, ghlToken, locationId, tz = "BST") {
     const userMap = await fetchUserMap(ghlToken, locationId);
     agentName = userMap[userId] || "Unassigned";
   }
+  
+  // Fallback: If agentName is still empty or Unassigned, resolve it via contact's assignment in GHL!
+  if ((!agentName || agentName === "Unassigned") && contactId && ghlToken && locationId) {
+    try {
+      console.log(`[GHL Webhook] Resolving agent assignment from GHL contact ID: ${contactId}...`);
+      const contact = await fetchContactFromGhl(contactId, ghlToken);
+      if (contact && contact.assignedTo) {
+        const userMap = await fetchUserMap(ghlToken, locationId);
+        const mapped = userMap[contact.assignedTo];
+        if (mapped) {
+          agentName = mapped;
+          console.log(`[GHL Webhook] Successfully resolved agent name from GHL contact assignment: ${agentName}`);
+        }
+      }
+    } catch (e) {
+      console.error("[GHL Webhook] Error resolving agent assignment:", e.message);
+    }
+  }
+
   if (!agentName) {
     agentName = "Unassigned";
   }
@@ -211,7 +230,24 @@ async function updateDailyBackup(dateStr, newMessage) {
           const fileData = await getResponse.json();
           sha = fileData.sha;
           existsOnGithub = true;
-          const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+          
+          let base64Content = "";
+          if (fileData.size <= 1000000) {
+            base64Content = fileData.content;
+          } else {
+            console.log(`[GHL Webhook] Report size is ${fileData.size} (> 1MB). Fetching via Git Blob API...`);
+            const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${fileData.sha}`;
+            const blobResponse = await fetch(blobUrl, { headers, cache: "no-store" });
+            if (blobResponse.ok) {
+              const blobData = await blobResponse.json();
+              base64Content = blobData.content;
+            } else {
+              throw new Error(`Git Blob API returned status ${blobResponse.status}`);
+            }
+          }
+          
+          const cleanBase64 = (base64Content || "").replace(/\s/g, "");
+          const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
           reportData = JSON.parse(decodedContent);
         }
       } catch (err) {
