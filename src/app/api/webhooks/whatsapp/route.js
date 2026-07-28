@@ -1,5 +1,55 @@
 import { NextResponse } from "next/server";
 
+// Helper to fetch contact info from GHL API
+async function fetchContactFromGhl(contactId, token) {
+  if (!contactId || !token) return null;
+  try {
+    const response = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Version": "2021-04-15",
+        "Accept": "application/json"
+      }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.contact;
+    }
+  } catch (err) {
+    console.error("[WhatsApp Webhook] Error fetching contact from GHL:", err.message);
+  }
+  return null;
+}
+
+// Helper to fetch user map from GHL API
+async function fetchUserMap(token, locationId) {
+  if (!token || !locationId) return {};
+  try {
+    const response = await fetch(`https://services.leadconnectorhq.com/users/?locationId=${locationId}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Version": "2021-04-15",
+        "Accept": "application/json"
+      }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const userMap = {};
+      if (data.users) {
+        data.users.forEach(u => {
+          userMap[u.id] = u.name || `${u.firstName || ""} ${u.lastName || ""}`.trim();
+        });
+      }
+      return userMap;
+    }
+  } catch (err) {
+    console.error("[WhatsApp Webhook] Error fetching users from GHL:", err.message);
+  }
+  return {};
+}
+
 // Helper to normalize agent names casing/spacing for robust comparison
 function normalizeAgentName(name) {
   if (!name) return "";
@@ -25,13 +75,41 @@ export async function POST(req) {
     const payload = await req.json();
     console.log("[WhatsApp Webhook] Received payload:", payload);
 
-    const rawAgent = payload.agent || payload.agentName || "Unassigned";
-    const agentName = normalizeAgentName(rawAgent);
+    const ghlToken = process.env.GHL_TOKEN;
+    const locationId = process.env.GHL_LOCATION_ID;
+
+    // 1. Resolve Agent Name from agent_id or raw agent string
+    let rawAgent = payload.agent || payload.agentName || "";
+    const agentId = payload.agent_id || payload.agentId || "";
     
-    const contactName = payload.contactName || "WhatsApp Contact";
+    if (!rawAgent && agentId && ghlToken && locationId) {
+      console.log(`[WhatsApp Webhook] Resolving agent ID: ${agentId} via GHL API...`);
+      const userMap = await fetchUserMap(ghlToken, locationId);
+      rawAgent = userMap[agentId] || "Unassigned";
+    }
+    if (!rawAgent) {
+      rawAgent = "Unassigned";
+    }
+    const agentName = normalizeAgentName(rawAgent);
+
+    // 2. Resolve Contact Name from contact_id or raw contactName
+    let contactName = payload.contactName || "";
+    const contactId = payload.contact_id || payload.contactId || "";
+    
+    if (!contactName && contactId && ghlToken) {
+      console.log(`[WhatsApp Webhook] Resolving contact ID: ${contactId} via GHL API...`);
+      const contact = await fetchContactFromGhl(contactId, ghlToken);
+      if (contact) {
+        contactName = contact.fullName || `${contact.firstName || ""} ${contact.lastName || ""}`.trim();
+      }
+    }
+    if (!contactName) {
+      contactName = "WhatsApp Contact";
+    }
+
     const body = payload.body || "";
     const timeStr = payload.timestamp || payload.time || new Date().toISOString();
-    const messageId = payload.id || `wa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const messageId = payload.wa_id || payload.id || `wa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     if (!body) {
       return NextResponse.json({ error: "Missing message body" }, { status: 400 });
@@ -78,7 +156,7 @@ export async function POST(req) {
     };
     let existsOnGithub = false;
 
-    // 1. Fetch existing daily report from GitHub
+    // 3. Fetch existing daily report from GitHub
     try {
       const getResponse = await fetch(githubApiUrl, { headers, cache: "no-store" });
       if (getResponse.ok) {
@@ -107,19 +185,19 @@ export async function POST(req) {
       console.warn("[WhatsApp Webhook] Failed to fetch existing daily backup from GitHub:", err.message);
     }
 
-    // 2. Initialize outbound message arrays if missing
+    // 4. Initialize outbound message arrays if missing
     if (!reportData.ghl_outbound_messages) {
       reportData.ghl_outbound_messages = reportData.ghlMessages || [];
     }
 
-    // 3. Prevent duplicate message additions
+    // 5. Prevent duplicate message additions
     const isDuplicate = reportData.ghl_outbound_messages.some(msg => msg.id === messageId);
     if (isDuplicate) {
       console.log(`[WhatsApp Webhook] Message ID ${messageId} already exists in report. Skipping.`);
       return NextResponse.json({ success: true, message: "Duplicate message skipped" });
     }
 
-    // 4. Create and append the new WhatsApp message object
+    // 6. Create and append the new WhatsApp message object
     const newWhatsAppMessage = {
       id: messageId,
       agent: agentName || "Unassigned",
@@ -132,13 +210,13 @@ export async function POST(req) {
     reportData.ghl_outbound_messages.push(newWhatsAppMessage);
     reportData.ghlMessages = reportData.ghl_outbound_messages; // sync both keys
 
-    // 5. Update summary message count
+    // 7. Update summary message count
     if (!reportData.summary) {
       reportData.summary = { total_agents: 0, total_calls: 0, total_actions: 0, total_ghl_messages: 0 };
     }
     reportData.summary.total_ghl_messages = reportData.ghl_outbound_messages.length;
 
-    // 6. Push updated report back to GitHub
+    // 8. Push updated report back to GitHub
     const putPayload = {
       message: `n8n-webhook: add WhatsApp message for ${dateStr} - agent ${agentName || "Unassigned"}`,
       content: Buffer.from(JSON.stringify(reportData, null, 2)).toString("base64")
