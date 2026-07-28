@@ -1056,7 +1056,7 @@ export default function Home() {
           </div>
           <div className="header-controls">
             {userRole === "special" && (
-              <Link
+              <a
                 href="/upload-data"
                 className="btn-primary-small"
                 style={{
@@ -1079,7 +1079,7 @@ export default function Home() {
               >
                 <i className="fa-solid fa-cloud-arrow-up"></i>
                 <span>Onboarding Portal</span>
-              </Link>
+              </a>
             )}
 
             <div style={{ width: "160px" }}>
@@ -1119,9 +1119,9 @@ export default function Home() {
                 No database backup has been uploaded for <strong>{reportDate}</strong>. Go to the Onboarding Portal to upload daily CRM logs and save them to GitHub.
               </p>
               {userRole === "special" ? (
-                <Link href="/upload-data" className="btn-primary-small" style={{ textDecoration: "none", marginTop: "0.5rem", padding: "0.65rem 1.8rem" }}>
+                <a href="/upload-data" className="btn-primary-small" style={{ textDecoration: "none", marginTop: "0.5rem", padding: "0.65rem 1.8rem" }}>
                   <i className="fa-solid fa-cloud-arrow-up"></i> Go to Onboarding Portal
-                </Link>
+                </a>
               ) : (
                 <span style={{ color: "var(--text-secondary)", fontSize: "0.88rem", background: "rgba(255,255,255,0.03)", padding: "0.5rem 1rem", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
                   <i className="fa-solid fa-lock" style={{ marginRight: "0.4rem" }}></i> Backups are read-only. Contact a Special User to upload today's logs.
