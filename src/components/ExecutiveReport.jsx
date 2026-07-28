@@ -372,7 +372,13 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
           const isHovered = hoveredItem && hoveredItem.type === "message" && hoveredItem.data === msg;
 
           const isOutbound = msg.direction?.toLowerCase() === "outbound";
-          ctx.fillStyle = isOutbound ? "#06b6d4" : "#6366f1"; // Cyan (Outbound) vs Indigo (Inbound)
+          let msgColor = "#6366f1"; // Indigo default (Inbound)
+          if (msg.type === "whatsapp") {
+            msgColor = "#25d366"; // WhatsApp Green
+          } else if (isOutbound || msg.type === "sms" || !msg.direction) {
+            msgColor = "#06b6d4"; // Cyan (Outbound / SMS)
+          }
+          ctx.fillStyle = msgColor;
 
           ctx.beginPath();
           ctx.arc(xVal, yCenter, isHovered ? 7.5 : 5, 0, 2 * Math.PI);
@@ -520,7 +526,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             type: "message",
             agent: agent.name,
             time: new Date(msg.time),
-            label: `GHL Outbound Message: to ${msg.contactName}`,
+            label: `${msg.type === "whatsapp" ? "WhatsApp" : "GHL Outbound"} Message: to ${msg.contactName}`,
             data: msg,
             x: e.clientX,
             y: e.clientY,
@@ -906,7 +912,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
               );
               messagesForAgent.forEach((msg) => {
                 const xVal = getX(new Date(msg.time).getTime(), pdfWidth);
-                ctx.fillStyle = "#38bdf8";
+                ctx.fillStyle = msg.type === "whatsapp" ? "#25d366" : "#38bdf8";
                 ctx.beginPath();
                 ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
                 ctx.fill();
@@ -1163,7 +1169,13 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
               .forEach(msg => {
                 const xVal = getX(new Date(msg.time).getTime(), pdfWidth);
                 const isOutbound = msg.direction?.toLowerCase() === "outbound";
-                ctx.fillStyle = isOutbound ? "#06b6d4" : "#6366f1";
+                let msgColor = "#6366f1";
+                if (msg.type === "whatsapp") {
+                  msgColor = "#25d366";
+                } else if (isOutbound || msg.type === "sms" || !msg.direction) {
+                  msgColor = "#06b6d4";
+                }
+                ctx.fillStyle = msgColor;
                 ctx.beginPath();
                 ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
                 ctx.fill();
