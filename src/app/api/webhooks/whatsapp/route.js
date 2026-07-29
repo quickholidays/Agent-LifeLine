@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 // Helper to fetch contact info from GHL API
 async function fetchContactFromGhl(contactId, token) {
@@ -87,16 +89,46 @@ export async function POST(req) {
     const contactId = data.contact_id || data.contactId || "";
     let contact = null;
 
+    // Load local agents map JSON to resolve Supabase UUIDs or GHL IDs
+    let agentsMap = [];
+    try {
+      const mapPath = path.join(process.cwd(), "src", "utils", "agents_map.json");
+      if (fs.existsSync(mapPath)) {
+        agentsMap = JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+      }
+    } catch (err) {
+      console.error("[WhatsApp Webhook] Failed to load agents_map.json:", err.message);
+    }
+
+    // Try to resolve rawAgent via our mapping file first
+    if (agentId && agentsMap.length > 0) {
+      const match = agentsMap.find(a => a.id === agentId || a.ghl_user_id === agentId);
+      if (match) {
+        rawAgent = match.name;
+        console.log(`[WhatsApp Webhook] Resolved agent name via mapping file: ${rawAgent}`);
+      }
+    }
+
     // Fallback: If no agent name/ID is provided, fetch GHL contact's assigned user ID
     if ((!rawAgent || rawAgent === "Unassigned") && (!agentId || agentId === "Unassigned") && contactId && ghlToken) {
       console.log(`[WhatsApp Webhook] No agent ID passed. Querying contact ${contactId} from GHL for assignment...`);
       contact = await fetchContactFromGhl(contactId, ghlToken);
       if (contact && contact.assignedTo) {
-        agentId = contact.assignedTo;
-        console.log(`[WhatsApp Webhook] Resolved contact owner agent ID: ${agentId}`);
+        const assignedGhlId = contact.assignedTo;
+        console.log(`[WhatsApp Webhook] Resolved contact owner agent ID: ${assignedGhlId}`);
+        // Search assignedGhlId in agentsMap
+        const match = agentsMap.find(a => a.ghl_user_id === assignedGhlId);
+        if (match) {
+          rawAgent = match.name;
+        } else if (locationId) {
+          console.log(`[WhatsApp Webhook] Owner ID ${assignedGhlId} not in mapping file. Querying GHL Users API...`);
+          const userMap = await fetchUserMap(ghlToken, locationId);
+          rawAgent = userMap[assignedGhlId] || "Unassigned";
+        }
       }
     }
 
+    // Fallback: If agentName is still not resolved, query GHL user map
     if ((!rawAgent || rawAgent === "Unassigned") && agentId && ghlToken && locationId) {
       console.log(`[WhatsApp Webhook] Resolving agent ID: ${agentId} via GHL API...`);
       const userMap = await fetchUserMap(ghlToken, locationId);
