@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const https = require("https");
 
 // Helper to load env variables from .env.local
 function loadEnv() {
@@ -28,8 +29,8 @@ const env = loadEnv();
 const GHL_TOKEN = env.GHL_TOKEN;
 const GHL_LOCATION_ID = env.GHL_LOCATION_ID;
 const GITHUB_TOKEN = env.GITHUB_TOKEN;
-const GITHUB_OWNER = env.GITHUB_OWNER;
-const GITHUB_REPO = env.GITHUB_REPO;
+const owner = env.GITHUB_OWNER;
+const repo = env.GITHUB_REPO;
 
 // Helper to sleep/delay execution
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -78,33 +79,90 @@ async function queryGhl(endpoint, params = {}) {
 }
 
 // Helper to make GitHub requests
-async function makeGithubRequest(method, urlPath, payloadObj = null) {
-  const url = `https://api.github.com${urlPath}`;
-  const options = {
-    method: method,
-    headers: {
-      "User-Agent": "antigravity-agent",
-      "Authorization": `Bearer ${GITHUB_TOKEN}`,
-      "Accept": "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "Content-Type": "application/json"
-    }
-  };
-  if (payloadObj) {
-    options.body = JSON.stringify(payloadObj);
-  }
+function makeGithubRequest(method, urlPath, payloadObj = null) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: "api.github.com",
+      path: urlPath,
+      method: method,
+      headers: {
+        "User-Agent": "antigravity-agent",
+        "Authorization": `Bearer ${GITHUB_TOKEN}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json"
+      }
+    };
 
-  const response = await fetch(url, options);
-  const data = await response.text();
-  return {
-    status: response.status,
-    body: data
-  };
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => { data += chunk; });
+      res.on("end", () => {
+        resolve({
+          status: res.statusCode,
+          body: data
+        });
+      });
+    });
+
+    req.on("error", (e) => reject(e));
+    if (payloadObj) {
+      req.write(JSON.stringify(payloadObj));
+    }
+    req.end();
+  });
 }
 
-async function runFreshSync() {
-  const dateStr = "2026-07-27";
-  console.log(`=== RUNNING FRESH SYNC FOR DATE: ${dateStr} ===\n`);
+// Query contact assignment from GHL API
+async function findContactAssignment(contactName) {
+  if (!contactName || contactName.toLowerCase() === "ghl contact") return null;
+  try {
+    const data = await queryGhl("/contacts/", { locationId: GHL_LOCATION_ID, query: contactName, limit: 1 });
+    if (data && data.contacts && data.contacts.length > 0) {
+      return data.contacts[0].assignedTo || null;
+    }
+  } catch (e) {
+    console.warn(`[GHL API] Search failed for contact: ${contactName}`);
+  }
+  return null;
+}
+
+// Dynamic target date resolution: Today's date in BST/Europe/London timezone
+const getTodayBST = () => {
+  const d = new Date();
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  });
+  const parts = formatter.formatToParts(d);
+  const y = parts.find(p => p.type === "year").value;
+  const m = parts.find(p => p.type === "month").value;
+  const day = parts.find(p => p.type === "day").value;
+  return `${y}-${m}-${day}`;
+};
+
+const parseToLocalDate = (dateVal) => {
+  if (!dateVal) return "";
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return "";
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  });
+  const parts = formatter.formatToParts(d);
+  const y = parts.find(p => p.type === "year").value;
+  const m = parts.find(p => p.type === "month").value;
+  const day = parts.find(p => p.type === "day").value;
+  return `${y}-${m}-${day}`;
+};
+
+async function runDynamicSync() {
+  const targetDateStr = getTodayBST();
+  console.log(`=== RUNNING GHL CONVERSATION SYNC & MERGE FOR DATE: ${targetDateStr} ===\n`);
 
   if (!GHL_TOKEN || !GHL_LOCATION_ID) {
     console.error("Missing GHL credentials in .env.local.");
@@ -120,32 +178,76 @@ async function runFreshSync() {
       userMap[u.id] = u.name || `${u.firstName || ""} ${u.lastName || ""}`.trim();
     });
   }
-  console.log(`Loaded ${Object.keys(userMap).length} users.\n`);
+  console.log(`Loaded ${Object.keys(userMap).length} GHL users.\n`);
 
-  // 2. Fetch Conversations active today
-  const outboundMessages = [];
-  const activeAgents = new Set();
+  // 2. Download existing daily report from GitHub
+  const gitPath = `/repos/${owner}/${repo}/contents/daily_backups/${targetDateStr}.json`;
+  console.log(`Downloading existing report for ${targetDateStr} from GitHub...`);
+  const getRes = await makeGithubRequest("GET", gitPath);
+  
+  let report = {
+    agents: {},
+    calls: [],
+    audit_logs: [],
+    ghl_outbound_messages: [],
+    ghlMessages: []
+  };
+  let sha = null;
+  let existsOnGithub = false;
+
+  if (getRes.status === 200) {
+    const fileData = JSON.parse(getRes.body);
+    sha = fileData.sha;
+    existsOnGithub = true;
+    
+    let base64Content = "";
+    if (fileData.size <= 1000000) {
+      base64Content = fileData.content;
+    } else {
+      console.log("Report file is > 1MB. Fetching via Blob API...");
+      const blobRes = await makeGithubRequest("GET", `/repos/${owner}/${repo}/git/blobs/${sha}`);
+      if (blobRes.status === 200) {
+        base64Content = JSON.parse(blobRes.body).content;
+      }
+    }
+    
+    const cleanBase64 = base64Content.replace(/\s/g, "");
+    const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
+    report = JSON.parse(decodedContent);
+    console.log(`Loaded existing report from GitHub. Initial messages: ${(report.ghl_outbound_messages || []).length}`);
+  } else if (getRes.status === 404) {
+    console.log("No daily report found on GitHub yet. Will create a new one with GHL messages.");
+  } else {
+    console.error(`Failed to fetch report from GitHub (${getRes.status}): ${getRes.body}`);
+    return;
+  }
+
+  // Build CSV-based contact-to-agent map for fallback mapping
+  const contactToAgentMap = {};
+  if (report.agents && typeof report.agents === "object" && !Array.isArray(report.agents)) {
+    Object.entries(report.agents).forEach(([agentName, stats]) => {
+      const checkList = [
+        ...(stats.new_leads_details || []),
+        ...(stats.booked_leads_details || []),
+        ...(stats.appt_booked_leads_details || []),
+        ...(stats.closed_leads_details || []),
+        ...(stats.today_conversion_leads || [])
+      ];
+      checkList.forEach(lead => {
+        const leadName = (lead.name || "").trim().toLowerCase();
+        if (leadName && leadName !== "unknown") {
+          contactToAgentMap[leadName] = agentName;
+        }
+      });
+    });
+  }
+
+  // 3. Fetch Conversations active today from GHL API
+  const fetchedMessages = [];
+  const contactCache = {};
   let currentStartAfterDate = null;
   let pageCount = 0;
   let hasMore = true;
-
-  const parseToLocalDate = (dateVal) => {
-    if (!dateVal) return "";
-    const d = new Date(dateVal);
-    if (isNaN(d.getTime())) return "";
-    // Format in London/BST timezone
-    const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: "Europe/London",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    });
-    const parts = formatter.formatToParts(d);
-    const y = parts.find(p => p.type === "year").value;
-    const m = parts.find(p => p.type === "month").value;
-    const day = parts.find(p => p.type === "day").value;
-    return `${y}-${m}-${day}`;
-  };
 
   while (hasMore && pageCount < 50) {
     pageCount++;
@@ -160,7 +262,7 @@ async function runFreshSync() {
       params.startAfterDate = currentStartAfterDate;
     }
 
-    console.log(`Fetching conversations search page ${pageCount}...`);
+    console.log(`Fetching GHL conversations page ${pageCount}...`);
     const convData = await queryGhl("/conversations/search", params);
     const conversations = convData.conversations || [];
     if (conversations.length === 0) break;
@@ -173,16 +275,15 @@ async function runFreshSync() {
 
       const lastMsgDateStr = parseToLocalDate(lastMsgDate);
 
-      if (lastMsgDateStr === dateStr) {
-        // Delay 500ms between calls to avoid hitting GHL API rate limit
-        await sleep(500);
+      if (lastMsgDateStr === targetDateStr) {
+        await sleep(400); // Throttle
         
         // Fetch messages for this thread
         const msgData = await queryGhl(`/conversations/${c.id}/messages`, { limit: 50 });
-        const messages = (msgData.messages && msgData.messages.messages) || [];
+        const messagesList = (msgData.messages && msgData.messages.messages) || [];
 
-        if (Array.isArray(messages)) {
-          messages.forEach((m) => {
+        if (Array.isArray(messagesList)) {
+          for (const m of messagesList) {
             const msgDateStr = parseToLocalDate(m.dateAdded);
             const typeLower = String(m.type || m.messageType || "").toLowerCase();
             const isCall = typeLower.includes("call") || typeLower.includes("phone");
@@ -196,12 +297,34 @@ async function runFreshSync() {
                                      bodyLower.includes("opportunity stage updated");
             const isPlaceholderSms = bodyLower === "[sms message]" || bodyLower === "" || bodyTrimmed.length === 0;
 
-            if (msgDateStr === dateStr && isOutbound && !isCall && !isEmail && !isOpportunityLog && !isPlaceholderSms) {
+            if (msgDateStr === targetDateStr && isOutbound && !isCall && !isEmail && !isOpportunityLog && !isPlaceholderSms) {
               const msgUserId = m.userId || c.assignedTo;
-              const msgAgentName = userMap[msgUserId] || "Unassigned";
+              let agentName = userMap[msgUserId] || "Unassigned";
 
-              if (msgAgentName && msgAgentName !== "Unassigned") {
-                activeAgents.add(msgAgentName);
+              const contactName = c.fullName || "GHL Contact";
+
+              // Tier 2: Lookup via Contact Assignment on GHL
+              if ((!agentName || agentName === "Unassigned") && contactName && contactName.toLowerCase() !== "ghl contact") {
+                if (contactCache[contactName] === undefined) {
+                  const assignedTo = await findContactAssignment(contactName);
+                  if (assignedTo && userMap[assignedTo]) {
+                    contactCache[contactName] = userMap[assignedTo];
+                  } else {
+                    contactCache[contactName] = null;
+                  }
+                  await sleep(150);
+                }
+                if (contactCache[contactName]) {
+                  agentName = contactCache[contactName];
+                }
+              }
+
+              // Tier 3: Lookup via CSV segmentations
+              if ((!agentName || agentName === "Unassigned") && contactName) {
+                const cleanName = contactName.trim().toLowerCase();
+                if (contactToAgentMap[cleanName]) {
+                  agentName = contactToAgentMap[cleanName];
+                }
               }
 
               let cleanBody = m.body;
@@ -209,16 +332,18 @@ async function runFreshSync() {
                 cleanBody = cleanBody.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
               }
 
-              outboundMessages.push({
+              const isWhatsApp = typeLower.includes("whatsapp");
+
+              fetchedMessages.push({
                 id: m.id,
-                agent: msgAgentName,
+                agent: agentName,
                 time: new Date(m.dateAdded).toISOString(),
                 body: cleanBody,
-                contactName: c.fullName || "GHL Contact",
-                type: "sms"
+                contactName: contactName,
+                type: isWhatsApp ? "whatsapp" : "sms"
               });
             }
-          });
+          }
         }
       } else if (new Date(lastMsgDate) < new Date(new Date().setHours(0,0,0,0) - 24 * 60 * 60 * 1000 * 2)) {
         foundOlder = true;
@@ -234,91 +359,63 @@ async function runFreshSync() {
     currentStartAfterDate = lastItem.lastMessageDate || lastItem.dateUpdated || lastItem.dateCreated;
   }
 
-  console.log(`\nFound ${outboundMessages.length} GHL outbound SMS messages.`);
-  console.log("Extracted agents:", Array.from(activeAgents));
+  console.log(`\nFetched ${fetchedMessages.length} GHL outbound messages.`);
 
-  // 3. Build the fresh JSON report structure
-  const agentsArray = Array.from(activeAgents).map((agentName) => {
-    return {
-      name: agentName,
-      calls_placed: 0,
-      interacted_leads_today: 0,
-      interacted_conversions_today: 0,
-      total_actions: 0,
-      segmentations: {
-        newLeads: 0,
-        bookedLeads: 0,
-        apptBookedLeads: 0,
-        closedLeads: 0,
-        newLeadsToday: 0,
-        bookedLeadsToday: 0,
-        apptBookedLeadsToday: 0
-      },
-      call_metrics: {
-        outboundCount: 0,
-        outboundAttended: 0,
-        outboundMissed: 0,
-        outboundMinutes: 0,
-        outboundAvgDuration: 0,
-        inboundCount: 0,
-        inboundAttended: 0,
-        inboundMissed: 0,
-        inboundMinutes: 0,
-        inboundAvgDuration: 0
-      },
-      calls: [],
-      actions_list: []
-    };
+  // 4. Merge into existing report without duplicates
+  if (!report.ghl_outbound_messages) {
+    report.ghl_outbound_messages = report.ghlMessages || [];
+  }
+  const existingMsgs = report.ghl_outbound_messages;
+  const existingIds = new Set(existingMsgs.map(m => m.id));
+  
+  let newMessagesAdded = 0;
+  fetchedMessages.forEach(m => {
+    if (!existingIds.has(m.id)) {
+      existingMsgs.push(m);
+      newMessagesAdded++;
+    } else {
+      // If already exists but was marked as Unassigned, update the agent name if we resolved it now!
+      const existingMsg = existingMsgs.find(ex => ex.id === m.id);
+      if (existingMsg && (existingMsg.agent === "Unassigned" || !existingMsg.agent) && m.agent && m.agent !== "Unassigned") {
+        existingMsg.agent = m.agent;
+      }
+    }
   });
 
-  const freshReport = {
-    agents: agentsArray,
-    calls: [],
-    audit_logs: [],
-    ghl_outbound_messages: outboundMessages,
-    ghlMessages: outboundMessages
+  // Sort messages chronologically
+  existingMsgs.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+  report.ghl_outbound_messages = existingMsgs;
+  report.ghlMessages = existingMsgs;
+  
+  if (!report.summary) {
+    report.summary = { total_agents: 0, total_calls: 0, total_actions: 0, total_ghl_messages: 0 };
+  }
+  report.summary.total_ghl_messages = existingMsgs.length;
+  if (report.agents && typeof report.agents === "object" && !Array.isArray(report.agents)) {
+    report.summary.total_agents = Object.keys(report.agents).length;
+  } else if (Array.isArray(report.agents)) {
+    report.summary.total_agents = report.agents.length;
+  }
+
+  console.log(`Merged results. Added ${newMessagesAdded} brand new messages. Total daily conversations: ${existingMsgs.length}`);
+
+  // 5. Upload updated daily report to GitHub
+  console.log(`Uploading merged daily report back to GitHub...`);
+  const putPayload = {
+    message: `chore: automatic GHL sync & merge for ${targetDateStr} (added ${newMessagesAdded} new)`,
+    content: Buffer.from(JSON.stringify(report, null, 2)).toString("base64")
   };
+  if (sha) {
+    putPayload.sha = sha;
+  }
 
-  const jsonString = JSON.stringify(freshReport, null, 2);
-
-  // 4. Overwrite file in Downloads folder
-  const localDownloadsPath = path.join("/home/talha-sami/Downloads", `${dateStr}.json`);
-  fs.writeFileSync(localDownloadsPath, jsonString, "utf-8");
-  console.log(`Saved fresh copy in Downloads: ${localDownloadsPath}`);
-
-  // 5. Push/Overwrite on GitHub
-  if (GITHUB_TOKEN && GITHUB_OWNER && GITHUB_REPO) {
-    const gitPath = `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/daily_backups/${dateStr}.json`;
-    console.log(`Updating daily_backups/${dateStr}.json on GitHub...`);
-
-    let sha = null;
-    try {
-      const getRes = await makeGithubRequest("GET", gitPath);
-      if (getRes.status === 200) {
-        sha = JSON.parse(getRes.body).sha;
-      }
-    } catch (e) {
-      console.warn("Could not retrieve SHA, trying create.");
-    }
-
-    const contentBase64 = Buffer.from(jsonString).toString("base64");
-    const payload = {
-      message: `Fresh sync: overwrite with real GHL agents and delete Agent 11 stubs`,
-      content: contentBase64
-    };
-    if (sha) {
-      payload.sha = sha;
-    }
-
-    const putRes = await makeGithubRequest("PUT", gitPath, payload);
-    if (putRes.status === 200 || putRes.status === 201) {
-      console.log(`✅ SUCCESS! Overwrote today's report on GitHub with fresh live GHL sync data.`);
-    } else {
-      console.error(`❌ FAILED to overwrite GitHub report: ${putRes.body}`);
-    }
+  const putRes = await makeGithubRequest("PUT", gitPath, putPayload);
+  if (putRes.status === 200 || putRes.status === 201) {
+    console.log(`✅ SUCCESS! Synced and merged GHL conversations into today's report on GitHub.`);
+  } else {
+    console.error(`❌ FAILED to upload daily report: ${putRes.body}`);
   }
 }
 
-runFreshSync().catch((e) => {
-  console.error("Fresh sync run failed:", e.message);
-});
+runDynamicSync().catch((e) => console.error("Sync run failed:", e.message));
