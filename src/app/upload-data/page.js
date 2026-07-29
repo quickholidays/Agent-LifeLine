@@ -10,13 +10,13 @@ import Login from "@/components/Login";
 export default function UploadDataPage() {
   const [theme, setTheme] = useState("dark");
   const [reportDate, setReportDate] = useState(() => {
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const today = new Date();
     const parts = new Intl.DateTimeFormat("en-US", {
       timeZone: "Asia/Karachi",
       year: "numeric",
       month: "2-digit",
       day: "2-digit"
-    }).formatToParts(yesterday);
+    }).formatToParts(today);
     const year = parts.find(p => p.type === "year").value;
     const month = parts.find(p => p.type === "month").value;
     const day = parts.find(p => p.type === "day").value;
