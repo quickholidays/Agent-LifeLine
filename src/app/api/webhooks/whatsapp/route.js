@@ -75,18 +75,31 @@ export async function POST(req) {
     const payload = await req.json();
     console.log("[WhatsApp Webhook] Received payload:", payload);
 
-    const ghlToken = process.env.GHL_TOKEN;
-    const locationId = process.env.GHL_LOCATION_ID;
+    const ghlToken = process.env.GHL_TOKEN || process.env.NEXT_PUBLIC_GHL_TOKEN;
+    const locationId = process.env.GHL_LOCATION_ID || process.env.NEXT_PUBLIC_GHL_LOCATION_ID;
 
     // 1. Resolve Agent Name from agent_id or raw agent string
     let rawAgent = payload.agent || payload.agentName || "";
-    const agentId = payload.agent_id || payload.agentId || "";
-    
-    if (!rawAgent && agentId && ghlToken && locationId) {
+    let agentId = payload.agent_id || payload.agentId || "";
+    const contactId = payload.contact_id || payload.contactId || "";
+    let contact = null;
+
+    // Fallback: If no agent name/ID is provided, fetch GHL contact's assigned user ID
+    if ((!rawAgent || rawAgent === "Unassigned") && (!agentId || agentId === "Unassigned") && contactId && ghlToken) {
+      console.log(`[WhatsApp Webhook] No agent ID passed. Querying contact ${contactId} from GHL for assignment...`);
+      contact = await fetchContactFromGhl(contactId, ghlToken);
+      if (contact && contact.assignedTo) {
+        agentId = contact.assignedTo;
+        console.log(`[WhatsApp Webhook] Resolved contact owner agent ID: ${agentId}`);
+      }
+    }
+
+    if ((!rawAgent || rawAgent === "Unassigned") && agentId && ghlToken && locationId) {
       console.log(`[WhatsApp Webhook] Resolving agent ID: ${agentId} via GHL API...`);
       const userMap = await fetchUserMap(ghlToken, locationId);
       rawAgent = userMap[agentId] || "Unassigned";
     }
+
     if (!rawAgent) {
       rawAgent = "Unassigned";
     }
@@ -94,11 +107,12 @@ export async function POST(req) {
 
     // 2. Resolve Contact Name from contact_id or raw contactName
     let contactName = payload.contactName || "";
-    const contactId = payload.contact_id || payload.contactId || "";
     
     if (!contactName && contactId && ghlToken) {
-      console.log(`[WhatsApp Webhook] Resolving contact ID: ${contactId} via GHL API...`);
-      const contact = await fetchContactFromGhl(contactId, ghlToken);
+      if (!contact) {
+        console.log(`[WhatsApp Webhook] Resolving contact ID: ${contactId} via GHL API...`);
+        contact = await fetchContactFromGhl(contactId, ghlToken);
+      }
       if (contact) {
         contactName = contact.fullName || `${contact.firstName || ""} ${contact.lastName || ""}`.trim();
       }
