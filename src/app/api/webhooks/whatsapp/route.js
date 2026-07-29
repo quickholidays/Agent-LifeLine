@@ -107,12 +107,18 @@ export async function POST(req) {
       contactName = "WhatsApp Contact";
     }
 
-    const body = payload.body || "";
+    let body = payload.body || "";
     const timeStr = payload.timestamp || payload.time || new Date().toISOString();
     const messageId = payload.wa_id || payload.id || `wa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     if (!body) {
-      return NextResponse.json({ error: "Missing message body" }, { status: 400 });
+      if (payload.template_name) {
+        body = `[Template: ${payload.template_name}]`;
+      } else if (payload.message_type && payload.message_type !== "text") {
+        body = `[${payload.message_type.charAt(0).toUpperCase() + payload.message_type.slice(1)} Message]`;
+      } else {
+        body = "[WhatsApp Message]";
+      }
     }
 
     // Resolve date string in BST/Europe/London timezone for the file path
