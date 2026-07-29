@@ -1041,7 +1041,7 @@ export default function UploadDataPage() {
               Configure your workspace target date and GoHighLevel credentials. Changing the date will automatically filter and sync activity logs and conversations.
             </p>
 
-            {/* Row 1: Target Report Date, Target Timezone, Live API Sync */}
+            {/* Row 1: Target Report Date */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem", marginTop: "0.2rem" }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
@@ -1051,29 +1051,6 @@ export default function UploadDataPage() {
                   value={reportDate}
                   onChange={(val) => setReportDate(val)}
                 />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                  Target Timezone
-                </label>
-                <select
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.6rem 0.8rem",
-                    borderRadius: "8px",
-                    background: "var(--input-bg)",
-                    border: "1px solid var(--input-border)",
-                    color: "var(--text-primary)",
-                    fontSize: "0.88rem",
-                    outline: "none",
-                    cursor: "pointer"
-                  }}
-                >
-                  <option value="BST">British Summer Time (BST, UTC+1)</option>
-                  <option value="PKT">Pakistan Standard Time (PKT, UTC+5)</option>
-                </select>
               </div>
             </div>
           </div>

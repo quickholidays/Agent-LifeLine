@@ -112,6 +112,26 @@ export default function Home() {
   const [ghlOutboundMessages, setGhlOutboundMessages] = useState([]);
   const [breakThresholdMinutes, setBreakThresholdMinutes] = useState(30);
 
+  // Global Timeline/Activity filter checkbox states
+  const [filterSmsOutbound, setFilterSmsOutbound] = useState(true);
+  const [filterWhatsApp, setFilterWhatsApp] = useState(true);
+  const [filterAnsweredCalls, setFilterAnsweredCalls] = useState(true);
+  const [filterMissedCalls, setFilterMissedCalls] = useState(true);
+  const [filterCrmActions, setFilterCrmActions] = useState(true);
+
+  // Global Timeline/Activity sub-filter checkbox states
+  const [filterWaText, setFilterWaText] = useState(true);
+  const [filterWaVoice, setFilterWaVoice] = useState(true);
+  const [filterWaCall, setFilterWaCall] = useState(true);
+  const [filterWaOther, setFilterWaOther] = useState(true);
+
+  const [filterOutboundAnswered, setFilterOutboundAnswered] = useState(true);
+  const [filterInboundAnswered, setFilterInboundAnswered] = useState(true);
+
+  const [filterCrmNotes, setFilterCrmNotes] = useState(true);
+  const [filterCrmTasks, setFilterCrmTasks] = useState(true);
+  const [filterCrmOther, setFilterCrmOther] = useState(true);
+
   // Mock outbound messages helper
   const getMockOutboundMessages = (dateStr) => {
     const mockConvs = [
@@ -405,7 +425,8 @@ export default function Home() {
               time: new Date(c.timestamp),
               direction: c.direction,
               status: c.status,
-              duration: c.duration
+              duration: c.duration,
+              contact_name: c.contact_name || c.contactName || "Unknown"
             }));
           }
 
@@ -424,7 +445,16 @@ export default function Home() {
             }));
           }
 
-          const ghlMessages = normalizedRaw.ghl_outbound_messages || normalizedRaw.ghlMessages || [];
+          const rawMsgs = normalizedRaw.ghl_outbound_messages || normalizedRaw.ghlMessages || [];
+          const ghlMessages = rawMsgs.filter(m => {
+            if (!m) return false;
+            const body = String(m.body || "").trim().toLowerCase();
+            return body !== "" && body !== "[sms message]";
+          });
+          normalizedRaw.ghl_outbound_messages = ghlMessages;
+          if (normalizedRaw.ghlMessages) {
+            normalizedRaw.ghlMessages = ghlMessages;
+          }
           let parsed = [];
 
           // Build index for calls and audit logs by agent name
@@ -784,7 +814,14 @@ export default function Home() {
           console.log("State updated. Parsed agentsList:", parsed);
           setAgentsList(parsed);
           setRawAnalysisData(normalizedRaw);
-          setGhlOutboundMessages(normalizedRaw.ghl_outbound_messages || normalizedRaw.ghlMessages || []);
+          
+          const rawMsgsSecondary = normalizedRaw.ghl_outbound_messages || normalizedRaw.ghlMessages || [];
+          const cleanMsgs = rawMsgsSecondary.filter(m => {
+            if (!m) return false;
+            const body = String(m.body || "").trim().toLowerCase();
+            return body !== "" && body !== "[sms message]";
+          });
+          setGhlOutboundMessages(cleanMsgs);
           setIsCustomData(true);
           setSelectedAgent(null);
         } else {
@@ -895,7 +932,43 @@ export default function Home() {
         content = <Overview agents={agentsList} stageChanges={rawAnalysisData.stageChangesToday} reportDate={reportDate} />;
         break;
       case "activity-metrics":
-        content = <ActivityAndMetrics agents={agentsList} rawAnalysisData={rawAnalysisData} reportDate={reportDate} theme={theme} />;
+        content = (
+          <ActivityAndMetrics
+            agents={agentsList}
+            rawAnalysisData={rawAnalysisData}
+            reportDate={reportDate}
+            theme={theme}
+            filterSmsOutbound={filterSmsOutbound}
+            setFilterSmsOutbound={setFilterSmsOutbound}
+            filterWhatsApp={filterWhatsApp}
+            setFilterWhatsApp={setFilterWhatsApp}
+            filterAnsweredCalls={filterAnsweredCalls}
+            setFilterAnsweredCalls={setFilterAnsweredCalls}
+            filterMissedCalls={filterMissedCalls}
+            setFilterMissedCalls={setFilterMissedCalls}
+            filterCrmActions={filterCrmActions}
+            setFilterCrmActions={setFilterCrmActions}
+            filterWaText={filterWaText}
+            setFilterWaText={setFilterWaText}
+            filterWaVoice={filterWaVoice}
+            setFilterWaVoice={setFilterWaVoice}
+            filterWaCall={filterWaCall}
+            setFilterWaCall={setFilterWaCall}
+            filterWaOther={filterWaOther}
+            setFilterWaOther={setFilterWaOther}
+            filterOutboundAnswered={filterOutboundAnswered}
+            setFilterOutboundAnswered={setFilterOutboundAnswered}
+            filterInboundAnswered={filterInboundAnswered}
+            setFilterInboundAnswered={setFilterInboundAnswered}
+            filterCrmNotes={filterCrmNotes}
+            setFilterCrmNotes={setFilterCrmNotes}
+            filterCrmTasks={filterCrmTasks}
+            setFilterCrmTasks={setFilterCrmTasks}
+            filterCrmOther={filterCrmOther}
+            setFilterCrmOther={setFilterCrmOther}
+            timezone={timezone}
+          />
+        );
         break;
       case "agent-progress":
         content = <ProgressWorkspace agents={agentsList} />;
@@ -920,6 +993,34 @@ export default function Home() {
             reportDate={reportDate}
             ghlMessages={ghlOutboundMessages}
             timezone={timezone}
+            filterSmsOutbound={filterSmsOutbound}
+            setFilterSmsOutbound={setFilterSmsOutbound}
+            filterWhatsApp={filterWhatsApp}
+            setFilterWhatsApp={setFilterWhatsApp}
+            filterAnsweredCalls={filterAnsweredCalls}
+            setFilterAnsweredCalls={setFilterAnsweredCalls}
+            filterMissedCalls={filterMissedCalls}
+            setFilterMissedCalls={setFilterMissedCalls}
+            filterCrmActions={filterCrmActions}
+            setFilterCrmActions={setFilterCrmActions}
+            filterWaText={filterWaText}
+            setFilterWaText={setFilterWaText}
+            filterWaVoice={filterWaVoice}
+            setFilterWaVoice={setFilterWaVoice}
+            filterWaCall={filterWaCall}
+            setFilterWaCall={setFilterWaCall}
+            filterWaOther={filterWaOther}
+            setFilterWaOther={setFilterWaOther}
+            filterOutboundAnswered={filterOutboundAnswered}
+            setFilterOutboundAnswered={setFilterOutboundAnswered}
+            filterInboundAnswered={filterInboundAnswered}
+            setFilterInboundAnswered={setFilterInboundAnswered}
+            filterCrmNotes={filterCrmNotes}
+            setFilterCrmNotes={setFilterCrmNotes}
+            filterCrmTasks={filterCrmTasks}
+            setFilterCrmTasks={setFilterCrmTasks}
+            filterCrmOther={filterCrmOther}
+            setFilterCrmOther={setFilterCrmOther}
           />
         );
         break;

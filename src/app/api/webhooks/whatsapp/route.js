@@ -83,6 +83,13 @@ export async function POST(req) {
     // Support both flat payloads and payloads nested inside a "row" key from n8n
     const data = payload.row || payload || {};
 
+    // Ignore inbound messages from clients (we only track agent outbound actions)
+    const direction = String(data.direction || payload.direction || data.message_direction || data.messageDirection || "outbound").trim().toLowerCase();
+    if (direction === "inbound" || direction === "incoming") {
+      console.log("[WhatsApp Webhook] Ignoring inbound message from client.");
+      return NextResponse.json({ success: true, message: "Inbound message ignored" });
+    }
+
     // 1. Resolve Agent Name from agent_id or raw agent string
     let rawAgent = data.agent || data.agentName || "";
     let agentId = data.agent_id || data.agentId || data.sent_by_agent_id || "";
@@ -154,6 +161,9 @@ export async function POST(req) {
     }
     if (!contactName) {
       contactName = "WhatsApp Contact";
+    }
+    if (contactId) {
+      contactName = `${contactName} (${contactId})`;
     }
 
     let body = data.body || payload.preview || "";
@@ -263,6 +273,7 @@ export async function POST(req) {
         time: dateObj.toISOString(),
         body: body,
         contactName: contactName,
+        contactId: contactId,
         type: "whatsapp"
       };
 

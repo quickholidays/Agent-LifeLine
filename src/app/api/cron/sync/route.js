@@ -308,13 +308,17 @@ export async function GET(req) {
 
                 const msgUserId = m.userId || c.assignedTo;
                 const msgAgentName = userMap[msgUserId] || "Unassigned";
+                const cId = c.contactId || c.contact_id || c.id || "";
+                const baseName = c.fullName || "GHL Contact";
+                const cNameWithId = cId ? `${baseName} (${cId})` : baseName;
 
                 outboundMessages.push({
                   id: m.id,
                   agent: msgAgentName,
                   time: new Date(m.dateAdded).toISOString(),
                   body: cleanBody,
-                  contactName: c.fullName || "GHL Contact",
+                  contactName: cNameWithId,
+                  contactId: cId,
                   type: "sms"
                 });
               }

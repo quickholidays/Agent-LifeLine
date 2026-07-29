@@ -22,7 +22,44 @@ function normalizeAgentName(name) {
     .join(" ");
 }
 
-export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesList = [], activeSection = "", reportDate = "2026-07-17", ghlMessages = [], timezone = "PKT", theme = "dark" }) {
+export default function ExecutiveReport({
+  agents,
+  bstCallsList = [],
+  bstUpdatesList = [],
+  activeSection = "",
+  reportDate = "2026-07-17",
+  ghlMessages = [],
+  timezone = "PKT",
+  theme = "dark",
+  filterSmsOutbound,
+  setFilterSmsOutbound,
+  filterWhatsApp,
+  setFilterWhatsApp,
+  filterAnsweredCalls,
+  setFilterAnsweredCalls,
+  filterMissedCalls,
+  setFilterMissedCalls,
+  filterCrmActions,
+  setFilterCrmActions,
+  filterWaText,
+  setFilterWaText,
+  filterWaVoice,
+  setFilterWaVoice,
+  filterWaCall,
+  setFilterWaCall,
+  filterWaOther,
+  setFilterWaOther,
+  filterOutboundAnswered,
+  setFilterOutboundAnswered,
+  filterInboundAnswered,
+  setFilterInboundAnswered,
+  filterCrmNotes,
+  setFilterCrmNotes,
+  filterCrmTasks,
+  setFilterCrmTasks,
+  filterCrmOther,
+  setFilterCrmOther
+}) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -35,19 +72,48 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
   const [activeDropdown, setActiveDropdown] = useState(null); // 'timelineAgents', 'table1Agents', 'table1Cols', 'table2Agents', 'table2Cols', 'table3Agents', 'table3Cols'
 
   // Time workday window bounds state
-  const [startHour, setStartHour] = useState(9);
-  const [endHour, setEndHour] = useState(20);
+  const [startHour, setStartHour] = useState(13);
+  const [endHour, setEndHour] = useState(22);
   const [startDropOpen, setStartDropOpen] = useState(false);
   const [endDropOpen, setEndDropOpen] = useState(false);
 
-  // Checklist filters for visual events
-  const [filterGhlUpdates, setFilterGhlUpdates] = useState(true);
-  const [filterGhlMessages, setFilterGhlMessages] = useState(true);
-  const [filterCalls, setFilterCalls] = useState(true);
-  const [filterMissedOnly, setFilterMissedOnly] = useState(false);
-  const [filterNotesOnly, setFilterNotesOnly] = useState(true);
-  const [filterOppsOnly, setFilterOppsOnly] = useState(true);
-  const [filterContactsOnly, setFilterContactsOnly] = useState(true);
+  const getWhatsAppMessageType = (msg) => {
+    if (!msg.body) return "text";
+    const body = String(msg.body).trim().toLowerCase();
+    if (body.includes("voice message") || body.includes("voice_message") || body.includes("[voice")) {
+      return "voice";
+    }
+    if (body.includes("call message") || body.includes("call_message") || body.includes("[call")) {
+      return "call";
+    }
+    if (/\[.*?\]/.test(body)) {
+      return "other";
+    }
+    return "text";
+  };
+
+  // Helper to parse call duration string
+  const parseDurationToSeconds = (durStr) => {
+    if (!durStr || durStr === "-") return 0;
+    const clean = String(durStr).trim().toLowerCase();
+    if (/^\d+$/.test(clean)) {
+      return parseInt(clean, 10);
+    }
+    const parts = clean.split(":");
+    if (parts.length === 2) {
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    } else if (parts.length === 3) {
+      return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+    }
+    let totalSecs = 0;
+    const hrsMatch = clean.match(/(\d+)\s*(?:hr|hour|h)/);
+    const minsMatch = clean.match(/(\d+)\s*(?:min|m)/);
+    const secsMatch = clean.match(/(\d+)\s*(?:sec|s)/);
+    if (hrsMatch) totalSecs += parseInt(hrsMatch[1], 10) * 3600;
+    if (minsMatch) totalSecs += parseInt(minsMatch[1], 10) * 60;
+    if (secsMatch) totalSecs += parseInt(secsMatch[1], 10);
+    return totalSecs;
+  };
 
   // Table 1 Customizer states
   const [table1Agents, setTable1Agents] = useState(agents.map(a => a.name));
@@ -142,14 +208,13 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
   const timelineTopMargin = 30;
   const timelineBottomMargin = 20;
 
-  // BST Limits based on startHour and endHour
   const getMinTime = () => {
     const [yr, mo, dy] = reportDate.split("-").map(Number);
-    return new Date(Date.UTC(yr, mo - 1, dy, startHour, 0, 0));
+    return new Date(yr, mo - 1, dy, startHour, 0, 0);
   };
   const getMaxTime = () => {
     const [yr, mo, dy] = reportDate.split("-").map(Number);
-    return new Date(Date.UTC(yr, mo - 1, dy, endHour, 0, 0));
+    return new Date(yr, mo - 1, dy, endHour, 0, 0);
   };
 
   const getX = (timeMs, width) => {
@@ -162,10 +227,51 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
 
   const formatBSTTime = (dateObj) => {
     return (
-      dateObj.getUTCHours().toString().padStart(2, "0") +
+      dateObj.getHours().toString().padStart(2, "0") +
       ":" +
-      dateObj.getUTCMinutes().toString().padStart(2, "0")
+      dateObj.getMinutes().toString().padStart(2, "0")
     );
+  };
+
+  // Helper to extract a clean description for tooltips from GHL action updates
+  const getActionSummary = (act) => {
+    if (!act) return "";
+    if (!act.details) return act.action || "";
+    try {
+      const d = typeof act.details === "string" ? JSON.parse(act.details) : act.details;
+      let summary = "";
+      if (act.module === "NOTE") {
+        if (d.body) {
+          summary = d.body.replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/g, " ").trim();
+        }
+      } else if (act.module === "TASK") {
+        summary = d.title || d.description || "";
+      } else if (act.module === "OPPORTUNITY") {
+        const stage = d.pipelineStageName || d.stageName || "";
+        const status = d.status || "";
+        const amount = d.amount || d.value || "";
+        const parts = [];
+        if (stage) parts.push(`Stage: ${stage}`);
+        if (status) parts.push(`Status: ${status}`);
+        if (amount) parts.push(`Margin: £${amount}`);
+        summary = parts.join(" | ");
+      } else if (act.module === "CONTACT") {
+        const parts = [];
+        if (d.phone) parts.push(`Phone: ${d.phone}`);
+        if (d.email) parts.push(`Email: ${d.email}`);
+        summary = parts.join(" | ");
+      }
+      
+      if (!summary) {
+        summary = d.description || d.title || d.name || "";
+      }
+      return summary || act.action || "";
+    } catch (e) {
+      if (typeof act.details === "string") {
+        return act.details;
+      }
+    }
+    return act.action || "";
   };
 
   // Formatted details renderer for GHL action updates
@@ -176,12 +282,12 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       const parsed = JSON.parse(detailsStr);
       
       return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", background: "rgba(255,255,255,0.01)", padding: "0.85rem 1rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.04)" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", background: "rgba(255,255,255,0.01)", padding: "0.85rem 1rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)" }}>
           {parsed.body && (
             <div>
               <span style={{ color: "var(--primary)", fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase" }}>Content / Body:</span>
               <div 
-                style={{ marginTop: "2px", color: "#f8fafc", fontSize: "0.82rem", lineHeight: "1.4" }}
+                style={{ marginTop: "2px", color: "var(--text-primary)", fontSize: "0.82rem", lineHeight: "1.4" }}
                 dangerouslySetInnerHTML={{ __html: parsed.body }}
               />
             </div>
@@ -189,25 +295,25 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
           {parsed.pipelineStageName && (
             <div>
               <span style={{ color: "var(--primary)", fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase" }}>Pipeline Stage:</span>
-              <span style={{ marginLeft: "0.4rem", color: "#f8fafc", fontWeight: 700 }}>{parsed.pipelineStageName}</span>
+              <span style={{ marginLeft: "0.4rem", color: "var(--text-primary)", fontWeight: 700 }}>{parsed.pipelineStageName}</span>
             </div>
           )}
           {parsed.pipelineName && (
             <div>
               <span style={{ color: "var(--text-secondary)", fontWeight: 700, fontSize: "0.75rem" }}>Pipeline Name:</span>
-              <span style={{ marginLeft: "0.4rem", color: "#e2e8f0" }}>{parsed.pipelineName}</span>
+              <span style={{ marginLeft: "0.4rem", color: "var(--text-primary)" }}>{parsed.pipelineName}</span>
             </div>
           )}
           {parsed.status && (
             <div>
               <span style={{ color: "var(--text-secondary)", fontWeight: 700, fontSize: "0.75rem" }}>Opportunity Status:</span>
-              <span style={{ marginLeft: "0.4rem", color: "#e2e8f0", textTransform: "capitalize" }}>{parsed.status}</span>
+              <span style={{ marginLeft: "0.4rem", color: "var(--text-primary)", textTransform: "capitalize" }}>{parsed.status}</span>
             </div>
           )}
           {parsed.contactId && (
             <div>
               <span style={{ color: "var(--text-secondary)", fontWeight: 700, fontSize: "0.75rem" }}>Contact Record ID:</span>
-              <span style={{ marginLeft: "0.4rem", color: "#cbd5e1", fontFamily: "monospace" }}>{parsed.contactId}</span>
+              <span style={{ marginLeft: "0.4rem", color: "var(--text-primary)", fontFamily: "monospace" }}>{parsed.contactId}</span>
             </div>
           )}
           {parsed.relations && parsed.relations.length > 0 && (
@@ -289,10 +395,10 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       ctx.stroke();
 
       const isLast = drawDate.getTime() + 3600000 > endMs;
-      const label = formatBSTTime(drawDate) + (isLast ? " BST" : "");
+      const label = formatBSTTime(drawDate) + (isLast ? " " + timezone : "");
       ctx.fillText(label, xVal, timelineTopMargin - 15);
 
-      drawDate.setUTCHours(drawDate.getUTCHours() + 1);
+      drawDate.setHours(drawDate.getHours() + 1);
     }
 
     // 2. Draw rows and scatter points for each agent
@@ -314,124 +420,124 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
       ctx.fillText(agent.name, 15, yCenter + 4);
 
       // Filter GHL updates
-      if (filterGhlUpdates) {
-        let updatesForAgent = bstUpdatesList.filter(
-          (up) => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime()
+      let updatesForAgent = [];
+      if (filterCrmActions && bstUpdatesList) {
+        updatesForAgent = bstUpdatesList.filter(
+          (up) => {
+            if (normalizeAgentName(up.agent) !== normalizeAgentName(agent.name)) return false;
+            if (up.time < getMinTime() || up.time > getMaxTime()) return false;
+            if (up.module === "NOTE") return filterCrmNotes;
+            if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) return filterCrmTasks;
+            return filterCrmOther;
+          }
         );
-
-        updatesForAgent = updatesForAgent.filter(up => {
-          if (up.module === "NOTE") return filterNotesOnly;
-          if (up.module === "OPPORTUNITY") return filterOppsOnly;
-          if (up.module === "CONTACT") return filterContactsOnly;
-          return false;
-        });
-
-        updatesForAgent.forEach((up) => {
-          const xVal = getX(up.time.getTime(), displayWidth);
-          const isHovered = hoveredItem && hoveredItem.type === "update" && hoveredItem.data === up;
-
-          let actColor = "#eab308"; // default yellow
-          if (up.module === "NOTE") {
-            actColor = "#f43f5e"; // Rose
-          } else if (up.module === "CONTACT") {
-            actColor = "#10b981"; // Emerald
-          } else if (up.module === "OPPORTUNITY") {
-            const rawAct = up.data || {};
-            const details = typeof rawAct.details === "string" ? JSON.parse(rawAct.details || "{}") : (rawAct.details || {});
-            const stageName = details.pipelineStageName?.toLowerCase() || "";
-            if (stageName.includes("interested")) {
-              actColor = "#a855f7"; // Purple
-            } else if (stageName.includes("contacted")) {
-              actColor = "#06b6d4"; // Cyan
-            } else if (stageName.includes("booked") || stageName.includes("appt")) {
-              actColor = "#3b82f6"; // Blue
-            }
-          }
-
-          ctx.fillStyle = actColor;
-          ctx.beginPath();
-          ctx.arc(xVal, yCenter, isHovered ? 7.5 : 5, 0, 2 * Math.PI);
-          ctx.fill();
-
-          if (isHovered) {
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-          }
-        });
       }
 
-      // Filter GHL Messages (Outbound Messages)
-      if (filterGhlMessages && ghlMessages) {
-        let messagesForAgent = ghlMessages.filter(
-          (m) => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
-        );
+      updatesForAgent.forEach((up) => {
+        const xVal = getX(up.time.getTime(), displayWidth);
+        const isHovered = hoveredItem && hoveredItem.type === "update" && hoveredItem.data === up;
 
-        messagesForAgent.forEach((msg) => {
-          const xVal = getX(new Date(msg.time).getTime(), displayWidth);
-          const isHovered = hoveredItem && hoveredItem.type === "message" && hoveredItem.data === msg;
-
-          const isOutbound = msg.direction?.toLowerCase() === "outbound";
-          let msgColor = "#6366f1"; // Indigo default (Inbound)
-          if (msg.type === "whatsapp") {
-            msgColor = "#25d366"; // WhatsApp Green
-          } else if (isOutbound || msg.type === "sms" || !msg.direction) {
-            msgColor = "#06b6d4"; // Cyan (Outbound / SMS)
-          }
-          ctx.fillStyle = msgColor;
-
-          ctx.beginPath();
-          ctx.arc(xVal, yCenter, isHovered ? 7.5 : 5, 0, 2 * Math.PI);
-          ctx.fill();
-
-          if (isHovered) {
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-          }
-        });
-      }
-
-      // Filter Calls
-      if (filterCalls) {
-        let callsForAgent = bstCallsList.filter(
-          (cl) => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime()
-        );
-
-        if (filterMissedOnly) {
-          callsForAgent = callsForAgent.filter(cl => cl.status && cl.status.toLowerCase() !== "answered");
+        let actColor = "#eab308"; // default Yellow
+        if (up.module === "NOTE") {
+          actColor = "#f97316"; // Orange
+        } else if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) {
+          actColor = "#ec4899"; // Fuchsia
         }
 
-        callsForAgent.forEach((cl) => {
-          const xVal = getX(cl.time.getTime(), displayWidth);
-          const isHovered = hoveredItem && hoveredItem.type === "call" && hoveredItem.data === cl;
+        ctx.fillStyle = actColor;
+        ctx.beginPath();
+        ctx.arc(xVal, yCenter, isHovered ? 7.5 : 5, 0, 2 * Math.PI);
+        ctx.fill();
 
-          const isAnswered = cl.status && cl.status.toLowerCase() === "answered";
-          const isOutbound = cl.direction?.toLowerCase() === "outbound";
+        if (isHovered) {
+          ctx.strokeStyle = "white";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      });
 
-          let callColor = "#fb923c";
-          if (isOutbound) {
-            callColor = isAnswered ? "#3b82f6" : "#f59e0b"; // Outbound Answered (Blue) vs Outbound Missed (Amber)
-          } else {
-            callColor = isAnswered ? "#10b981" : "#ef4444"; // Inbound Answered (Emerald Green) vs Inbound Missed (Red)
-          }
+      // Filter GHL Messages (Outbound Messages) and WhatsApp
+      const messagesForAgent = (ghlMessages || []).filter(msg => {
+        if (normalizeAgentName(msg.agent) !== normalizeAgentName(agent.name)) return false;
+        const msgTime = new Date(msg.time);
+        if (msgTime < getMinTime() || msgTime > getMaxTime()) return false;
+        
+        if (msg.type === "whatsapp") {
+          if (!filterWhatsApp) return false;
+          const waType = getWhatsAppMessageType(msg);
+          if (waType === "text") return filterWaText;
+          if (waType === "voice") return filterWaVoice;
+          if (waType === "call") return filterWaCall;
+          if (waType === "other") return filterWaOther;
+          return false;
+        }
+        
+        return filterSmsOutbound;
+      });
 
-          ctx.fillStyle = callColor;
-          ctx.beginPath();
-          const size = isHovered ? 7.5 : 5.5;
-          ctx.moveTo(xVal, yCenter - size);
-          ctx.lineTo(xVal - size, yCenter + size - 1);
-          ctx.lineTo(xVal + size, yCenter + size - 1);
-          ctx.closePath();
-          ctx.fill();
+      messagesForAgent.forEach((msg) => {
+        const xVal = getX(new Date(msg.time).getTime(), displayWidth);
+        const isHovered = hoveredItem && hoveredItem.type === "message" && hoveredItem.data === msg;
 
-          if (isHovered) {
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 1.2;
-            ctx.stroke();
-          }
-        });
-      }
+        let msgColor = msg.type === "whatsapp" ? "#22c55e" : "#06b6d4";
+        ctx.fillStyle = msgColor;
+
+        ctx.beginPath();
+        ctx.arc(xVal, yCenter, isHovered ? 7.5 : 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        if (isHovered) {
+          ctx.strokeStyle = "white";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      });
+
+      // Filter Calls
+      const callsForAgent = (bstCallsList || []).filter(cl => {
+        if (normalizeAgentName(cl.agent) !== normalizeAgentName(agent.name)) return false;
+        if (cl.time < getMinTime() || cl.time > getMaxTime()) return false;
+        
+        const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+        const isOutbound = cl.direction?.toLowerCase() === "outbound";
+        
+        if (isAnswered) {
+          if (!filterAnsweredCalls) return false;
+          return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+        } else {
+          return !isOutbound && filterMissedCalls;
+        }
+      });
+
+      callsForAgent.forEach((cl) => {
+        const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+        const isOutbound = cl.direction?.toLowerCase() === "outbound";
+
+        let callColor = "#f43f5e"; // default missed call (Red)
+        if (isAnswered) {
+          callColor = isOutbound ? "#3b82f6" : "#8b5cf6"; // Outbound Answered (Blue) vs Inbound Answered (Purple)
+        }
+
+        ctx.fillStyle = callColor;
+        const durationSec = parseDurationToSeconds(cl.duration);
+        const startMs = cl.time.getTime();
+        const endMs = startMs + durationSec * 1000;
+        const xStart = getX(startMs, displayWidth);
+        const xEnd = getX(endMs, displayWidth);
+        const callWidth = Math.max(8, xEnd - xStart);
+        const pillHeight = 8;
+        const isHovered = hoveredItem && hoveredItem.type === "call" && hoveredItem.data === cl;
+
+        ctx.beginPath();
+        ctx.roundRect(xStart - pillHeight / 2, yCenter - pillHeight / 2, callWidth, pillHeight, pillHeight / 2);
+        ctx.fill();
+
+        if (isHovered) {
+          ctx.strokeStyle = "white";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      });
     });
   }, [
     agents,
@@ -441,15 +547,22 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     selectedAgents,
     startHour,
     endHour,
-    filterGhlUpdates,
-    filterGhlMessages,
+    filterSmsOutbound,
+    filterWhatsApp,
     ghlMessages,
     reportDate,
-    filterCalls,
-    filterMissedOnly,
-    filterNotesOnly,
-    filterOppsOnly,
-    filterContactsOnly,
+    filterAnsweredCalls,
+    filterMissedCalls,
+    filterCrmActions,
+    filterWaText,
+    filterWaVoice,
+    filterWaCall,
+    filterWaOther,
+    filterOutboundAnswered,
+    filterInboundAnswered,
+    filterCrmNotes,
+    filterCrmTasks,
+    filterCrmOther,
     containerWidth,
     theme
   ]);
@@ -481,18 +594,17 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
 
     let found = null;
 
-    // Check GHL updates
-    if (filterGhlUpdates) {
+    // Check CRM Updates (Actions)
+    if (!found && filterCrmActions && bstUpdatesList) {
       let updatesForAgent = bstUpdatesList.filter(
-        (up) => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime()
+        (up) => {
+          if (normalizeAgentName(up.agent) !== normalizeAgentName(agent.name)) return false;
+          if (up.time < getMinTime() || up.time > getMaxTime()) return false;
+          if (up.module === "NOTE") return filterCrmNotes;
+          if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) return filterCrmTasks;
+          return filterCrmOther;
+        }
       );
-
-      updatesForAgent = updatesForAgent.filter(up => {
-        if (up.module === "NOTE") return filterNotesOnly;
-        if (up.module === "OPPORTUNITY") return filterOppsOnly;
-        if (up.module === "CONTACT") return filterContactsOnly;
-        return false;
-      });
 
       for (const up of updatesForAgent) {
         const xVal = getX(up.time.getTime(), displayWidth);
@@ -513,10 +625,24 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     }
 
     // Check GHL Outbound Messages
-    if (!found && filterGhlMessages && ghlMessages) {
-      let messagesForAgent = ghlMessages.filter(
-        (m) => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
-      );
+    if (!found && ghlMessages) {
+      let messagesForAgent = ghlMessages.filter(msg => {
+        if (normalizeAgentName(msg.agent) !== normalizeAgentName(agent.name)) return false;
+        const msgTime = new Date(msg.time);
+        if (msgTime < getMinTime() || msgTime > getMaxTime()) return false;
+        
+        if (msg.type === "whatsapp") {
+          if (!filterWhatsApp) return false;
+          const waType = getWhatsAppMessageType(msg);
+          if (waType === "text") return filterWaText;
+          if (waType === "voice") return filterWaVoice;
+          if (waType === "call") return filterWaCall;
+          if (waType === "other") return filterWaOther;
+          return false;
+        }
+        
+        return filterSmsOutbound;
+      });
 
       for (const msg of messagesForAgent) {
         const xVal = getX(new Date(msg.time).getTime(), displayWidth);
@@ -537,19 +663,35 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
     }
 
     // Check Call events
-    if (!found && filterCalls) {
-      let callsForAgent = bstCallsList.filter(
-        (cl) => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime()
-      );
-
-      if (filterMissedOnly) {
-        callsForAgent = callsForAgent.filter(cl => cl.status && cl.status.toLowerCase() !== "answered");
-      }
+    if (!found) {
+      let callsForAgent = (bstCallsList || []).filter(cl => {
+        if (normalizeAgentName(cl.agent) !== normalizeAgentName(agent.name)) return false;
+        if (cl.time < getMinTime() || cl.time > getMaxTime()) return false;
+        
+        const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+        const isOutbound = cl.direction?.toLowerCase() === "outbound";
+        
+        if (isAnswered) {
+          if (!filterAnsweredCalls) return false;
+          return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+        } else {
+          return !isOutbound && filterMissedCalls;
+        }
+      });
 
       for (const cl of callsForAgent) {
-        const xVal = getX(cl.time.getTime(), displayWidth);
-        const dist = Math.sqrt((x - xVal) * (x - xVal) + (y - yCenter) * (y - yCenter));
-        if (dist <= 8) {
+        const durationSec = parseDurationToSeconds(cl.duration);
+        const startMs = cl.time.getTime();
+        const endMs = startMs + durationSec * 1000;
+        const xStart = getX(startMs, displayWidth);
+        const xEnd = getX(endMs, displayWidth);
+        const callWidth = Math.max(8, xEnd - xStart);
+        const pillHeight = 8;
+
+        const isInside = x >= (xStart - pillHeight / 2) && x <= (xStart - pillHeight / 2 + callWidth) &&
+                         y >= (yCenter - pillHeight / 2) && y <= (yCenter + pillHeight / 2);
+
+        if (isInside) {
           found = {
             type: "call",
             agent: agent.name,
@@ -773,7 +915,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         <!-- Section 3: Table 3 -->
         <div style="margin-bottom: 1.5rem; page-break-inside: avoid; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
           <div style="border-left: 4px solid #1b365d; padding-left: 8px; color: #1b365d; font-weight: bold; font-size: 11pt; margin-top: 1.5rem; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px;">
-            3. Detailed Call Metrics (${formattedGlossaryDate} BST)
+            3. Detailed Call Metrics (${formattedGlossaryDate} \${timezone})
           </div>
           <div style="font-size: 7.2pt; color: #64748b; margin-bottom: 0.5rem; font-style: italic; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             Glossary: OUT = Outbound | IN = Inbound | CNT = Count | ANS = Answered | MISS = Missed | MINS = Total Call Minutes | AVG = Avg Duration (Mins)
@@ -860,11 +1002,11 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             ctx.lineTo(xVal, offscreenHeight - timelineBottomMargin);
             ctx.stroke();
 
-            const label = formatBSTTime(pdfDrawDate) + " BST";
+            const label = formatBSTTime(pdfDrawDate) + " " + timezone;
             ctx.fillStyle = "#64748b";
             ctx.fillText(label, xVal, timelineTopMargin - 15);
 
-            pdfDrawDate.setUTCHours(pdfDrawDate.getUTCHours() + 1);
+            pdfDrawDate.setHours(pdfDrawDate.getHours() + 1);
           }
 
           // Draw rows and scatter points for each agent
@@ -885,60 +1027,93 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
             ctx.textAlign = "left";
             ctx.fillText(agent.name, 15, yCenter + 4);
 
-            // GHL Updates (purple dots)
-            if (filterGhlUpdates) {
-              let updatesForAgent = bstUpdatesList.filter(
-                (up) => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime()
-              );
-              updatesForAgent = updatesForAgent.filter(up => {
-                if (up.module === "NOTE") return filterNotesOnly;
-                if (up.module === "OPPORTUNITY") return filterOppsOnly;
-                if (up.module === "CONTACT") return filterContactsOnly;
-                return false;
-              });
-              updatesForAgent.forEach((up) => {
+            // Filter CRM updates (Actions)
+            if (filterCrmActions && bstUpdatesList) {
+              bstUpdatesList.filter(up => {
+                if (normalizeAgentName(up.agent) !== normalizeAgentName(agent.name)) return false;
+                if (up.time < getMinTime() || up.time > getMaxTime()) return false;
+                if (up.module === "NOTE") return filterCrmNotes;
+                if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) return filterCrmTasks;
+                return filterCrmOther;
+              }).forEach(up => {
                 const xVal = getX(up.time.getTime(), pdfWidth);
-                ctx.fillStyle = "#818cf8";
+                let actColor = "#eab308";
+                if (up.module === "NOTE") {
+                  actColor = "#f97316";
+                } else if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) {
+                  actColor = "#ec4899";
+                }
+                ctx.fillStyle = actColor;
                 ctx.beginPath();
                 ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
                 ctx.fill();
               });
             }
 
-            // GHL Messages (sky blue dots)
-            if (filterGhlMessages && ghlMessages) {
-              let messagesForAgent = ghlMessages.filter(
-                (m) => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime()
-              );
-              messagesForAgent.forEach((msg) => {
+            // GHL Messages & WhatsApp
+            if (ghlMessages) {
+              ghlMessages.filter(msg => {
+                if (normalizeAgentName(msg.agent) !== normalizeAgentName(agent.name)) return false;
+                const msgTime = new Date(msg.time);
+                if (msgTime < getMinTime() || msgTime > getMaxTime()) return false;
+                
+                if (msg.type === "whatsapp") {
+                  if (!filterWhatsApp) return false;
+                  const waType = getWhatsAppMessageType(msg);
+                  if (waType === "text") return filterWaText;
+                  if (waType === "voice") return filterWaVoice;
+                  if (waType === "call") return filterWaCall;
+                  if (waType === "other") return filterWaOther;
+                  return false;
+                }
+                
+                return filterSmsOutbound;
+              }).forEach((msg) => {
                 const xVal = getX(new Date(msg.time).getTime(), pdfWidth);
-                ctx.fillStyle = msg.type === "whatsapp" ? "#25d366" : "#38bdf8";
+                let msgColor = msg.type === "whatsapp" ? "#22c55e" : "#06b6d4";
+                ctx.fillStyle = msgColor;
                 ctx.beginPath();
                 ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
                 ctx.fill();
               });
             }
 
-            // Calls (orange triangles)
-            if (filterCalls) {
-              let callsForAgent = bstCallsList.filter(
-                (cl) => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime()
-              );
-              if (filterMissedOnly) {
-                callsForAgent = callsForAgent.filter(cl => cl.status && cl.status.toLowerCase() !== "answered");
+            // Calls (capsule pills)
+            let calls = (bstCallsList || []).filter(cl => {
+              if (normalizeAgentName(cl.agent) !== normalizeAgentName(agent.name)) return false;
+              if (cl.time < getMinTime() || cl.time > getMaxTime()) return false;
+              
+              const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+              const isOutbound = cl.direction?.toLowerCase() === "outbound";
+              
+              if (isAnswered) {
+                if (!filterAnsweredCalls) return false;
+                return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+              } else {
+                return !isOutbound && filterMissedCalls;
               }
-              callsForAgent.forEach((cl) => {
-                const xVal = getX(cl.time.getTime(), pdfWidth);
-                ctx.fillStyle = "#fb923c";
-                ctx.beginPath();
-                const size = 5.5;
-                ctx.moveTo(xVal, yCenter - size);
-                ctx.lineTo(xVal - size, yCenter + size - 1);
-                ctx.lineTo(xVal + size, yCenter + size - 1);
-                ctx.closePath();
-                ctx.fill();
-              });
-            }
+            });
+            calls.forEach((cl) => {
+              const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+              const isOutbound = cl.direction?.toLowerCase() === "outbound";
+              
+              let callColor = "#f43f5e";
+              if (isAnswered) {
+                callColor = isOutbound ? "#3b82f6" : "#8b5cf6";
+              }
+              ctx.fillStyle = callColor;
+              const durationSec = parseDurationToSeconds(cl.duration);
+              const startMs = cl.time.getTime();
+              const endMs = startMs + durationSec * 1000;
+              const xStart = getX(startMs, pdfWidth);
+              const xEnd = getX(endMs, pdfWidth);
+              const callWidth = Math.max(8, xEnd - xStart);
+              const pillHeight = 8;
+              
+              ctx.beginPath();
+              ctx.roundRect(xStart - pillHeight / 2, yCenter - pillHeight / 2, callWidth, pillHeight, pillHeight / 2);
+              ctx.fill();
+            });
           });
 
           canvasImageSrc = offCanvas.toDataURL("image/png");
@@ -951,7 +1126,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         <!-- Section: Scatter Timeline Image -->
         <div style="margin-top: 1.5rem; page-break-before: always; text-align: center; width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
           <div style="border-left: 4px solid #1b365d; padding-left: 8px; color: #1b365d; font-weight: bold; font-size: 11pt; margin-top: 1.5rem; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
-            4. Agent Activity Graph (${startHour.toString().padStart(2, "0")}:00 - ${endHour.toString().padStart(2, "0")}:00 BST)
+            4. Agent Activity Graph (${startHour.toString().padStart(2, "0")}:00 - ${endHour.toString().padStart(2, "0")}:00 \${timezone})
           </div>
           <div style="border: 1px solid #cbd5e1; padding: 10px; background: #fff; width: 100%; box-sizing: border-box; border-radius: 4px;">
             ${canvasImageSrc ? `<img id="timeline-pdf-image" style="width: 100%; height: auto; display: block;" />` : `<div style="padding: 20px; font-style: italic; color: #64748b;">[Activity graph not available — Timeline tab must be loaded at least once]</div>`}
@@ -1134,76 +1309,99 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         while (pdfDrawDate.getTime() <= pdfEndMs) {
           const xVal = getX(pdfDrawDate.getTime(), pdfWidth);
           ctx.beginPath(); ctx.moveTo(xVal, timelineTopMargin - 10); ctx.lineTo(xVal, offH - timelineBottomMargin); ctx.stroke();
-          ctx.fillStyle = "#64748b"; ctx.fillText(formatBSTTime(pdfDrawDate) + " BST", xVal, timelineTopMargin - 15);
-          pdfDrawDate.setUTCHours(pdfDrawDate.getUTCHours() + 1);
+          ctx.fillStyle = "#64748b"; ctx.fillText(formatBSTTime(pdfDrawDate) + " " + timezone, xVal, timelineTopMargin - 15);
+          pdfDrawDate.setHours(pdfDrawDate.getHours() + 1);
         }
         filteredAgents.forEach((agent, idx) => {
           const rowTop = timelineTopMargin + idx * timelineRowHeight;
           const yCenter = rowTop + timelineRowHeight / 2;
           ctx.strokeStyle = "rgba(0, 0, 0, 0.06)"; ctx.beginPath(); ctx.moveTo(0, rowTop + timelineRowHeight); ctx.lineTo(pdfWidth, rowTop + timelineRowHeight); ctx.stroke();
           ctx.fillStyle = "#1e293b"; ctx.font = "600 12px sans-serif"; ctx.textAlign = "left"; ctx.fillText(agent.name, 15, yCenter + 4);
-          if (filterGhlUpdates) {
-            bstUpdatesList.filter(up => normalizeAgentName(up.agent) === normalizeAgentName(agent.name) && up.time >= getMinTime() && up.time <= getMaxTime())
-              .filter(up => { if (up.module === "NOTE") return filterNotesOnly; if (up.module === "OPPORTUNITY") return filterOppsOnly; if (up.module === "CONTACT") return filterContactsOnly; return false; })
-              .forEach(up => {
-                const xVal = getX(up.time.getTime(), pdfWidth);
-                let actColor = "#eab308";
-                if (up.module === "NOTE") actColor = "#f43f5e";
-                else if (up.module === "CONTACT") actColor = "#10b981";
-                else if (up.module === "OPPORTUNITY") {
-                  const rawAct = up.data || {};
-                  const details = typeof rawAct.details === "string" ? JSON.parse(rawAct.details || "{}") : (rawAct.details || {});
-                  const stageName = details.pipelineStageName?.toLowerCase() || "";
-                  if (stageName.includes("interested")) actColor = "#a855f7";
-                  else if (stageName.includes("contacted")) actColor = "#06b6d4";
-                  else if (stageName.includes("booked") || stageName.includes("appt")) actColor = "#3b82f6";
-                }
-                ctx.fillStyle = actColor;
-                ctx.beginPath();
-                ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
-                ctx.fill();
-              });
+          // Stale filterGhlUpdates block removed to unify PDF/DOCX renderers.
+          // Filter CRM updates (Actions)
+          if (filterCrmActions && bstUpdatesList) {
+            bstUpdatesList.filter(up => {
+              if (normalizeAgentName(up.agent) !== normalizeAgentName(agent.name)) return false;
+              if (up.time < getMinTime() || up.time > getMaxTime()) return false;
+              if (up.module === "NOTE") return filterCrmNotes;
+              if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) return filterCrmTasks;
+              return filterCrmOther;
+            }).forEach(up => {
+              const xVal = getX(up.time.getTime(), pdfWidth);
+              let actColor = "#eab308";
+              if (up.module === "NOTE") {
+                actColor = "#f97316";
+              } else if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) {
+                actColor = "#ec4899";
+              }
+              ctx.fillStyle = actColor;
+              ctx.beginPath();
+              ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
+              ctx.fill();
+            });
           }
-          if (filterGhlMessages && ghlMessages) {
-            ghlMessages.filter(m => normalizeAgentName(m.agent) === normalizeAgentName(agent.name) && new Date(m.time) >= getMinTime() && new Date(m.time) <= getMaxTime())
+          if (ghlMessages) {
+            ghlMessages.filter(msg => {
+              if (normalizeAgentName(msg.agent) !== normalizeAgentName(agent.name)) return false;
+              const msgTime = new Date(msg.time);
+              if (msgTime < getMinTime() || msgTime > getMaxTime()) return false;
+              
+              if (msg.type === "whatsapp") {
+                if (!filterWhatsApp) return false;
+                const waType = getWhatsAppMessageType(msg);
+                if (waType === "text") return filterWaText;
+                if (waType === "voice") return filterWaVoice;
+                if (waType === "call") return filterWaCall;
+                if (waType === "other") return filterWaOther;
+                return false;
+              }
+              
+              return filterSmsOutbound;
+            })
               .forEach(msg => {
                 const xVal = getX(new Date(msg.time).getTime(), pdfWidth);
-                const isOutbound = msg.direction?.toLowerCase() === "outbound";
-                let msgColor = "#6366f1";
-                if (msg.type === "whatsapp") {
-                  msgColor = "#25d366";
-                } else if (isOutbound || msg.type === "sms" || !msg.direction) {
-                  msgColor = "#06b6d4";
-                }
+                let msgColor = msg.type === "whatsapp" ? "#22c55e" : "#06b6d4";
                 ctx.fillStyle = msgColor;
                 ctx.beginPath();
                 ctx.arc(xVal, yCenter, 5, 0, 2 * Math.PI);
                 ctx.fill();
               });
           }
-          if (filterCalls) {
-            let calls = bstCallsList.filter(cl => normalizeAgentName(cl.agent) === normalizeAgentName(agent.name) && cl.time >= getMinTime() && cl.time <= getMaxTime());
-            if (filterMissedOnly) calls = calls.filter(cl => cl.status && cl.status.toLowerCase() !== "answered");
-            calls.forEach(cl => {
-              const xVal = getX(cl.time.getTime(), pdfWidth);
-              const isAnswered = cl.status && cl.status.toLowerCase() === "answered";
-              const isOutbound = cl.direction?.toLowerCase() === "outbound";
-              let callColor = "#fb923c";
-              if (isOutbound) {
-                callColor = isAnswered ? "#3b82f6" : "#f59e0b";
-              } else {
-                callColor = isAnswered ? "#10b981" : "#ef4444";
-              }
-              ctx.fillStyle = callColor;
-              ctx.beginPath();
-              const s = 5.5;
-              ctx.moveTo(xVal, yCenter - s);
-              ctx.lineTo(xVal - s, yCenter + s - 1);
-              ctx.lineTo(xVal + s, yCenter + s - 1);
-              ctx.closePath();
-              ctx.fill();
-            });
-          }
+          let calls = (bstCallsList || []).filter(cl => {
+            if (normalizeAgentName(cl.agent) !== normalizeAgentName(agent.name)) return false;
+            if (cl.time < getMinTime() || cl.time > getMaxTime()) return false;
+            
+            const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+            const isOutbound = cl.direction?.toLowerCase() === "outbound";
+            
+            if (isAnswered) {
+              if (!filterAnsweredCalls) return false;
+              return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+            } else {
+              return !isOutbound && filterMissedCalls;
+            }
+          });
+          calls.forEach(cl => {
+            const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+            const isOutbound = cl.direction?.toLowerCase() === "outbound";
+            
+            let callColor = "#f43f5e";
+            if (isAnswered) {
+              callColor = isOutbound ? "#3b82f6" : "#8b5cf6";
+            }
+            ctx.fillStyle = callColor;
+            const durationSec = parseDurationToSeconds(cl.duration);
+            const startMs = cl.time.getTime();
+            const endMs = startMs + durationSec * 1000;
+            const xStart = getX(startMs, pdfWidth);
+            const xEnd = getX(endMs, pdfWidth);
+            const callWidth = Math.max(8, xEnd - xStart);
+            const pillHeight = 8;
+            
+            ctx.beginPath();
+            ctx.roundRect(xStart - pillHeight / 2, yCenter - pillHeight / 2, callWidth, pillHeight, pillHeight / 2);
+            ctx.fill();
+          });
         });
         canvasImageSrc = offCanvas.toDataURL("image/png");
       } catch (e) { console.warn("Offscreen canvas failed for DOCX:", e); }
@@ -1299,7 +1497,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         }).join("")}
       </table>
 
-      <h2>3. Detailed Call Metrics (${formattedGlossaryDate} BST)</h2>
+      <h2>3. Detailed Call Metrics (${formattedGlossaryDate} ${timezone})</h2>
       <table style="width:100%;">
         <tr>
           <th ${thStyle("14%")}>AGENT</th>
@@ -1321,7 +1519,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         }).join("")}
       </table>
 
-      <h2>4. Agent Activity Graph (${startHour.toString().padStart(2, "0")}:00 - ${endHour.toString().padStart(2, "0")}:00 BST)</h2>
+      <h2>4. Agent Activity Graph (${startHour.toString().padStart(2, "0")}:00 - ${endHour.toString().padStart(2, "0")}:00 ${timezone})</h2>
       ${canvasImageSrc ? `<div style="border:1.5px solid #cbd5e1; padding: 12px; background: #ffffff; text-align: center; border-radius: 4px;"><img src="${canvasImageSrc}" style="width: 100%; max-width: 100%; height: auto;" /></div>` : `<p style="color: #64748b; font-style: italic;">[Activity graph rendered in PDF only]</p>`}
       </body></html>
     `;
@@ -1464,7 +1662,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
         <section className="card">
           <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
             <h2 style={{ margin: 0 }}>
-              <i className="fa-solid fa-timeline"></i> Visual Scatter Workday Timeline ({startHour.toString().padStart(2, "0")}:00 - {endHour.toString().padStart(2, "0")}:00 BST)
+              <i className="fa-solid fa-timeline"></i> Visual Scatter Workday Timeline ({startHour.toString().padStart(2, "0")}:00 - {endHour.toString().padStart(2, "0")}:00 {timezone})
             </h2>
             
             {/* Filters */}
@@ -1574,7 +1772,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                       gap: "0.4rem",
                     }}
                   >
-                    {startHour.toString().padStart(2, "0")}:00 BST
+                    {startHour.toString().padStart(2, "0")}:00 {timezone}
                     <i className={`fa-solid fa-chevron-${startDropOpen ? "up" : "down"}`} style={{ fontSize: "0.65rem", color: "var(--primary)" }}></i>
                   </button>
                   {startDropOpen && (
@@ -1616,7 +1814,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                             onMouseEnter={(e) => { if (startHour !== i) e.currentTarget.style.background = "var(--border-light)"; }}
                             onMouseLeave={(e) => { if (startHour !== i) e.currentTarget.style.background = "transparent"; }}
                           >
-                            {i.toString().padStart(2, "0")}:00 BST
+                            {i.toString().padStart(2, "0")}:00 {timezone}
                           </div>
                         ))}
                       </div>
@@ -1644,7 +1842,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                       gap: "0.4rem",
                     }}
                   >
-                    {endHour.toString().padStart(2, "0")}:00 BST
+                    {endHour.toString().padStart(2, "0")}:00 {timezone}
                     <i className={`fa-solid fa-chevron-${endDropOpen ? "up" : "down"}`} style={{ fontSize: "0.65rem", color: "var(--primary)" }}></i>
                   </button>
                   {endDropOpen && (
@@ -1687,7 +1885,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                             onMouseEnter={(e) => { if (endHour !== (i + 1)) e.currentTarget.style.background = "var(--border-light)"; }}
                             onMouseLeave={(e) => { if (endHour !== (i + 1)) e.currentTarget.style.background = "transparent"; }}
                           >
-                            {(i + 1).toString().padStart(2, "0")}:00 BST
+                            {(i + 1).toString().padStart(2, "0")}:00 {timezone}
                           </div>
                         ))}
                       </div>
@@ -1699,117 +1897,157 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
           </div>
 
           {/* Interactive Checkbox Event Filter Panel */}
-          <div className="no-print" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center", width: "100%", padding: "0.75rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.03)", background: "rgba(255,255,255,0.01)" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-secondary)" }}>Show Timeline Data:</span>
-            
-            {/* GHL Checkbox */}
-            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={filterGhlUpdates}
-                onChange={() => setFilterGhlUpdates(!filterGhlUpdates)}
-                style={{ accentColor: "#818cf8", cursor: "pointer" }}
-              />
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#818cf8" }} />
-              GHL Updates
-            </label>
+          <div className="no-print" style={{ display: "flex", flexDirection: "column", gap: "0.75rem", width: "100%", padding: "0.75rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.03)", background: "rgba(255,255,255,0.01)" }}>
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-secondary)" }}>Show Timeline Data:</span>
+              
+              {/* SMS Outbound Checkbox */}
+              <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={filterSmsOutbound}
+                  onChange={() => setFilterSmsOutbound(!filterSmsOutbound)}
+                  style={{ accentColor: "#06b6d4", cursor: "pointer" }}
+                />
+                <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#06b6d4" }} />
+                Outbound SMS
+              </label>
 
-            {/* GHL Messages Checkbox */}
-            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={filterGhlMessages}
-                onChange={() => setFilterGhlMessages(!filterGhlMessages)}
-                style={{ accentColor: "#38bdf8", cursor: "pointer" }}
-              />
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#38bdf8" }} />
-              GHL Messages
-            </label>
+              {/* WhatsApp Checkbox */}
+              <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={filterWhatsApp}
+                  onChange={() => setFilterWhatsApp(!filterWhatsApp)}
+                  style={{ accentColor: "#22c55e", cursor: "pointer" }}
+                />
+                <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#22c55e" }} />
+                WhatsApp Messages
+              </label>
 
-            {filterGhlUpdates && (
-              <div style={{ display: "flex", gap: "0.8rem", paddingLeft: "0.5rem", borderLeft: "1px solid rgba(255,255,255,0.1)", flexWrap: "wrap" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-secondary)", cursor: "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={filterNotesOnly}
-                    onChange={() => setFilterNotesOnly(!filterNotesOnly)}
-                    style={{ accentColor: "var(--primary)", cursor: "pointer" }}
-                  />
-                  Notes
-                </label>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-secondary)", cursor: "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={filterOppsOnly}
-                    onChange={() => setFilterOppsOnly(!filterOppsOnly)}
-                    style={{ accentColor: "var(--primary)", cursor: "pointer" }}
-                  />
-                  Opportunities
-                </label>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-secondary)", cursor: "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={filterContactsOnly}
-                    onChange={() => setFilterContactsOnly(!filterContactsOnly)}
-                    style={{ accentColor: "var(--primary)", cursor: "pointer" }}
-                  />
-                  Contacts
-                </label>
-              </div>
-            )}
+              {/* Answered Calls Checkbox */}
+              <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={filterAnsweredCalls}
+                  onChange={() => setFilterAnsweredCalls(!filterAnsweredCalls)}
+                  style={{ accentColor: "#3b82f6", cursor: "pointer" }}
+                />
+                <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#3b82f6" }} />
+                Answered Calls
+              </label>
 
-            {/* Calls Checkbox */}
-            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer", marginLeft: "0.5rem" }}>
-              <input
-                type="checkbox"
-                checked={filterCalls}
-                onChange={() => setFilterCalls(!filterCalls)}
-                style={{ accentColor: "#fb923c", cursor: "pointer" }}
-              />
-              <span style={{ display: "inline-block", width: 0, height: 0, borderBottom: "8px solid #fb923c", borderLeft: "5px solid transparent", borderRight: "5px solid transparent" }} />
-              Call Events
-            </label>
+              {/* Missed Calls Checkbox */}
+              <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={filterMissedCalls}
+                  onChange={() => setFilterMissedCalls(!filterMissedCalls)}
+                  style={{ accentColor: "#f43f5e", cursor: "pointer" }}
+                />
+                <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f43f5e" }} />
+                Missed Calls (Inbound)
+              </label>
 
-            {filterCalls && (
-              <div style={{ display: "flex", gap: "0.8rem", paddingLeft: "0.5rem", borderLeft: "1px solid rgba(255,255,255,0.1)" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-secondary)", cursor: "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={filterMissedOnly}
-                    onChange={() => setFilterMissedOnly(!filterMissedOnly)}
-                    style={{ accentColor: "var(--primary)", cursor: "pointer" }}
-                  />
-                  Missed Calls Only
-                </label>
-              </div>
-            )}
+              {/* CRM Actions Checkbox */}
+              <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={filterCrmActions}
+                  onChange={() => setFilterCrmActions(!filterCrmActions)}
+                  style={{ accentColor: "#ec4899", cursor: "pointer" }}
+                />
+                <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f97316" }} />
+                CRM Updates (Actions)
+              </label>
+            </div>
+
+            {/* Sub-filters row */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingLeft: "1.5rem", borderLeft: "2px dashed rgba(255,255,255,0.07)" }}>
+              {/* WhatsApp sub-filters */}
+              {filterWhatsApp && (
+                <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-secondary)" }}>WhatsApp Types:</span>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterWaText} onChange={() => setFilterWaText(!filterWaText)} style={{ accentColor: "#22c55e" }} />
+                    Messages with Text Body
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterWaVoice} onChange={() => setFilterWaVoice(!filterWaVoice)} style={{ accentColor: "#22c55e" }} />
+                    Voice Messages
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterWaCall} onChange={() => setFilterWaCall(!filterWaCall)} style={{ accentColor: "#22c55e" }} />
+                    Call Messages
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterWaOther} onChange={() => setFilterWaOther(!filterWaOther)} style={{ accentColor: "#22c55e" }} />
+                    Other WhatsApp
+                  </label>
+                </div>
+              )}
+
+              {/* Answered Calls sub-filters */}
+              {filterAnsweredCalls && (
+                <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-secondary)" }}>Answered Call Directions:</span>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterOutboundAnswered} onChange={() => setFilterOutboundAnswered(!filterOutboundAnswered)} style={{ accentColor: "#3b82f6" }} />
+                    Outbound Answered
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterInboundAnswered} onChange={() => setFilterInboundAnswered(!filterInboundAnswered)} style={{ accentColor: "#8b5cf6" }} />
+                    Inbound Answered
+                  </label>
+                </div>
+              )}
+
+              {/* CRM updates sub-filters */}
+              {filterCrmActions && (
+                <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-secondary)" }}>CRM Action Types:</span>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterCrmNotes} onChange={() => setFilterCrmNotes(!filterCrmNotes)} style={{ accentColor: "#f97316" }} />
+                    CRM Notes
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterCrmTasks} onChange={() => setFilterCrmTasks(!filterCrmTasks)} style={{ accentColor: "#ec4899" }} />
+                    CRM Tasks
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={filterCrmOther} onChange={() => setFilterCrmOther(!filterCrmOther)} style={{ accentColor: "#eab308" }} />
+                    Other Updates
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Color Coding Legend Row */}
           <div className="no-print" style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: "0.75rem", padding: "0.6rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.03)", background: "rgba(255,255,255,0.005)" }}>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#3b82f6" }} /> Outbound Call
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#3b82f6" }} /> Outbound Answered Call
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#10b981" }} /> Inbound Call
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#8b5cf6" }} /> Inbound Answered Call
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#ef4444" }} /> Missed Call
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f43f5e" }} /> Missed Call (Inbound)
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f43f5e" }} /> CRM Note
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#22c55e" }} /> WhatsApp Message
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#10b981" }} /> CRM Contact
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#06b6d4" }} /> Outbound SMS
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#a855f7" }} /> Interested
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f97316" }} /> CRM Note
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#06b6d4" }} /> Contacted
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#ec4899" }} /> CRM Task
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: "var(--text-secondary)", fontWeight: 550 }}>
-              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#eab308" }} /> Other Opp
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#eab308" }} /> Other CRM Updates
             </span>
           </div>
 
@@ -1863,7 +2101,7 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                 <div>
                   <span style={{ color: "var(--text-secondary)", display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "2px" }}>TIMESTAMP</span>
                   <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
-                    {new Date(selectedEvent.time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })} BST
+                    {new Date(selectedEvent.time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })} {timezone}
                   </span>
                 </div>
                 {selectedEvent.type === "call" && (
@@ -1881,6 +2119,10 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                     <div>
                       <span style={{ color: "var(--text-secondary)", display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "2px" }}>DURATION</span>
                       <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>{selectedEvent.data.duration}</span>
+                    </div>
+                    <div>
+                      <span style={{ color: "var(--text-secondary)", display: "block", fontSize: "0.75rem", fontWeight: 700, marginBottom: "2px" }}>RECIPIENT (CONTACT)</span>
+                      <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>{selectedEvent.data.contact_name || "Unknown"}</span>
                     </div>
                   </>
                 )}
@@ -1928,17 +2170,28 @@ export default function ExecutiveReport({ agents, bstCallsList = [], bstUpdatesL
                   {hoveredItem.type === "message" ? "GHL Outbound Message" : (hoveredItem.type === "update" ? "GHL Update" : "Call Event")}
                 </span>
               </div>
+              {hoveredItem.type === "call" && (
+                <div className="tooltip-row">
+                  <span className="tooltip-label">Contact:</span>
+                  <span className="tooltip-value">{hoveredItem.data?.contact_name || "Unknown"}</span>
+                </div>
+              )}
               <div className="tooltip-row">
                 <span className="tooltip-label">Event:</span>
                 <span className="tooltip-value">{hoveredItem.label}</span>
               </div>
               <div className="tooltip-row">
                 <span className="tooltip-label">Time:</span>
-                <span className="tooltip-value">{formatBSTTime(hoveredItem.time)} BST</span>
+                <span className="tooltip-value">{formatBSTTime(hoveredItem.time)} {timezone}</span>
               </div>
               {hoveredItem.type === "message" && hoveredItem.data?.body && (
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: "6px", paddingTop: "6px", fontSize: "0.75rem", color: "#e2e8f0", fontStyle: "italic", whiteSpace: "normal", wordBreak: "break-word", lineHeight: "1.3" }}>
                   "{hoveredItem.data.body}"
+                </div>
+              )}
+              {hoveredItem.type === "update" && (
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: "6px", paddingTop: "6px", fontSize: "0.75rem", color: "#e2e8f0", fontStyle: "italic", whiteSpace: "normal", wordBreak: "break-word", lineHeight: "1.3" }}>
+                  "{getActionSummary(hoveredItem.data)}"
                 </div>
               )}
             </div>

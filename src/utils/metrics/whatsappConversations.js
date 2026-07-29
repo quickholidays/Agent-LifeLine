@@ -1,11 +1,11 @@
-export function calculateTotalConversations(selectedAgentName, rawAnalysisData) {
+export function calculateWhatsAppConversations(selectedAgentName, rawAnalysisData) {
   const allMessages = rawAnalysisData.ghl_outbound_messages || rawAnalysisData.ghlMessages || [];
-  const smsMessages = allMessages.filter(m => m.type !== "whatsapp");
+  const whatsappMessages = allMessages.filter(m => m.type === "whatsapp");
   if (selectedAgentName === "All Agents") {
-    const uniqueContactsMessaged = new Set(smsMessages.map((m) => m.contactName));
+    const uniqueContactsMessaged = new Set(whatsappMessages.map((m) => m.contactName));
     return uniqueContactsMessaged.size;
   }
-  const agentMessages = smsMessages.filter(
+  const agentMessages = whatsappMessages.filter(
     (msg) => msg.agent && msg.agent.toLowerCase() === selectedAgentName.toLowerCase()
   );
   const uniqueContactsMessaged = new Set(agentMessages.map((m) => m.contactName));

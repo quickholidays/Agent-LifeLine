@@ -162,9 +162,11 @@ async function parseGhlWebhook(payload, ghlToken, locationId, tz = "BST") {
   const day = parts.find(p => p.type === "day").value;
   const dateStr = `${year}-${month}-${day}`;
 
+  const finalContactName = contactId ? `${contactName} (${contactId})` : contactName;
+
   return {
     contactId,
-    contactName,
+    contactName: finalContactName,
     email,
     phone,
     agentName,
@@ -370,7 +372,27 @@ export async function POST(req) {
     // 2. Parse payload details
     const parsedData = await parseGhlWebhook(payload, ghlToken, locationId, tz);
 
-    // 3. Create the message object
+    // 3. Ignore empty/placeholder message bodies (Opportunity changes)
+    const bodyText = String(parsedData.body || "").trim().toLowerCase();
+    if (bodyText === "" || bodyText === "[sms message]") {
+      console.log("[GHL Webhook] Ignoring opportunity status message or empty body SMS:", parsedData.body);
+      return NextResponse.json({
+        success: true,
+        message: "Webhook ignored: opportunity status change or empty body placeholder"
+      });
+    }
+
+    // Ignore inbound messages (sent by client, not agent)
+    const direction = String(parsedData.direction || "outbound").trim().toLowerCase();
+    if (direction === "inbound" || direction === "incoming") {
+      console.log("[GHL Webhook] Ignoring inbound message from client:", parsedData.body);
+      return NextResponse.json({
+        success: true,
+        message: "Webhook ignored: inbound message"
+      });
+    }
+
+    // 4. Create the message object
     const newMessageId = payload.messageId || payload.id || `webhook_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const newMessage = {
       id: newMessageId,
@@ -378,6 +400,7 @@ export async function POST(req) {
       time: parsedData.timeObj.toISOString(),
       body: parsedData.body || `[SMS Message]`,
       contactName: parsedData.contactName,
+      contactId: parsedData.contactId,
       type: "sms"
     };
 

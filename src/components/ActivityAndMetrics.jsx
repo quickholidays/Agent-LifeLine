@@ -23,13 +23,62 @@ import {
   calculateTotalActions
 } from "../utils/metrics";
 
-export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate, theme = "dark" }) {
+export default function ActivityAndMetrics({
+  agents,
+  rawAnalysisData,
+  reportDate,
+  theme = "dark",
+  filterSmsOutbound,
+  setFilterSmsOutbound,
+  filterWhatsApp,
+  setFilterWhatsApp,
+  filterAnsweredCalls,
+  setFilterAnsweredCalls,
+  filterMissedCalls,
+  setFilterMissedCalls,
+  filterCrmActions,
+  setFilterCrmActions,
+  filterWaText,
+  setFilterWaText,
+  filterWaVoice,
+  setFilterWaVoice,
+  filterWaCall,
+  setFilterWaCall,
+  filterWaOther,
+  setFilterWaOther,
+  filterOutboundAnswered,
+  setFilterOutboundAnswered,
+  filterInboundAnswered,
+  setFilterInboundAnswered,
+  filterCrmNotes,
+  setFilterCrmNotes,
+  filterCrmTasks,
+  setFilterCrmTasks,
+  filterCrmOther,
+  setFilterCrmOther,
+  timezone = "PKT"
+}) {
   // Enforce specific agent selection by defaulting to the first agent name
   const [selectedAgentName, setSelectedAgentName] = useState("");
   const [activeCard, setActiveCard] = useState("newLeads");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const getWhatsAppMessageType = (msg) => {
+    if (!msg.body) return "text";
+    const body = String(msg.body).trim().toLowerCase();
+    if (body.includes("voice message") || body.includes("voice_message") || body.includes("[voice")) {
+      return "voice";
+    }
+    if (body.includes("call message") || body.includes("call_message") || body.includes("[call")) {
+      return "call";
+    }
+    if (/\[.*?\]/.test(body)) {
+      return "other";
+    }
+    return "text";
+  };
 
   // Sync state with agents loading
   useEffect(() => {
@@ -199,13 +248,69 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
   const missedInbound = callM.inboundMissed || 0;
   const todayConverted = selectedAgent.converted_today || 0;
 
+  const parseDurationToSeconds = (durStr) => {
+    if (!durStr || durStr === "-") return 0;
+    const clean = String(durStr).trim().toLowerCase();
+    if (/^\d+$/.test(clean)) {
+      return parseInt(clean, 10);
+    }
+    const parts = clean.split(":");
+    if (parts.length === 2) {
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    } else if (parts.length === 3) {
+      return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+    }
+    let totalSecs = 0;
+    const hrsMatch = clean.match(/(\d+)\s*(?:hr|hour|h)/);
+    const minsMatch = clean.match(/(\d+)\s*(?:min|m)/);
+    const secsMatch = clean.match(/(\d+)\s*(?:sec|s)/);
+    if (hrsMatch) totalSecs += parseInt(hrsMatch[1], 10) * 3600;
+    if (minsMatch) totalSecs += parseInt(minsMatch[1], 10) * 60;
+    if (secsMatch) totalSecs += parseInt(secsMatch[1], 10);
+    return totalSecs;
+  };
+
+  const callsList = selectedAgent.calls || [];
+  const unfilteredCallsList = callsList.filter(cl => {
+    const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+    const isOutbound = cl.direction?.toLowerCase() === "outbound";
+    if (isAnswered) return true;
+    return !isOutbound;
+  });
+  const callsPlaced = unfilteredCallsList.length;
+
+  const missedCallsList = unfilteredCallsList.filter(cl => {
+    const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+    return !isAnswered;
+  });
+  const missedCalls = missedCallsList.length;
+
+  const totalSeconds = unfilteredCallsList.reduce((acc, cl) => {
+    const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+    if (isAnswered) {
+      return acc + parseDurationToSeconds(cl.duration);
+    }
+    return acc;
+  }, 0);
+  const callMinutesVal = totalSeconds / 60;
+  const callMinutes = `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
+
   // Calculate conversations from GHL outbound messages in the backup
   const allMessages = rawAnalysisData.ghl_outbound_messages || rawAnalysisData.ghlMessages || [];
-  const agentMessages = allMessages.filter(
-    (msg) => msg.agent && msg.agent.toLowerCase() === selectedAgentName.toLowerCase()
-  );
-  const uniqueContactsMessaged = new Set(agentMessages.map((m) => m.contactName));
-  const totalConversations = uniqueContactsMessaged.size;
+  
+  const agentSmsMessages = allMessages.filter(msg => {
+    if (msg.type === "whatsapp") return false;
+    return selectedAgentName === "All Agents" || (msg.agent && msg.agent.toLowerCase() === selectedAgentName.toLowerCase());
+  });
+  const uniqueSmsContacts = new Set(agentSmsMessages.map(m => m.contactId || m.contactName));
+  const totalConversations = uniqueSmsContacts.size;
+
+  const agentWhatsAppMessages = allMessages.filter(msg => {
+    if (msg.type !== "whatsapp") return false;
+    return selectedAgentName === "All Agents" || (msg.agent && msg.agent.toLowerCase() === selectedAgentName.toLowerCase());
+  });
+  const uniqueWhatsAppContacts = new Set(agentWhatsAppMessages.map(m => m.contactId || m.contactName));
+  const whatsappConversations = uniqueWhatsAppContacts.size;
 
   // Formatting rates using modular metric functions
   const metricValues = {
@@ -215,11 +320,13 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
     closed: calculateClosedLeads(selectedAgent),
     apptBooked: calculateApptBooked(selectedAgent),
     interactedLeads: calculateInteractedLeads(selectedAgent),
-    totalConversations: calculateTotalConversations(selectedAgentName, rawAnalysisData),
-    callsPlaced: calculateCallsPlaced(selectedAgent),
-    missedCalls: calculateMissedCalls(selectedAgent),
-    notes: calculateNotes(selectedAgent),
-    tasks: calculateTasks(selectedAgent),
+    totalConversations: totalConversations,
+    whatsappConversations: whatsappConversations,
+    callsPlaced: callsPlaced,
+    callMinutes: callMinutes,
+    missedCalls: missedCalls,
+    notes: filterCrmActions ? calculateNotes(selectedAgent) : 0,
+    tasks: filterCrmActions ? calculateTasks(selectedAgent) : 0,
     interested: calculateInterestedStage(selectedAgent),
     contacted: calculateContactedStage(selectedAgent),
     referrals: calculateReferrals(selectedAgent),
@@ -275,10 +382,17 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
     },
     {
       key: "totalConversations",
-      title: "Total Conversations",
+      title: "SMS Conversations",
       value: metricValues.totalConversations,
-      sub: `${agentMessages.length} Outbound Msgs`,
-      tooltip: "Unique contact profiles the agent exchanged GHL text messages with today.",
+      sub: `${filterSmsOutbound ? agentSmsMessages.length : 0} SMS Msgs`,
+      tooltip: "Unique contact profiles the agent exchanged SMS text messages with today.",
+    },
+    {
+      key: "whatsappConversations",
+      title: "WhatsApp Conversations",
+      value: metricValues.whatsappConversations,
+      sub: `${filterWhatsApp ? agentWhatsAppMessages.length : 0} WhatsApp Msgs`,
+      tooltip: "Unique contact profiles the agent exchanged WhatsApp messages with today.",
     },
     {
       key: "callsPlaced",
@@ -288,11 +402,18 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       tooltip: "Sum of inbound and outbound voice calls handled by the agent today.",
     },
     {
+      key: "callMinutes",
+      title: "Total Talk Time",
+      value: metricValues.callMinutes,
+      sub: "Attended talk time",
+      tooltip: "Total duration (in minutes and seconds) of answered/completed calls today.",
+    },
+    {
       key: "missedCalls",
-      title: "Missed Inbound Calls",
+      title: "Missed Calls",
       value: metricValues.missedCalls,
       sub: "Unattended voice leads",
-      tooltip: "Total inbound calls that were missed or unanswered today.",
+      tooltip: "Total inbound/outbound calls that were missed or unanswered today.",
     },
     {
       key: "notes",
@@ -359,15 +480,14 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
     },
   ];
 
-  // Helper function to format BST ISO strings
   const formatTime = (isoStr) => {
     if (!isoStr) return "-";
     const d = new Date(isoStr);
     return (
-      d.getUTCHours().toString().padStart(2, "0") +
+      d.getHours().toString().padStart(2, "0") +
       ":" +
-      d.getUTCMinutes().toString().padStart(2, "0") +
-      " BST"
+      d.getMinutes().toString().padStart(2, "0") +
+      " " + timezone
     );
   };
 
@@ -467,7 +587,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "newLeads":
         if (Array.isArray(selectedAgent.new_leads_details) && selectedAgent.new_leads_details.length > 0) {
           return selectedAgent.new_leads_details.map((lead) => ({
-            time: lead.created ? formatTime(lead.created) : "00:00 BST",
+            time: lead.created ? formatTime(lead.created) : "00:00 " + timezone,
             agent: selectedAgentName,
             contact: lead.name,
             category: "New Contact Profile",
@@ -491,7 +611,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "margin":
         if (Array.isArray(selectedAgent.margin_opportunities_details) && selectedAgent.margin_opportunities_details.length > 0) {
           return selectedAgent.margin_opportunities_details.map((opp) => ({
-            time: opp.date ? formatTime(opp.date) : "00:00 BST",
+            time: opp.date ? formatTime(opp.date) : "00:00 " + timezone,
             agent: opp.agent || selectedAgentName,
             contact: opp.name,
             category: "Margin Opportunity",
@@ -515,7 +635,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "booked":
         if (Array.isArray(selectedAgent.booked_leads_details) && selectedAgent.booked_leads_details.length > 0) {
           return selectedAgent.booked_leads_details.map((lead) => ({
-            time: lead.date ? formatTime(lead.date) : "00:00 BST",
+            time: lead.date ? formatTime(lead.date) : "00:00 " + timezone,
             agent: lead.agent || selectedAgentName,
             contact: lead.name,
             category: "Booked Lead",
@@ -539,7 +659,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "closed":
         if (Array.isArray(selectedAgent.closed_leads_details) && selectedAgent.closed_leads_details.length > 0) {
           return selectedAgent.closed_leads_details.map((lead) => ({
-            time: lead.date ? formatTime(lead.date) : "00:00 BST",
+            time: lead.date ? formatTime(lead.date) : "00:00 " + timezone,
             agent: lead.agent || selectedAgentName,
             contact: lead.name,
             category: "Closed Won Lead",
@@ -563,7 +683,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "apptBooked":
         if (Array.isArray(selectedAgent.appt_booked_leads_details) && selectedAgent.appt_booked_leads_details.length > 0) {
           return selectedAgent.appt_booked_leads_details.map((lead) => ({
-            time: lead.date ? formatTime(lead.date) : "00:00 BST",
+            time: lead.date ? formatTime(lead.date) : "00:00 " + timezone,
             agent: lead.agent || selectedAgentName,
             contact: lead.name,
             category: "Appt Booked Lead",
@@ -587,7 +707,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "todayConverted":
         if (Array.isArray(selectedAgent.today_conversion_leads) && selectedAgent.today_conversion_leads.length > 0) {
           return selectedAgent.today_conversion_leads.map((lead) => ({
-            time: lead.date ? formatTime(lead.date) : "00:00 BST",
+            time: lead.date ? formatTime(lead.date) : "00:00 " + timezone,
             agent: lead.agent || selectedAgentName,
             contact: lead.name,
             category: "Converted Lead Today",
@@ -637,16 +757,25 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
             };
           });
       case "totalConversations":
-        return agentMessages.map((msg) => ({
+        return agentSmsMessages.map((msg) => ({
           time: formatTime(msg.time),
-          agent: selectedAgentName,
+          agent: msg.agent || selectedAgentName,
           contact: msg.contactName || "Unknown",
-          category: "GHL Msg",
-          action: msg.type === "email" || msg.channel === "TYPE_EMAIL" ? "Outbound Email" : "Outbound Text",
+          category: "SMS Msg",
+          action: "Outbound Text",
+          details: msg.body
+        }));
+      case "whatsappConversations":
+        return agentWhatsAppMessages.map((msg) => ({
+          time: formatTime(msg.time),
+          agent: msg.agent || selectedAgentName,
+          contact: msg.contactName || "Unknown",
+          category: "WhatsApp Msg",
+          action: "WhatsApp Outbound",
           details: msg.body
         }));
       case "callsPlaced":
-        return callsList.map((c) => ({
+        return unfilteredCallsList.map((c) => ({
           time: formatTime(c.timestamp),
           agent: selectedAgentName,
           contact: c.contact_name || "Unknown",
@@ -654,17 +783,24 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
           action: `${c.direction.toUpperCase()} - ${c.status}`,
           details: `Duration: ${c.duration}`
         }));
+      case "callMinutes":
+        return unfilteredCallsList.filter(c => c.status && (c.status.toLowerCase() === "answered" || c.status.toLowerCase() === "completed")).map((c) => ({
+          time: formatTime(c.timestamp),
+          agent: selectedAgentName,
+          contact: c.contact_name || "Unknown",
+          category: "Answered Call",
+          action: `${c.direction.toUpperCase()} - Attended`,
+          details: `Duration: ${c.duration}`
+        }));
       case "missedCalls":
-        return callsList
-          .filter((c) => c.direction === "inbound" && c.status !== "Answered")
-          .map((c) => ({
-            time: formatTime(c.timestamp),
-            agent: selectedAgentName,
-            contact: c.contact_name || "Unknown",
-            category: "Missed Call",
-            action: `${c.direction.toUpperCase()} - ${c.status}`,
-            details: `Unattended voice lead | Duration: ${c.duration}`
-          }));
+        return missedCallsList.map((c) => ({
+          time: formatTime(c.timestamp),
+          agent: selectedAgentName,
+          contact: c.contact_name || "Unknown",
+          category: "Missed Call",
+          action: `${c.direction.toUpperCase()} - ${c.status}`,
+          details: `Unattended voice lead | Duration: ${c.duration}`
+        }));
       case "notes":
         return actions
           .filter((act) => act.module === "NOTE")
@@ -681,7 +817,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
           });
       case "tasks":
         return actions
-          .filter((act) => act.module === "TASK")
+          .filter((act) => act.module === "TASK" || act.module === "TASK_ADD" || act.action?.toLowerCase().includes("task"))
           .map((act) => {
             const { contactName, cleanDetails, actionStr } = parseActionDetails(act);
             return {
@@ -739,7 +875,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "bookedRate":
         if (Array.isArray(selectedAgent.booked_leads_details) && selectedAgent.booked_leads_details.length > 0) {
           return selectedAgent.booked_leads_details.map((lead) => ({
-            time: lead.date ? formatTime(lead.date) : "00:00 BST",
+            time: lead.date ? formatTime(lead.date) : "00:00 " + timezone,
             agent: lead.agent || selectedAgentName,
             contact: lead.name,
             category: "Booked Lead Details",
@@ -751,7 +887,7 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       case "closedRate":
         if (Array.isArray(selectedAgent.closed_leads_details) && selectedAgent.closed_leads_details.length > 0) {
           return selectedAgent.closed_leads_details.map((lead) => ({
-            time: lead.date ? formatTime(lead.date) : "00:00 BST",
+            time: lead.date ? formatTime(lead.date) : "00:00 " + timezone,
             agent: lead.agent || selectedAgentName,
             contact: lead.name,
             category: "Closed Lead Details",
@@ -792,139 +928,141 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
         style={{
           padding: "1.2rem 1.5rem",
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1rem",
+          flexDirection: "column",
+          gap: "1.2rem",
         }}
       >
-        <div>
-          <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800 }}>
-            Workspace Activity & Performance Metrics
-          </h3>
-          <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.82rem", color: "var(--text-secondary)" }}>
-            Select an agent to inspect their daily metric totals and detailed records.
-          </p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)" }}>
-            Agent Filter:
-          </label>
-          
-          {/* Custom designed dropdown overlay to replace native select */}
-          <div style={{ position: "relative" }}>
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              style={{
-                padding: "0.5rem 1.5rem 0.5rem 1rem",
-                borderRadius: "8px",
-                background: "var(--card-bg)",
-                border: "1px solid var(--card-border)",
-                color: "var(--text-primary)",
-                fontSize: "0.85rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
-              {selectedAgentName}
-              <i className={`fa-solid fa-chevron-${dropdownOpen ? "up" : "down"}`} style={{ fontSize: "0.75rem", marginLeft: "0.25rem", color: "var(--primary)" }}></i>
-            </button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", width: "100%" }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800 }}>
+              Workspace Activity & Performance Metrics
+            </h3>
+            <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.82rem", color: "var(--text-secondary)" }}>
+              Select an agent to inspect their daily metric totals and detailed records.
+            </p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)" }}>
+              Agent Filter:
+            </label>
+            
+            {/* Custom designed dropdown overlay to replace native select */}
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                style={{
+                  padding: "0.5rem 1.5rem 0.5rem 1rem",
+                  borderRadius: "8px",
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--card-border)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                {selectedAgentName}
+                <i className={`fa-solid fa-chevron-${dropdownOpen ? "up" : "down"}`} style={{ fontSize: "0.75rem", marginLeft: "0.25rem", color: "var(--primary)" }}></i>
+              </button>
 
-            {dropdownOpen && (
-              <>
-                <div
-                  onClick={() => setDropdownOpen(false)}
-                  style={{
-                    position: "fixed",
-                    inset: 0,
-                    zIndex: 9999,
-                    background: "transparent",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "105%",
-                    right: 0,
-                    minWidth: "200px",
-                    maxHeight: "450px",
-                    overflowY: "auto",
-                    zIndex: 10000,
-                    borderRadius: "8px",
-                    border: "1px solid var(--card-border)",
-                    background: "var(--card-bg)",
-                    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)",
-                    padding: "0.4rem 0",
-                  }}
-                >
-                  {/* All Agents option */}
+              {dropdownOpen && (
+                <>
                   <div
-                    onClick={() => {
-                      setSelectedAgentName("All Agents");
-                      setDropdownOpen(false);
-                    }}
+                    onClick={() => setDropdownOpen(false)}
                     style={{
-                      padding: "0.6rem 1rem",
-                      fontSize: "0.85rem",
-                      fontWeight: 600,
-                      color: selectedAgentName === "All Agents" ? "var(--primary)" : "var(--text-primary)",
-                      background: selectedAgentName === "All Agents" ? "rgba(209,92,46,0.08)" : "transparent",
-                      cursor: "pointer",
-                      transition: "background 0.15s ease",
-                      borderBottom: "1px solid var(--card-border)"
+                      position: "fixed",
+                      inset: 0,
+                      zIndex: 9999,
+                      background: "transparent",
                     }}
-                    onMouseEnter={(e) => {
-                      if (selectedAgentName !== "All Agents") {
-                        e.currentTarget.style.background = "var(--border-light)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedAgentName !== "All Agents") {
-                        e.currentTarget.style.background = "transparent";
-                      }
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "105%",
+                      right: 0,
+                      minWidth: "200px",
+                      maxHeight: "450px",
+                      overflowY: "auto",
+                      zIndex: 10000,
+                      borderRadius: "8px",
+                      border: "1px solid var(--card-border)",
+                      background: "var(--card-bg)",
+                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)",
+                      padding: "0.4rem 0",
                     }}
                   >
-                    All Agents
-                  </div>
-
-                  {agents.map((a) => (
+                    {/* All Agents option */}
                     <div
-                      key={a.name}
                       onClick={() => {
-                        setSelectedAgentName(a.name);
+                        setSelectedAgentName("All Agents");
                         setDropdownOpen(false);
                       }}
                       style={{
                         padding: "0.6rem 1rem",
                         fontSize: "0.85rem",
                         fontWeight: 600,
-                        color: selectedAgentName === a.name ? "var(--primary)" : "var(--text-primary)",
-                        background: selectedAgentName === a.name ? "rgba(209,92,46,0.08)" : "transparent",
+                        color: selectedAgentName === "All Agents" ? "var(--primary)" : "var(--text-primary)",
+                        background: selectedAgentName === "All Agents" ? "rgba(209,92,46,0.08)" : "transparent",
                         cursor: "pointer",
                         transition: "background 0.15s ease",
+                        borderBottom: "1px solid var(--card-border)"
                       }}
                       onMouseEnter={(e) => {
-                        if (selectedAgentName !== a.name) {
+                        if (selectedAgentName !== "All Agents") {
                           e.currentTarget.style.background = "var(--border-light)";
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (selectedAgentName !== a.name) {
+                        if (selectedAgentName !== "All Agents") {
                           e.currentTarget.style.background = "transparent";
                         }
                       }}
                     >
-                      {a.name}
+                      All Agents
                     </div>
-                  ))}
-                </div>
-              </>
-            )}
+
+                    {agents.map((a) => (
+                      <div
+                        key={a.name}
+                        onClick={() => {
+                          setSelectedAgentName(a.name);
+                          setDropdownOpen(false);
+                        }}
+                        style={{
+                          padding: "0.6rem 1rem",
+                          fontSize: "0.85rem",
+                          fontWeight: 600,
+                          color: selectedAgentName === a.name ? "var(--primary)" : "var(--text-primary)",
+                          background: selectedAgentName === a.name ? "rgba(209,92,46,0.08)" : "transparent",
+                          cursor: "pointer",
+                          transition: "background 0.15s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (selectedAgentName !== a.name) {
+                            e.currentTarget.style.background = "var(--border-light)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (selectedAgentName !== a.name) {
+                            e.currentTarget.style.background = "transparent";
+                          }
+                        }}
+                      >
+                        {a.name}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
+
+
       </div>
 
       {/* Metrics Matrix Grid */}
@@ -1147,10 +1285,140 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
       )}
 
       {/* Filtered Agent Timeline (Activity Graph) */}
-      <div className="card" style={{ padding: "1.5rem" }}>
-        <h3 style={{ margin: "0 0 1.25rem 0", fontSize: "1.05rem", fontWeight: 800 }}>
-          {selectedAgentName} Activity Timeline
-        </h3>
+      <div className="card" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+          <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800 }}>
+            {selectedAgentName} Activity Timeline
+          </h3>
+        </div>
+
+        {/* Global filter checkboxes panel rendered inside timeline card */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", borderBottom: "1px solid var(--card-border)", pb: "1rem", width: "100%", paddingBottom: "1rem" }}>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-secondary)" }}>Timeline Data Filter:</span>
+            
+            {/* SMS Outbound Checkbox */}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={filterSmsOutbound}
+                onChange={() => setFilterSmsOutbound(!filterSmsOutbound)}
+                style={{ accentColor: "#06b6d4", cursor: "pointer" }}
+              />
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#06b6d4" }} />
+              Outbound SMS
+            </label>
+
+            {/* WhatsApp Checkbox */}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={filterWhatsApp}
+                onChange={() => setFilterWhatsApp(!filterWhatsApp)}
+                style={{ accentColor: "#22c55e", cursor: "pointer" }}
+              />
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#22c55e" }} />
+              WhatsApp Messages
+            </label>
+
+            {/* Answered Calls Checkbox */}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={filterAnsweredCalls}
+                onChange={() => setFilterAnsweredCalls(!filterAnsweredCalls)}
+                style={{ accentColor: "#3b82f6", cursor: "pointer" }}
+              />
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#3b82f6" }} />
+              Answered Calls
+            </label>
+
+            {/* Missed Calls Checkbox */}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={filterMissedCalls}
+                onChange={() => setFilterMissedCalls(!filterMissedCalls)}
+                style={{ accentColor: "#f43f5e", cursor: "pointer" }}
+              />
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f43f5e" }} />
+              Missed Calls (Inbound)
+            </label>
+
+            {/* CRM Actions Checkbox */}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--text-primary)", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={filterCrmActions}
+                onChange={() => setFilterCrmActions(!filterCrmActions)}
+                style={{ accentColor: "#ec4899", cursor: "pointer" }}
+              />
+              <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f97316" }} />
+              CRM Updates (Actions)
+            </label>
+          </div>
+
+          {/* Sub-filters row */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingLeft: "1.5rem", borderLeft: "2px dashed rgba(255,255,255,0.07)" }}>
+            {/* WhatsApp sub-filters */}
+            {filterWhatsApp && (
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-secondary)" }}>WhatsApp Types:</span>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterWaText} onChange={() => setFilterWaText(!filterWaText)} style={{ accentColor: "#22c55e" }} />
+                  Messages with Text Body
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterWaVoice} onChange={() => setFilterWaVoice(!filterWaVoice)} style={{ accentColor: "#22c55e" }} />
+                  Voice Messages
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterWaCall} onChange={() => setFilterWaCall(!filterWaCall)} style={{ accentColor: "#22c55e" }} />
+                  Call Messages
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterWaOther} onChange={() => setFilterWaOther(!filterWaOther)} style={{ accentColor: "#22c55e" }} />
+                  Other WhatsApp
+                </label>
+              </div>
+            )}
+
+            {/* Answered Calls sub-filters */}
+            {filterAnsweredCalls && (
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-secondary)" }}>Answered Call Directions:</span>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterOutboundAnswered} onChange={() => setFilterOutboundAnswered(!filterOutboundAnswered)} style={{ accentColor: "#3b82f6" }} />
+                  Outbound Answered
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterInboundAnswered} onChange={() => setFilterInboundAnswered(!filterInboundAnswered)} style={{ accentColor: "#8b5cf6" }} />
+                  Inbound Answered
+                </label>
+              </div>
+            )}
+
+            {/* CRM updates sub-filters */}
+            {filterCrmActions && (
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-secondary)" }}>CRM Action Types:</span>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterCrmNotes} onChange={() => setFilterCrmNotes(!filterCrmNotes)} style={{ accentColor: "#f97316" }} />
+                  CRM Notes
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterCrmTasks} onChange={() => setFilterCrmTasks(!filterCrmTasks)} style={{ accentColor: "#ec4899" }} />
+                  CRM Tasks
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                  <input type="checkbox" checked={filterCrmOther} onChange={() => setFilterCrmOther(!filterCrmOther)} style={{ accentColor: "#eab308" }} />
+                  Other Updates
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
+
         <TeamTimeline
           agents={selectedAgentName === "All Agents" ? agents : [selectedAgent]}
           selectedAgent={null}
@@ -1159,6 +1427,21 @@ export default function ActivityAndMetrics({ agents, rawAnalysisData, reportDate
           ghlMessages={allMessages}
           hideNames={selectedAgentName === "All Agents" ? false : true}
           theme={theme}
+          timezone={timezone}
+          filterSmsOutbound={filterSmsOutbound}
+          filterWhatsApp={filterWhatsApp}
+          filterAnsweredCalls={filterAnsweredCalls}
+          filterMissedCalls={filterMissedCalls}
+          filterCrmActions={filterCrmActions}
+          filterWaText={filterWaText}
+          filterWaVoice={filterWaVoice}
+          filterWaCall={filterWaCall}
+          filterWaOther={filterWaOther}
+          filterOutboundAnswered={filterOutboundAnswered}
+          filterInboundAnswered={filterInboundAnswered}
+          filterCrmNotes={filterCrmNotes}
+          filterCrmTasks={filterCrmTasks}
+          filterCrmOther={filterCrmOther}
         />
       </div>
     </div>

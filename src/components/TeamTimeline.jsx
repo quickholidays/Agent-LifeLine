@@ -5,13 +5,51 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 // Fixed canvas width — the horizontal scroll container will handle overflow
 const CANVAS_MIN_WIDTH = 1200;
 
-export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, reportDate = "2026-07-17", showGhlMessages = true, ghlMessages = [], hideNames = false, theme = "dark" }) {
+export default function TeamTimeline({
+  agents,
+  selectedAgent,
+  onSelectAgent,
+  reportDate = "2026-07-17",
+  showGhlMessages = true,
+  ghlMessages = [],
+  hideNames = false,
+  theme = "dark",
+  timezone = "PKT",
+  filterSmsOutbound,
+  filterWhatsApp,
+  filterAnsweredCalls,
+  filterMissedCalls,
+  filterCrmActions,
+  filterWaText,
+  filterWaVoice,
+  filterWaCall,
+  filterWaOther,
+  filterOutboundAnswered,
+  filterInboundAnswered,
+  filterCrmNotes,
+  filterCrmTasks,
+  filterCrmOther
+}) {
+  const getWhatsAppMessageType = (msg) => {
+    if (!msg.body) return "text";
+    const body = String(msg.body).trim().toLowerCase();
+    if (body.includes("voice message") || body.includes("voice_message") || body.includes("[voice")) {
+      return "voice";
+    }
+    if (body.includes("call message") || body.includes("call_message") || body.includes("[call")) {
+      return "call";
+    }
+    if (/\[.*?\]/.test(body)) {
+      return "other";
+    }
+    return "text";
+  };
   const canvasRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const containerRef = useRef(null);
 
-  const [startHour, setStartHour] = useState(9);
-  const [endHour, setEndHour] = useState(20);
+  const [startHour, setStartHour] = useState(13);
+  const [endHour, setEndHour] = useState(22);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [canvasWidth, setCanvasWidth] = useState(CANVAS_MIN_WIDTH);
   const [startDropOpen, setStartDropOpen] = useState(false);
@@ -33,11 +71,11 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
 
   const getMinTime = () => {
     const [yr, mo, dy] = reportDate.split("-").map(Number);
-    return new Date(Date.UTC(yr, mo - 1, dy, startHour, 0, 0));
+    return new Date(yr, mo - 1, dy, startHour, 0, 0);
   };
   const getMaxTime = () => {
     const [yr, mo, dy] = reportDate.split("-").map(Number);
-    return new Date(Date.UTC(yr, mo - 1, dy, endHour, 0, 0));
+    return new Date(yr, mo - 1, dy, endHour, 0, 0);
   };
 
   const getX = (timeStrOrMs, width) => {
@@ -59,21 +97,32 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
   const formatIsoToTime = (isoStr) => {
     const dateObj = new Date(isoStr);
     return (
-      dateObj.getUTCHours().toString().padStart(2, "0") +
+      dateObj.getHours().toString().padStart(2, "0") +
       ":" +
-      dateObj.getUTCMinutes().toString().padStart(2, "0")
+      dateObj.getMinutes().toString().padStart(2, "0")
     );
   };
 
   const parseDurationToSeconds = (durStr) => {
     if (!durStr || durStr === "-") return 0;
-    const parts = durStr.split(":");
+    const clean = String(durStr).trim().toLowerCase();
+    if (/^\d+$/.test(clean)) {
+      return parseInt(clean, 10);
+    }
+    const parts = clean.split(":");
     if (parts.length === 2) {
       return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
     } else if (parts.length === 3) {
       return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
     }
-    return 0;
+    let totalSecs = 0;
+    const hrsMatch = clean.match(/(\d+)\s*(?:hr|hour|h)/);
+    const minsMatch = clean.match(/(\d+)\s*(?:min|m)/);
+    const secsMatch = clean.match(/(\d+)\s*(?:sec|s)/);
+    if (hrsMatch) totalSecs += parseInt(hrsMatch[1], 10) * 3600;
+    if (minsMatch) totalSecs += parseInt(minsMatch[1], 10) * 60;
+    if (secsMatch) totalSecs += parseInt(secsMatch[1], 10);
+    return totalSecs;
   };
 
   const getActionSummary = (act) => {
@@ -115,6 +164,17 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
         }
         if (details.email) {
           parts.push(`Email: ${details.email}`);
+        }
+        return parts.join(" | ") || null;
+      }
+      
+      if (act.module === "TASK") {
+        const parts = [];
+        if (details.title) {
+          parts.push(`Task: ${details.title}`);
+        }
+        if (details.description) {
+          parts.push(`Desc: ${details.description}`);
         }
         return parts.join(" | ") || null;
       }
@@ -210,12 +270,12 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
         ctx.stroke();
 
         let label =
-          drawDate.getUTCHours().toString().padStart(2, "0") +
+          drawDate.getHours().toString().padStart(2, "0") +
           ":" +
-          drawDate.getUTCMinutes().toString().padStart(2, "0");
+          drawDate.getMinutes().toString().padStart(2, "0");
         
         // Render midnight boundary as 24:00 instead of 00:00
-        if (drawDate.getUTCDate() === 18 && drawDate.getUTCHours() === 0) {
+        if (drawDate.getDate() === 18 && drawDate.getHours() === 0) {
           label = "24:00";
         }
         
@@ -234,7 +294,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
       if (intervalHours === 0.5) {
         drawDate.setMinutes(drawDate.getMinutes() + 30);
       } else {
-        drawDate.setUTCHours(drawDate.getUTCHours() + intervalHours);
+        drawDate.setHours(drawDate.getHours() + intervalHours);
       }
     }
 
@@ -282,7 +342,16 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
       const details = agent.details || agent;
 
       // ── GHL Action / Operation markers ──────────────────────────────────────────
-      const agentActions = details.actions_list || [];
+      let agentActions = details.actions_list || [];
+      if (filterCrmActions) {
+        agentActions = agentActions.filter(act => {
+          if (act.module === "NOTE") return filterCrmNotes;
+          if (act.module === "TASK" || act.module === "TASK_ADD" || act.action?.toLowerCase().includes("task")) return filterCrmTasks;
+          return filterCrmOther;
+        });
+      } else {
+        agentActions = [];
+      }
       agentActions.forEach((act) => {
         const actTime = new Date(act.timestamp);
         if (actTime >= getMinTime() && actTime <= getMaxTime()) {
@@ -293,27 +362,16 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
             hoveredItem.data === act &&
             hoveredItem.agent.name === agent.name;
 
-          let actColor = "#eab308"; // default yellow
+          let actColor = "#eab308"; // default Yellow
           if (act.module === "NOTE") {
-            actColor = "#f43f5e"; // Rose
-          } else if (act.module === "CONTACT") {
-            actColor = "#10b981"; // Emerald
-          } else if (act.module === "OPPORTUNITY") {
-            const rawAct = act || {};
-            const actDetails = typeof rawAct.details === "string" ? JSON.parse(rawAct.details || "{}") : (rawAct.details || {});
-            const stageName = actDetails.pipelineStageName?.toLowerCase() || "";
-            if (stageName.includes("interested")) {
-              actColor = "#a855f7"; // Purple
-            } else if (stageName.includes("contacted")) {
-              actColor = "#06b6d4"; // Cyan
-            } else if (stageName.includes("booked") || stageName.includes("appt")) {
-              actColor = "#3b82f6"; // Blue
-            }
+            actColor = "#f97316"; // Orange
+          } else if (act.module === "TASK" || act.module === "TASK_ADD" || act.action?.toLowerCase().includes("task")) {
+            actColor = "#ec4899"; // Fuchsia
           }
 
           ctx.fillStyle = actColor;
           ctx.beginPath();
-          ctx.arc(xVal, yCenter, isHoveredAction ? 6 : 4, 0, 2 * Math.PI);
+          ctx.arc(xVal, yCenter, isHoveredAction ? 6.5 : 4.5, 0, 2 * Math.PI);
           ctx.fill();
 
           if (isHoveredAction) {
@@ -325,11 +383,20 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
       });
 
       // ── Phone Call markers ──────────────────────────────────────────────────────
-      const agentCalls = details.calls || [];
+      const agentCalls = (details.calls || []).filter(call => {
+        const isAnswered = call.status && (call.status.toLowerCase() === "answered" || call.status.toLowerCase() === "completed");
+        const isOutbound = call.direction?.toLowerCase() === "outbound";
+        if (isAnswered) {
+          if (!filterAnsweredCalls) return false;
+          return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+        } else {
+          return !isOutbound && filterMissedCalls;
+        }
+      });
+
       agentCalls.forEach((call) => {
         const callTime = new Date(call.timestamp);
         if (callTime >= getMinTime() && callTime <= getMaxTime()) {
-          const xVal = getX(callTime, displayWidth);
           const isHoveredCall =
             hoveredItem &&
             hoveredItem.type === "call" &&
@@ -337,25 +404,24 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
             hoveredItem.agent.name === agent.name;
 
           const durationSec = parseDurationToSeconds(call.duration);
-          const isAnswered = durationSec > 0 && call.status?.toLowerCase() !== "no-answer";
+          const isAnswered = call.status && (call.status.toLowerCase() === "answered" || call.status.toLowerCase() === "completed");
           const isOutbound = call.direction?.toLowerCase() === "outbound";
 
-          let callColor = "#fb923c";
-          if (isOutbound) {
-            callColor = isAnswered ? "#3b82f6" : "#f59e0b"; // Outbound Answered (Blue) vs Outbound Missed (Amber)
-          } else {
-            callColor = isAnswered ? "#10b981" : "#ef4444"; // Inbound Answered (Emerald Green) vs Inbound Missed (Red)
+          let callColor = "#f43f5e"; // Missed Call (Red)
+          if (isAnswered) {
+            callColor = isOutbound ? "#3b82f6" : "#8b5cf6"; // Outbound Answered (Blue) vs Inbound Answered (Purple)
           }
 
           ctx.fillStyle = callColor;
-          ctx.beginPath();
+          const startMs = callTime.getTime();
+          const endMs = startMs + durationSec * 1000;
+          const xStart = getX(startMs, displayWidth);
+          const xEnd = getX(endMs, displayWidth);
+          const callWidth = Math.max(8, xEnd - xStart);
+          const pillHeight = 8;
 
-          // Render calls as triangles
-          const tSize = isHoveredCall ? 7 : 5;
-          ctx.moveTo(xVal, yCenter - tSize);
-          ctx.lineTo(xVal - tSize, yCenter + tSize);
-          ctx.lineTo(xVal + tSize, yCenter + tSize);
-          ctx.closePath();
+          ctx.beginPath();
+          ctx.roundRect(xStart - pillHeight / 2, yCenter - pillHeight / 2, callWidth, pillHeight, pillHeight / 2);
           ctx.fill();
 
           if (isHoveredCall) {
@@ -368,7 +434,22 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
 
       // ── GHL Message markers (if enabled) ────────────────────────────────────────
       if (showGhlMessages) {
-        const agentMessages = ghlMessages.filter((m) => (m.agent_name || m.agent || "").toLowerCase() === agent.name.toLowerCase());
+        const agentMessages = ghlMessages.filter((msg) => {
+          if ((msg.agent_name || msg.agent || "").toLowerCase() !== agent.name.toLowerCase()) return false;
+          
+          if (msg.type === "whatsapp") {
+            if (!filterWhatsApp) return false;
+            const waType = getWhatsAppMessageType(msg);
+            if (waType === "text") return filterWaText;
+            if (waType === "voice") return filterWaVoice;
+            if (waType === "call") return filterWaCall;
+            if (waType === "other") return filterWaOther;
+            return false;
+          }
+          
+          return filterSmsOutbound;
+        });
+
         agentMessages.forEach((msg) => {
           const msgTime = new Date(msg.timestamp || msg.time);
           if (msgTime >= getMinTime() && msgTime <= getMaxTime()) {
@@ -379,24 +460,48 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
               hoveredItem.data === msg &&
               hoveredItem.agent.name === agent.name;
 
-            const isOutbound = msg.direction?.toLowerCase() === "outbound";
-            ctx.fillStyle = isOutbound ? "#06b6d4" : "#6366f1"; // Outbound Message (Cyan) vs Inbound (Indigo)
+            let msgColor = msg.type === "whatsapp" ? "#22c55e" : "#06b6d4";
+            ctx.fillStyle = msgColor;
             ctx.beginPath();
-
-            // Render messages as square markers
-            const sz = isHoveredMsg ? 5 : 3.5;
-            ctx.fillRect(xVal - sz, yCenter - sz, sz * 2, sz * 2);
+            ctx.arc(xVal, yCenter, isHoveredMsg ? 6.5 : 4.5, 0, 2 * Math.PI);
+            ctx.fill();
 
             if (isHoveredMsg) {
               ctx.strokeStyle = "#ffffff";
               ctx.lineWidth = 1.5;
-              ctx.strokeRect(xVal - sz, yCenter - sz, sz * 2, sz * 2);
+              ctx.stroke();
             }
           }
         });
       }
     });
-  }, [agents, selectedAgent, hoveredItem, canvasWidth, startHour, endHour, reportDate, showGhlMessages, ghlMessages, hideNames, theme]);
+  }, [
+    agents,
+    selectedAgent,
+    hoveredItem,
+    canvasWidth,
+    startHour,
+    endHour,
+    reportDate,
+    showGhlMessages,
+    ghlMessages,
+    hideNames,
+    theme,
+    filterSmsOutbound,
+    filterWhatsApp,
+    filterAnsweredCalls,
+    filterMissedCalls,
+    filterCrmActions,
+    filterWaText,
+    filterWaVoice,
+    filterWaCall,
+    filterWaOther,
+    filterOutboundAnswered,
+    filterInboundAnswered,
+    filterCrmNotes,
+    filterCrmTasks,
+    filterCrmOther
+  ]);
 
   // ── Hover/Mouse tracking ──────────────────────────────────────────────────
   const handleMouseMove = (e) => {
@@ -418,32 +523,58 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
       const details = agent.details || agent;
 
       // 1. Check GHL Actions
-      const agentActions = details.actions_list || [];
-      agentActions.forEach((act) => {
-        const actTime = new Date(act.timestamp);
-        if (actTime >= getMinTime() && actTime <= getMaxTime()) {
-          const xVal = getX(actTime, canvasWidth);
-          const dist = Math.hypot(x - xVal, y - yCenter);
-          if (dist < 8) {
-            found = {
-              type: "action",
-              agent,
-              data: act,
-              x: e.clientX,
-              y: e.clientY,
-            };
+      let agentActions = details.actions_list || [];
+      if (filterCrmActions) {
+        agentActions = agentActions.filter(act => {
+          if (act.module === "NOTE") return filterCrmNotes;
+          if (act.module === "TASK" || act.module === "TASK_ADD" || act.action?.toLowerCase().includes("task")) return filterCrmTasks;
+          return filterCrmOther;
+        });
+        agentActions.forEach((act) => {
+          const actTime = new Date(act.timestamp);
+          if (actTime >= getMinTime() && actTime <= getMaxTime()) {
+            const xVal = getX(actTime, canvasWidth);
+            const dist = Math.hypot(x - xVal, y - yCenter);
+            if (dist < 8) {
+              found = {
+                type: "action",
+                agent,
+                data: act,
+                x: e.clientX,
+                y: e.clientY,
+              };
+            }
           }
+        });
+      }
+
+      // 2. Check Calls
+      const agentCalls = (details.calls || []).filter(call => {
+        const isAnswered = call.status && (call.status.toLowerCase() === "answered" || call.status.toLowerCase() === "completed");
+        const isOutbound = call.direction?.toLowerCase() === "outbound";
+        if (isAnswered) {
+          if (!filterAnsweredCalls) return false;
+          return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+        } else {
+          return !isOutbound && filterMissedCalls;
         }
       });
 
-      // 2. Check Calls
-      const agentCalls = details.calls || [];
       agentCalls.forEach((call) => {
         const callTime = new Date(call.timestamp);
         if (callTime >= getMinTime() && callTime <= getMaxTime()) {
-          const xVal = getX(callTime, canvasWidth);
-          const dist = Math.hypot(x - xVal, y - yCenter);
-          if (dist < 8) {
+          const durationSec = parseDurationToSeconds(call.duration);
+          const startMs = callTime.getTime();
+          const endMs = startMs + durationSec * 1000;
+          const xStart = getX(startMs, canvasWidth);
+          const xEnd = getX(endMs, canvasWidth);
+          const callWidth = Math.max(8, xEnd - xStart);
+          const pillHeight = 8;
+
+          const isInside = x >= (xStart - pillHeight / 2) && x <= (xStart - pillHeight / 2 + callWidth) &&
+                           y >= (yCenter - pillHeight / 2) && y <= (yCenter + pillHeight / 2);
+
+          if (isInside) {
             found = {
               type: "call",
               agent,
@@ -457,7 +588,22 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
 
       // 3. Check GHL Messages
       if (showGhlMessages) {
-        const agentMessages = ghlMessages.filter((m) => (m.agent_name || m.agent || "").toLowerCase() === agent.name.toLowerCase());
+        const agentMessages = ghlMessages.filter((msg) => {
+          if ((msg.agent_name || msg.agent || "").toLowerCase() !== agent.name.toLowerCase()) return false;
+          
+          if (msg.type === "whatsapp") {
+            if (!filterWhatsApp) return false;
+            const waType = getWhatsAppMessageType(msg);
+            if (waType === "text") return filterWaText;
+            if (waType === "voice") return filterWaVoice;
+            if (waType === "call") return filterWaCall;
+            if (waType === "other") return filterWaOther;
+            return false;
+          }
+          
+          return filterSmsOutbound;
+        });
+
         agentMessages.forEach((msg) => {
           const msgTime = new Date(msg.timestamp || msg.time);
           if (msgTime >= getMinTime() && msgTime <= getMaxTime()) {
@@ -537,7 +683,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
           </div>
           <div>{getActionSummary(data) || `Updated GHL records`}</div>
           <div style={{ marginTop: "0.3rem", fontSize: "0.72rem", opacity: 0.8 }}>
-            Time: {actTimeStr} BST
+            Time: {actTimeStr} {timezone}
           </div>
         </div>
       );
@@ -558,7 +704,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
           <div>Status: {data.status || "Completed"}</div>
           <div>Duration: {data.duration}</div>
           <div style={{ marginTop: "0.3rem", fontSize: "0.72rem", opacity: 0.8 }}>
-            Time: {callTimeStr} BST
+            Time: {callTimeStr} {timezone}
           </div>
         </div>
       );
@@ -576,7 +722,7 @@ export default function TeamTimeline({ agents, selectedAgent, onSelectAgent, rep
             "{data.body || "No message body"}"
           </div>
           <div style={{ marginTop: "0.3rem", fontSize: "0.72rem", opacity: 0.8 }}>
-            Time: {msgTimeStr} BST
+            Time: {msgTimeStr} {timezone}
           </div>
         </div>
       );

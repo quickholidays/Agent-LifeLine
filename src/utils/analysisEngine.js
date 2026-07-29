@@ -27,35 +27,15 @@ export function normalizeAgentName(name) {
 }
 
 // Helper to convert date to BST standard timezone-robust checking (interprets string directly as UTC components)
-export function toBST(dateStr, targetDateStr = "2026-07-17", timezone = "BST") {
+export function toBST(dateStr, targetDateStr = "2026-07-17", timezone = "BST", isUtc = false) {
   if (!dateStr) return null;
   const cleanStr = dateStr.trim();
 
-  // If the date string is an ISO string containing Z or T (e.g., from GHL API)
+  // If the date string is an ISO string containing Z or T
   if (cleanStr.includes("T") || cleanStr.endsWith("Z")) {
     const d = new Date(cleanStr);
     if (!isNaN(d.getTime())) {
-      // Convert UTC timestamp into target timezone's local date components
-      const tzName = timezone === "PKT" ? "Asia/Karachi" : "Europe/London";
-      const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: tzName,
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
-        hour12: false
-      });
-      const parts = formatter.formatToParts(d);
-      const year = parseInt(parts.find(p => p.type === "year").value, 10);
-      const month = parseInt(parts.find(p => p.type === "month").value, 10) - 1;
-      const day = parseInt(parts.find(p => p.type === "day").value, 10);
-      const hour = parseInt(parts.find(p => p.type === "hour").value, 10);
-      const minute = parseInt(parts.find(p => p.type === "minute").value, 10);
-      const second = parseInt(parts.find(p => p.type === "second").value, 10);
-
-      return new Date(Date.UTC(year, month, day, hour, minute, second));
+      return d;
     }
   }
 
@@ -87,7 +67,6 @@ export function toBST(dateStr, targetDateStr = "2026-07-17", timezone = "BST") {
     }
   }
 
-  // Parse year, month, and day from the string (forcing UTC) to prevent local browser timezone offset shifts
   let year = targetYear;
   let monthIdx = targetMonth - 1;
   let day = targetDay;
@@ -96,7 +75,7 @@ export function toBST(dateStr, targetDateStr = "2026-07-17", timezone = "BST") {
   const isoMatch = cleanStr.match(/(\d{4})-(\d{2})-(\d{2})/);
   // Format 2: US/UK Slash format MM/DD/YYYY or DD/MM/YYYY
   const slashMatch = cleanStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  // Format 3: Named month format "Jul 17, 2026"
+  
   const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
   let namedMonthIdx = -1;
   let namedDay = -1;
@@ -148,14 +127,18 @@ export function toBST(dateStr, targetDateStr = "2026-07-17", timezone = "BST") {
     day = namedDay;
   }
 
-  return new Date(Date.UTC(year, monthIdx, day, hours, minutes, seconds));
+  if (isUtc) {
+    return new Date(Date.UTC(year, monthIdx, day, hours, minutes, seconds));
+  } else {
+    return new Date(year, monthIdx, day, hours, minutes, seconds);
+  }
 }
 
-// Check if a BST Date object is strictly targetDateStr
+// Check if a BST/PKT Date object is strictly targetDateStr
 export function isJuly17BST(date, targetDateStr = "2026-07-17") {
   if (!date) return false;
   const [yr, mo, dy] = targetDateStr.split("-").map(Number);
-  return date.getUTCFullYear() === yr && date.getUTCMonth() === mo - 1 && date.getUTCDate() === dy;
+  return date.getFullYear() === yr && date.getMonth() === mo - 1 && date.getDate() === dy;
 }
 
 // Parse phone number to digits only (digits only, e.g. +447865964771 -> 447865964771)
@@ -386,10 +369,11 @@ export function processAgentData(
     const status = row["Call status"] || row["Call Status"] || row["call_status"];
     const direction = row.Direction || row.direction || "unknown";
 
-    const bstTime = toBST(timestamp, targetDateStr, timezone);
+    const bstTime = toBST(timestamp, targetDateStr, timezone, "BST");
     if (!bstTime) return;
 
-    const agent = normalizeAgentName(findAgent(cPhone, cName));
+    const rawCallAgent = row.User || row["User name"] || row["Agent"] || row["Agent name"] || row["Assigned user"] || row.user || row.userName || findAgent(cPhone, cName);
+    const agent = normalizeAgentName(rawCallAgent);
     if (agent) {
       const call = {
         timestamp: bstTime.toISOString(),
@@ -404,13 +388,14 @@ export function processAgentData(
       }
       agentCalls[agent].push(call);
 
-      if (isJuly17BST(bstTime, targetDateStr)) {
+      if (isJuly17BST(bstTime, targetDateStr, timezone)) {
         bstCallsList.push({
           agent,
           time: bstTime,
           direction,
           status,
           duration,
+          contact_name: cName || "Unknown",
         });
       }
     }
@@ -430,7 +415,7 @@ export function processAgentData(
 
     if (!rawAgent || !dtVal) return;
 
-    const bstTime = toBST(dtVal, targetDateStr, timezone);
+    const bstTime = toBST(dtVal, targetDateStr, timezone, "UTC");
     if (!bstTime) return;
 
     const agentClean = normalizeAgentName(rawAgent);
@@ -482,7 +467,7 @@ export function processAgentData(
     agentActivities[agentClean].push(activity);
 
     // Keep only today's audit logs on the timeline to prevent massive bloat!
-    if (isJuly17BST(bstTime, targetDateStr)) {
+    if (isJuly17BST(bstTime, targetDateStr, timezone)) {
       bstUpdatesList.push({
         agent: agentClean,
         time: bstTime,
@@ -770,7 +755,7 @@ export function processAgentData(
     let tasksCount = 0;
 
     activities.forEach((act) => {
-      if (isJuly17BST(act.dt, targetDateStr)) {
+      if (isJuly17BST(act.dt, targetDateStr, timezone)) {
         if (act.module === "NOTE") {
           notesCount++;
         }
@@ -811,7 +796,7 @@ export function processAgentData(
     const todayConvRate = seg.newLeadsToday > 0 ? (convertedToday / seg.newLeadsToday) * 100 : 0.0;
 
     // Table 3 Call Metrics Calculations (for targetDateStr BST only)
-    const callsToday = (agentCalls[agent] || []).filter((c) => isJuly17BST(new Date(c.timestamp), targetDateStr));
+    const callsToday = (agentCalls[agent] || []).filter((c) => isJuly17BST(new Date(c.timestamp), targetDateStr, timezone));
 
     let outboundCount = 0;
     let outboundAttended = 0;

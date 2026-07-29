@@ -16,6 +16,7 @@ import { calculateGeneralConversion } from "./generalConversion";
 import { calculateBookedLeadRate } from "./bookedLeadRate";
 import { calculateClosedLeadRate } from "./closedLeadRate";
 import { calculateTotalActions } from "./totalActions";
+import { calculateWhatsAppConversations } from "./whatsappConversations";
 
 export {
   calculateNewLeads,
@@ -35,5 +36,6 @@ export {
   calculateGeneralConversion,
   calculateBookedLeadRate,
   calculateClosedLeadRate,
-  calculateTotalActions
+  calculateTotalActions,
+  calculateWhatsAppConversations
 };
