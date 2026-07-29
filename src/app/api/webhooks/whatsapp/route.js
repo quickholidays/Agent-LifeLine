@@ -78,10 +78,13 @@ export async function POST(req) {
     const ghlToken = process.env.GHL_TOKEN || process.env.NEXT_PUBLIC_GHL_TOKEN;
     const locationId = process.env.GHL_LOCATION_ID || process.env.NEXT_PUBLIC_GHL_LOCATION_ID;
 
+    // Support both flat payloads and payloads nested inside a "row" key from n8n
+    const data = payload.row || payload || {};
+
     // 1. Resolve Agent Name from agent_id or raw agent string
-    let rawAgent = payload.agent || payload.agentName || "";
-    let agentId = payload.agent_id || payload.agentId || "";
-    const contactId = payload.contact_id || payload.contactId || "";
+    let rawAgent = data.agent || data.agentName || "";
+    let agentId = data.agent_id || data.agentId || data.sent_by_agent_id || "";
+    const contactId = data.contact_id || data.contactId || "";
     let contact = null;
 
     // Fallback: If no agent name/ID is provided, fetch GHL contact's assigned user ID
@@ -106,7 +109,7 @@ export async function POST(req) {
     const agentName = normalizeAgentName(rawAgent);
 
     // 2. Resolve Contact Name from contact_id or raw contactName
-    let contactName = payload.contactName || "";
+    let contactName = data.contactName || "";
     
     if (!contactName && contactId && ghlToken) {
       if (!contact) {
@@ -121,15 +124,17 @@ export async function POST(req) {
       contactName = "WhatsApp Contact";
     }
 
-    let body = payload.body || "";
-    const timeStr = payload.timestamp || payload.time || new Date().toISOString();
-    const messageId = payload.wa_id || payload.id || `wa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    let body = data.body || payload.preview || "";
+    const timeStr = data.timestamp || data.time || data.status_updated_at || payload.nowIso || new Date().toISOString();
+    const messageId = data.wa_message_id || data.wa_id || data.id || payload.wamid || `wa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     if (!body) {
-      if (payload.template_name) {
-        body = `[Template: ${payload.template_name}]`;
-      } else if (payload.message_type && payload.message_type !== "text") {
-        body = `[${payload.message_type.charAt(0).toUpperCase() + payload.message_type.slice(1)} Message]`;
+      const templateName = data.template_name || payload.template_name;
+      const messageType = data.message_type || payload.message_type;
+      if (templateName) {
+        body = `[Template: ${templateName}]`;
+      } else if (messageType && messageType !== "text") {
+        body = `[${messageType.charAt(0).toUpperCase() + messageType.slice(1)} Message]`;
       } else {
         body = "[WhatsApp Message]";
       }
