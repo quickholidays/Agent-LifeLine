@@ -180,47 +180,73 @@ async function runDynamicSync() {
   }
   console.log(`Loaded ${Object.keys(userMap).length} GHL users.\n`);
 
-  // 2. Download existing daily report from GitHub
-  const gitPath = `/repos/${owner}/${repo}/contents/daily_backups/${targetDateStr}.json`;
-  console.log(`Downloading existing report for ${targetDateStr} from GitHub...`);
-  const getRes = await makeGithubRequest("GET", gitPath);
+  // 2a. Download core daily report from GitHub (for agent list & contacts map)
+  const coreGitPath = `/repos/${owner}/${repo}/contents/daily_backups/${targetDateStr}.json`;
+  console.log(`Downloading core report for ${targetDateStr} from GitHub...`);
+  const coreGetRes = await makeGithubRequest("GET", coreGitPath);
   
-  let report = {
-    agents: {},
-    calls: [],
-    audit_logs: [],
+  let coreReport = { agents: {} };
+  if (coreGetRes.status === 200) {
+    const fileData = JSON.parse(coreGetRes.body);
+    let base64Content = fileData.content;
+    if (!base64Content) {
+      const blobRes = await makeGithubRequest("GET", `/repos/${owner}/${repo}/git/blobs/${fileData.sha}`);
+      if (blobRes.status === 200) {
+        base64Content = JSON.parse(blobRes.body).content;
+      }
+    }
+    if (base64Content) {
+      const cleanBase64 = base64Content.replace(/\s/g, "");
+      const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
+      coreReport = JSON.parse(decodedContent);
+      console.log(`Successfully loaded core report details (agents count: ${Object.keys(coreReport.agents || {}).length})`);
+    }
+  } else {
+    console.log("No core report found on GitHub yet. Fallback agent mapping will be empty.");
+  }
+
+  // 2b. Download existing conversation messages report from GitHub
+  const msgGitPath = `/repos/${owner}/${repo}/contents/daily_backups/messages_${targetDateStr}.json`;
+  console.log(`Downloading existing messages report for ${targetDateStr} from GitHub...`);
+  const msgGetRes = await makeGithubRequest("GET", msgGitPath);
+
+  let messageReport = {
     ghl_outbound_messages: [],
     ghlMessages: []
   };
   let sha = null;
   let existsOnGithub = false;
 
-  if (getRes.status === 200) {
-    const fileData = JSON.parse(getRes.body);
+  if (msgGetRes.status === 200) {
+    const fileData = JSON.parse(msgGetRes.body);
     sha = fileData.sha;
     existsOnGithub = true;
     
-    let base64Content = "";
-    if (fileData.size <= 1000000) {
-      base64Content = fileData.content;
-    } else {
-      console.log("Report file is > 1MB. Fetching via Blob API...");
+    let base64Content = fileData.content;
+    if (!base64Content) {
       const blobRes = await makeGithubRequest("GET", `/repos/${owner}/${repo}/git/blobs/${sha}`);
       if (blobRes.status === 200) {
         base64Content = JSON.parse(blobRes.body).content;
       }
     }
-    
-    const cleanBase64 = base64Content.replace(/\s/g, "");
-    const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
-    report = JSON.parse(decodedContent);
-    console.log(`Loaded existing report from GitHub. Initial messages: ${(report.ghl_outbound_messages || []).length}`);
-  } else if (getRes.status === 404) {
-    console.log("No daily report found on GitHub yet. Will create a new one with GHL messages.");
+    if (base64Content) {
+      const cleanBase64 = base64Content.replace(/\s/g, "");
+      const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
+      messageReport = JSON.parse(decodedContent);
+      console.log(`Loaded existing messages report from GitHub. Initial messages: ${(messageReport.ghl_outbound_messages || []).length}`);
+    }
+  } else if (msgGetRes.status === 404) {
+    console.log("No messages report found on GitHub yet. Will create a new one.");
   } else {
-    console.error(`Failed to fetch report from GitHub (${getRes.status}): ${getRes.body}`);
-    return;
+    console.warn(`Warning: Failed to fetch messages report from GitHub (${msgGetRes.status}). Starting fresh.`);
   }
+
+  // Combine core agents and messages list into report structure for downstream compatibility
+  const report = {
+    agents: coreReport.agents || {},
+    ghl_outbound_messages: messageReport.ghl_outbound_messages || messageReport.ghlMessages || [],
+    ghlMessages: messageReport.ghl_outbound_messages || messageReport.ghlMessages || []
+  };
 
   // Build CSV-based contact-to-agent map for fallback mapping
   const contactToAgentMap = {};
@@ -400,21 +426,101 @@ async function runDynamicSync() {
 
   console.log(`Merged results. Added ${newMessagesAdded} brand new messages. Total daily conversations: ${existingMsgs.length}`);
 
-  // 5. Upload updated daily report to GitHub
-  console.log(`Uploading merged daily report back to GitHub...`);
-  const putPayload = {
-    message: `chore: automatic GHL sync & merge for ${targetDateStr} (added ${newMessagesAdded} new)`,
-    content: Buffer.from(JSON.stringify(report, null, 2)).toString("base64")
+  // 5. Upload updated messages report to GitHub with optimistic locking retry loop (409 Conflict)
+  console.log(`Uploading merged messages report back to GitHub...`);
+  
+  let retries = 5;
+  let success = false;
+  let currentSha = sha;
+  let currentMessagesReport = {
+    ghl_outbound_messages: report.ghl_outbound_messages,
+    ghlMessages: report.ghlMessages,
+    summary: {
+      total_ghl_messages: report.ghl_outbound_messages.length
+    }
   };
-  if (sha) {
-    putPayload.sha = sha;
+
+  while (retries > 0 && !success) {
+    const putPayload = {
+      message: `chore: automatic GHL sync & merge for messages_${targetDateStr} (added ${newMessagesAdded} new)`,
+      content: Buffer.from(JSON.stringify(currentMessagesReport, null, 2)).toString("base64")
+    };
+    if (currentSha) {
+      putPayload.sha = currentSha;
+    }
+
+    const putRes = await makeGithubRequest("PUT", msgGitPath, putPayload);
+    if (putRes.status === 200 || putRes.status === 201) {
+      console.log(`✅ SUCCESS! Synced and merged GHL conversations into messages_${targetDateStr}.json on GitHub.`);
+      success = true;
+    } else if (putRes.status === 409) {
+      retries--;
+      console.warn(`⚠️ Conflict (409) detected. GitHub messages file changed mid-run. Retrying in 2 seconds... (${retries} attempts left)`);
+      await sleep(2000);
+
+      // Re-fetch the latest content and SHA of the messages file from GitHub
+      const getRes = await makeGithubRequest("GET", msgGitPath);
+      if (getRes.status === 200) {
+        const fileData = JSON.parse(getRes.body);
+        currentSha = fileData.sha;
+        
+        let fileContent = fileData.content;
+        if (!fileContent) {
+          console.log("Retry: Messages file content missing. Fetching via Blob API...");
+          const blobRes = await makeGithubRequest("GET", `/repos/${owner}/${repo}/git/blobs/${currentSha}`);
+          if (blobRes.status === 200) {
+            fileContent = JSON.parse(blobRes.body).content;
+          }
+        }
+        
+        if (!fileContent) {
+          console.error("Failed to retrieve messages file contents on retry");
+          break;
+        }
+
+        // Decode and parse fresh report from GitHub
+        const cleanBase64 = fileContent.replace(/\s/g, "");
+        const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
+        const freshReport = JSON.parse(decodedContent);
+        
+        // Merge our local messages (fetchedMessages) into the fresh messages report
+        const freshMsgs = freshReport.ghl_outbound_messages || freshReport.ghlMessages || [];
+        const freshIds = new Set(freshMsgs.map(m => m.id));
+        
+        fetchedMessages.forEach(m => {
+          if (!freshIds.has(m.id)) {
+            freshMsgs.push(m);
+          } else {
+            const existingMsg = freshMsgs.find(ex => ex.id === m.id);
+            if (existingMsg && (existingMsg.agent === "Unassigned" || !existingMsg.agent) && m.agent && m.agent !== "Unassigned") {
+              existingMsg.agent = m.agent;
+            }
+          }
+        });
+        
+        // Sort chronologically
+        freshMsgs.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+        
+        currentMessagesReport = {
+          ghl_outbound_messages: freshMsgs,
+          ghlMessages: freshMsgs,
+          summary: {
+            total_ghl_messages: freshMsgs.length
+          }
+        };
+      } else {
+        console.error(`Failed to re-fetch report on retry GET (${getRes.status}): ${getRes.body}`);
+        break;
+      }
+    } else {
+      console.error(`❌ FAILED to upload daily report: ${putRes.body}`);
+      break;
+    }
   }
 
-  const putRes = await makeGithubRequest("PUT", gitPath, putPayload);
-  if (putRes.status === 200 || putRes.status === 201) {
-    console.log(`✅ SUCCESS! Synced and merged GHL conversations into today's report on GitHub.`);
-  } else {
-    console.error(`❌ FAILED to upload daily report: ${putRes.body}`);
+  if (!success) {
+    console.error("❌ FAILED to upload daily report after maximum retries due to persistent conflicts.");
+    process.exit(1);
   }
 }
 

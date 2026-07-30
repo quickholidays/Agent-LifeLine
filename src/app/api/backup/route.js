@@ -2,6 +2,38 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
+// Helper function to fetch and decode JSON content from GitHub contents API (reusing content and falling back to blob API for large files)
+async function fetchFileContent(owner, repo, fileName, headers) {
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`;
+  try {
+    const response = await fetch(apiUrl, { headers, cache: "no-store" });
+    if (!response.ok) {
+      return null;
+    }
+    const fileData = await response.json();
+    let base64Content = fileData.content;
+    if (!base64Content) {
+      // Large file (>1MB), fetch raw blob
+      const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${fileData.sha}`;
+      const blobResponse = await fetch(blobUrl, { headers, cache: "no-store" });
+      if (blobResponse.ok) {
+        const blobData = await blobResponse.json();
+        base64Content = blobData.content;
+      }
+    }
+    if (!base64Content) return null;
+    const cleanBase64 = base64Content.replace(/\s/g, "");
+    const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
+    return {
+      sha: fileData.sha,
+      data: JSON.parse(decodedContent)
+    };
+  } catch (err) {
+    console.error(`Error fetching file content for ${fileName}:`, err);
+    return null;
+  }
+}
+
 export async function POST(req) {
   try {
     const { data, date } = await req.json();
@@ -13,6 +45,11 @@ export async function POST(req) {
     const { searchParams } = new URL(req.url);
     const skipGithub = searchParams.get("skipGithub") === "true";
 
+    // Strip conversation messages from data to isolate core metrics / agent config
+    const cleanData = { ...data };
+    delete cleanData.ghl_outbound_messages;
+    delete cleanData.ghlMessages;
+
     if (skipGithub) {
       try {
         const localDir = path.join(process.cwd(), "Test-Data");
@@ -20,7 +57,7 @@ export async function POST(req) {
           fs.mkdirSync(localDir, { recursive: true });
         }
         const localFile = path.join(localDir, `lifeline_report_${date}.json`);
-        const jsonString = JSON.stringify(data, null, 2);
+        const jsonString = JSON.stringify(cleanData, null, 2);
         fs.writeFileSync(localFile, jsonString, "utf-8");
         console.log(`Successfully updated local backup file at: ${localFile}`);
         return NextResponse.json({
@@ -68,7 +105,7 @@ export async function POST(req) {
     }
 
     // Convert data to JSON string and encode to Base64
-    const jsonString = JSON.stringify(data, null, 2);
+    const jsonString = JSON.stringify(cleanData, null, 2);
     const contentBase64 = Buffer.from(jsonString).toString("base64");
 
     const commitMessage = `Auto-backup for date: ${date}`;
@@ -129,10 +166,21 @@ export async function GET(req) {
     if (date) {
       const localDir = path.join(process.cwd(), "Test-Data");
       const localFile = path.join(localDir, `lifeline_report_${date}.json`);
+      const localMessagesFile = path.join(localDir, `lifeline_report_messages_${date}.json`);
+
       if (fs.existsSync(localFile)) {
         try {
           const fileContent = fs.readFileSync(localFile, "utf-8");
           const contentJson = JSON.parse(fileContent);
+
+          // Merge local messages file if it exists
+          if (fs.existsSync(localMessagesFile)) {
+            const msgsContent = fs.readFileSync(localMessagesFile, "utf-8");
+            const msgsJson = JSON.parse(msgsContent);
+            const messagesList = msgsJson.ghl_outbound_messages || msgsJson.ghlMessages || [];
+            contentJson.ghl_outbound_messages = messagesList;
+            contentJson.ghlMessages = messagesList;
+          }
           return NextResponse.json({ exists: true, data: contentJson });
         } catch (err) {
           console.error("Failed to read local Test-Data file:", err);
@@ -140,14 +188,14 @@ export async function GET(req) {
       }
     }
 
-    // 2. Gather local Test-Data file dates
+    // 2. Gather local Test-Data file dates (ignoring messages files)
     const localDates = [];
     const localDir = path.join(process.cwd(), "Test-Data");
     if (fs.existsSync(localDir)) {
       try {
         const files = fs.readdirSync(localDir);
         files.forEach(f => {
-          if (f.startsWith("lifeline_report_") && f.endsWith(".json")) {
+          if (f.startsWith("lifeline_report_") && f.endsWith(".json") && !f.startsWith("lifeline_report_messages_")) {
             const dt = f.replace("lifeline_report_", "").replace(".json", "");
             if (dt && !localDates.includes(dt)) {
               localDates.push(dt);
@@ -177,7 +225,7 @@ export async function GET(req) {
       "X-GitHub-Api-Version": "2022-11-28",
     };
 
-    // If no date is provided, return a merged list of all backup files
+    // If no date is provided, return a merged list of all backup files (ignoring messages_)
     if (!date) {
       const folderUrl = `https://api.github.com/repos/${owner}/${repo}/contents/daily_backups`;
       const response = await fetch(folderUrl, { headers, cache: "no-store" });
@@ -186,7 +234,7 @@ export async function GET(req) {
       if (response.ok) {
         const files = await response.json();
         const ghDates = files
-          .filter(file => file.type === "file" && file.name.endsWith(".json"))
+          .filter(file => file.type === "file" && file.name.endsWith(".json") && !file.name.startsWith("messages_"))
           .map(file => file.name.replace(".json", ""));
         
         ghDates.forEach(d => {
@@ -198,46 +246,27 @@ export async function GET(req) {
       return NextResponse.json({ dates });
     }
 
-    const fileName = `daily_backups/${date}.json`;
-    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`;
+    // Fetch core report file (config, calls, audit logs)
+    const coreFileName = `daily_backups/${date}.json`;
+    const coreResult = await fetchFileContent(owner, repo, coreFileName, headers);
 
-    // Fetch file metadata first
-    const getResponse = await fetch(apiUrl, { headers, cache: "no-store" });
-    
-    if (getResponse.ok) {
-      const fileData = await getResponse.json();
-      let base64Content = "";
-      
-      if (fileData.size <= 1000000) {
-        base64Content = fileData.content;
-      } else {
-        // File is larger than 1MB. Query the Git Blob API to retrieve complete content.
-        const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${fileData.sha}`;
-        const blobResponse = await fetch(blobUrl, { headers, cache: "no-store" });
-        if (blobResponse.ok) {
-          const blobData = await blobResponse.json();
-          base64Content = blobData.content;
-        } else {
-          const errText = await blobResponse.text();
-          return NextResponse.json(
-            { error: `GitHub Blob API Error (${blobResponse.status}): ${errText}` },
-            { status: blobResponse.status }
-          );
-        }
+    if (coreResult) {
+      const mainData = coreResult.data;
+
+      // Fetch separate conversation messages file
+      const messagesFileName = `daily_backups/messages_${date}.json`;
+      const messagesResult = await fetchFileContent(owner, repo, messagesFileName, headers);
+
+      if (messagesResult) {
+        const msgsList = messagesResult.data.ghl_outbound_messages || messagesResult.data.ghlMessages || [];
+        mainData.ghl_outbound_messages = msgsList;
+        mainData.ghlMessages = msgsList;
       }
-      
-      const cleanBase64 = (base64Content || "").replace(/\s/g, "");
-      const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
-      const contentJson = JSON.parse(decodedContent);
-      return NextResponse.json({ exists: true, data: contentJson });
-    } else if (getResponse.status === 404) {
-      return NextResponse.json({ exists: false });
+      // If messagesResult is null, mainData retains whatever it had (backward compatibility)
+
+      return NextResponse.json({ exists: true, data: mainData });
     } else {
-      const errText = await getResponse.text();
-      return NextResponse.json(
-        { error: `GitHub API Error (${getResponse.status}): ${errText}` },
-        { status: getResponse.status }
-      );
+      return NextResponse.json({ exists: false });
     }
   } catch (error) {
     console.error("Backup Check API Error:", error);

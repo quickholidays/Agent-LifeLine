@@ -859,24 +859,17 @@ export default function Home() {
   };
 
   const saveReportData = async (updatedRawData) => {
-    const cleanData = { ...updatedRawData };
+    let cleanData = { ...updatedRawData };
     
     // Remove UI helpers to keep backup payload clean
     delete cleanData.bstCallsList;
     delete cleanData.bstUpdatesList;
 
-    let response = await fetch("/api/backup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        data: cleanData,
-        date: reportDate
-      })
-    });
+    let retries = 5;
+    let success = false;
 
-    if (!response.ok) {
-      console.warn("GitHub backup update failed, attempting local-only save...");
-      response = await fetch("/api/backup?skipGithub=true", {
+    while (retries > 0 && !success) {
+      let response = await fetch("/api/backup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -885,13 +878,87 @@ export default function Home() {
         })
       });
 
-      if (!response.ok) {
-        let errMessage = "Failed to update backup file";
-        try {
-          const err = await response.json();
-          errMessage = err.error || errMessage;
-        } catch (_) {}
-        throw new Error(errMessage);
+      if (response.ok) {
+        success = true;
+      } else if (response.status === 409) {
+        retries--;
+        console.warn(`Conflict (409) during save. Re-fetching latest report and re-applying change... (${retries} retries left)`);
+        await new Promise(r => setTimeout(r, 1500)); // wait 1.5s
+
+        // Re-fetch fresh data from GitHub/server
+        const checkRes = await fetch(`/api/backup?date=${reportDate}&t=${Date.now()}`);
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
+          if (checkData.exists) {
+            const freshRawData = checkData.data || {};
+            
+            // Re-apply our local agent list, calls, audit logs (which have the deletion/rename)
+            freshRawData.agents = cleanData.agents;
+            freshRawData.calls = cleanData.calls;
+            freshRawData.audit_logs = cleanData.audit_logs;
+            
+            // Re-merge messages to preserve new commits made by n8n mid-run
+            const localMsgs = cleanData.ghl_outbound_messages || cleanData.ghlMessages || [];
+            const freshMsgs = freshRawData.ghl_outbound_messages || freshRawData.ghlMessages || [];
+            
+            const localIds = new Set(localMsgs.map(m => m.id));
+            const mergedMsgs = [...localMsgs];
+            
+            freshMsgs.forEach(m => {
+              if (!localIds.has(m.id)) {
+                // If it is a new message from n8n, add it
+                mergedMsgs.push(m);
+              }
+            });
+            
+            mergedMsgs.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+            
+            freshRawData.ghl_outbound_messages = mergedMsgs;
+            freshRawData.ghlMessages = mergedMsgs;
+            
+            if (freshRawData.summary) {
+              freshRawData.summary.total_ghl_messages = mergedMsgs.length;
+            }
+            
+            cleanData = freshRawData;
+          }
+        }
+      } else {
+        // Non-409 error: Fallback to local save immediately
+        console.warn("GitHub backup update failed with non-409 error, attempting local-only save...");
+        const localResponse = await fetch("/api/backup?skipGithub=true", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            data: cleanData,
+            date: reportDate
+          })
+        });
+
+        if (!localResponse.ok) {
+          let errMessage = "Failed to update backup file";
+          try {
+            const err = await localResponse.json();
+            errMessage = err.error || errMessage;
+          } catch (_) {}
+          throw new Error(errMessage);
+        }
+        success = true;
+      }
+    }
+
+    if (!success) {
+      console.warn("Exhausted retries, attempting local-only save...");
+      const localResponse = await fetch("/api/backup?skipGithub=true", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: cleanData,
+          date: reportDate
+        })
+      });
+      if (!localResponse.ok) {
+        throw new Error("Failed to save backup locally after conflict retries");
       }
     }
 
