@@ -447,6 +447,85 @@ export default function Home() {
             }));
           }
 
+          // Fallback: extract calls and audit_logs from individual agents if missing at the root
+          if (!normalizedRaw.bstCallsList || normalizedRaw.bstCallsList.length === 0) {
+            const extractedCalls = [];
+            const rawAgents = data.agents || data || {};
+            if (rawAgents && typeof rawAgents === "object" && !Array.isArray(rawAgents)) {
+              Object.entries(rawAgents).forEach(([agentName, stats]) => {
+                if (stats && typeof stats === "object") {
+                  const agentCalls = stats.calls || [];
+                  agentCalls.forEach(c => {
+                    extractedCalls.push({
+                      agent: agentName,
+                      time: new Date(c.time || c.timestamp || c.timestampStr || Date.now()),
+                      direction: c.direction,
+                      status: c.status,
+                      duration: c.duration,
+                      contact_name: c.contact_name || c.contactName || "Unknown"
+                    });
+                  });
+                }
+              });
+            } else if (Array.isArray(rawAgents)) {
+              rawAgents.forEach(stats => {
+                if (stats && typeof stats === "object") {
+                  const agentName = stats.name;
+                  const agentCalls = stats.calls || [];
+                  agentCalls.forEach(c => {
+                    extractedCalls.push({
+                      agent: agentName,
+                      time: new Date(c.time || c.timestamp || c.timestampStr || Date.now()),
+                      direction: c.direction,
+                      status: c.status,
+                      duration: c.duration,
+                      contact_name: c.contact_name || c.contactName || "Unknown"
+                    });
+                  });
+                }
+              });
+            }
+            normalizedRaw.bstCallsList = extractedCalls;
+          }
+
+          if (!normalizedRaw.bstUpdatesList || normalizedRaw.bstUpdatesList.length === 0) {
+            const extractedUpdates = [];
+            const rawAgents = data.agents || data || {};
+            if (rawAgents && typeof rawAgents === "object" && !Array.isArray(rawAgents)) {
+              Object.entries(rawAgents).forEach(([agentName, stats]) => {
+                if (stats && typeof stats === "object") {
+                  const agentActions = stats.actions_list || [];
+                  agentActions.forEach(act => {
+                    extractedUpdates.push({
+                      agent: agentName,
+                      time: new Date(act.timestamp || act.time || Date.now()),
+                      module: act.module,
+                      action: act.action,
+                      details: act.details || ""
+                    });
+                  });
+                }
+              });
+            } else if (Array.isArray(rawAgents)) {
+              rawAgents.forEach(stats => {
+                if (stats && typeof stats === "object") {
+                  const agentName = stats.name;
+                  const agentActions = stats.actions_list || [];
+                  agentActions.forEach(act => {
+                    extractedUpdates.push({
+                      agent: agentName,
+                      time: new Date(act.timestamp || act.time || Date.now()),
+                      module: act.module,
+                      action: act.action,
+                      details: act.details || ""
+                    });
+                  });
+                }
+              });
+            }
+            normalizedRaw.bstUpdatesList = extractedUpdates;
+          }
+
           const rawMsgs = normalizedRaw.ghl_outbound_messages || normalizedRaw.ghlMessages || [];
           const ghlMessages = rawMsgs.filter(m => {
             if (!m) return false;

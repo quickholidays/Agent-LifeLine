@@ -2,6 +2,26 @@
 
 import React, { useState, useEffect } from "react";
 import TeamTimeline from "./TeamTimeline";
+
+// Helper to normalize agent names casing/spacing for robust comparison
+function normalizeAgentName(name) {
+  if (!name) return "";
+  const clean = name.replace(/\s+/g, " ").trim().toLowerCase();
+  if (clean === "unassigned" || clean === "unassigned user") return "";
+  if (clean === "emily jone" || clean === "emily jones") return "Emily Jones";
+  if (clean === "jessica jessie" || clean === "jessica jessy") return "Jessica Jessie";
+  if (clean === "daniel evan" || clean === "daniel evans") return "Daniel Evans";
+  if (clean === "bella evan" || clean === "bella evans") return "Bella Evans";
+  if (clean === "annie adams" || clean === "annie adam") return "Annie Adams";
+  if (clean === "anaya morgan") return "Anaya Morgan";
+  if (clean === "amber williams") return "Amber Williams";
+  if (clean === "chris morgan") return "Chris Morgan";
+  if (clean === "lisa evan" || clean === "lisa evans") return "Lisa Evans";
+  if (clean === "jennie miller") return "Jennie Miller";
+  return name.replace(/\s+/g, " ").trim().split(" ")
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
 import {
   calculateNewLeads,
   calculateMarginGenerated,
@@ -64,6 +84,66 @@ export default function ActivityAndMetrics({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState("most"); // "most" or "least"
+  const [sortDropOpen, setSortDropOpen] = useState(false);
+
+  const getAgentActivityCount = (agent) => {
+    if (!agent) return 0;
+    let count = 0;
+
+    const details = agent.details || agent;
+    const allMessages = rawAnalysisData?.ghl_outbound_messages || rawAnalysisData?.ghlMessages || [];
+
+    // 1. Messages / SMS / WhatsApp
+    const msgs = allMessages.filter(msg => {
+      if (normalizeAgentName(msg.agent) !== normalizeAgentName(agent.name)) return false;
+      if (msg.type === "whatsapp") {
+        if (!filterWhatsApp) return false;
+        const waType = getWhatsAppMessageType(msg);
+        if (waType === "text") return filterWaText;
+        if (waType === "voice") return filterWaVoice;
+        if (waType === "call") return filterWaCall;
+        if (waType === "other") return filterWaOther;
+        return false;
+      }
+      return filterSmsOutbound;
+    });
+    count += msgs.length;
+
+    // 2. Calls
+    const calls = (details.calls || []).filter(cl => {
+      const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+      const isOutbound = cl.direction?.toLowerCase() === "outbound";
+      if (isAnswered) {
+        if (!filterAnsweredCalls) return false;
+        return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+      } else {
+        return !isOutbound && filterMissedCalls;
+      }
+    });
+    count += calls.length;
+
+    // 3. CRM updates
+    if (filterCrmActions && details.actions_list) {
+      const updates = details.actions_list.filter(up => {
+        if (up.module === "NOTE") return filterCrmNotes;
+        if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) return filterCrmTasks;
+        return filterCrmOther;
+      });
+      count += updates.length;
+    }
+
+    return count;
+  };
+
+  const getSortedAgents = () => {
+    if (!agents) return [];
+    return [...agents].sort((a, b) => {
+      const countA = getAgentActivityCount(a);
+      const countB = getAgentActivityCount(b);
+      return sortOrder === "most" ? countB - countA : countA - countB;
+    });
+  };
 
   const getWhatsAppMessageType = (msg) => {
     if (!msg.body) return "text";
@@ -1290,6 +1370,87 @@ export default function ActivityAndMetrics({
           <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800 }}>
             {selectedAgentName} Activity Timeline
           </h3>
+          {/* Sort Order Selector (Only show if selectedAgentName is "All Agents") */}
+          {selectedAgentName === "All Agents" && (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-secondary)" }}>Sort:</span>
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => setSortDropOpen(!sortDropOpen)}
+                  style={{
+                    padding: "0.3rem 0.8rem",
+                    borderRadius: "6px",
+                    background: "var(--card-bg)",
+                    border: "1px solid var(--card-border)",
+                    color: "var(--text-primary)",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    minWidth: "125px",
+                    justifyContent: "space-between"
+                  }}
+                >
+                  <span>{sortOrder === "most" ? "Most Activity" : "Least Activity"}</span>
+                  <i className={`fa-solid fa-chevron-${sortDropOpen ? "up" : "down"}`} style={{ fontSize: "0.65rem", color: "var(--primary)" }}></i>
+                </button>
+                {sortDropOpen && (
+                  <>
+                    <div onClick={() => setSortDropOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 9999 }} />
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "115%",
+                        right: 0,
+                        minWidth: "140px",
+                        zIndex: 10000,
+                        borderRadius: "8px",
+                        border: "1px solid var(--card-border)",
+                        background: "var(--card-bg)",
+                        boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)",
+                        padding: "0.4rem 0",
+                      }}
+                    >
+                      <div
+                        onClick={() => {
+                          setSortOrder("most");
+                          setSortDropOpen(false);
+                        }}
+                        style={{
+                          padding: "0.5rem 0.85rem",
+                          fontSize: "0.8rem",
+                          fontWeight: 600,
+                          color: sortOrder === "most" ? "var(--primary)" : "var(--text-primary)",
+                          background: sortOrder === "most" ? "rgba(209,92,46,0.08)" : "transparent",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Most Activity
+                      </div>
+                      <div
+                        onClick={() => {
+                          setSortOrder("least");
+                          setSortDropOpen(false);
+                        }}
+                        style={{
+                          padding: "0.5rem 0.85rem",
+                          fontSize: "0.8rem",
+                          fontWeight: 600,
+                          color: sortOrder === "least" ? "var(--primary)" : "var(--text-primary)",
+                          background: sortOrder === "least" ? "rgba(209,92,46,0.08)" : "transparent",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Least Activity
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Global filter checkboxes panel rendered inside timeline card */}
@@ -1420,7 +1581,7 @@ export default function ActivityAndMetrics({
         </div>
 
         <TeamTimeline
-          agents={selectedAgentName === "All Agents" ? agents : [selectedAgent]}
+          agents={selectedAgentName === "All Agents" ? getSortedAgents() : [selectedAgent]}
           selectedAgent={null}
           onSelectAgent={() => {}}
           reportDate={reportDate}

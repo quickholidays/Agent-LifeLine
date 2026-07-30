@@ -76,6 +76,65 @@ export default function ExecutiveReport({
   const [endHour, setEndHour] = useState(22);
   const [startDropOpen, setStartDropOpen] = useState(false);
   const [endDropOpen, setEndDropOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState("most"); // "most" or "least"
+  const [sortDropOpen, setSortDropOpen] = useState(false);
+
+  const getAgentActivityCount = (agentName) => {
+    let count = 0;
+
+    // 1. Messages / SMS / WhatsApp
+    const msgs = (ghlMessages || []).filter(msg => {
+      if (normalizeAgentName(msg.agent) !== normalizeAgentName(agentName)) return false;
+      if (msg.type === "whatsapp") {
+        if (!filterWhatsApp) return false;
+        const waType = getWhatsAppMessageType(msg);
+        if (waType === "text") return filterWaText;
+        if (waType === "voice") return filterWaVoice;
+        if (waType === "call") return filterWaCall;
+        if (waType === "other") return filterWaOther;
+        return false;
+      }
+      return filterSmsOutbound;
+    });
+    count += msgs.length;
+
+    // 2. Calls
+    const calls = (bstCallsList || []).filter(cl => {
+      if (normalizeAgentName(cl.agent) !== normalizeAgentName(agentName)) return false;
+      const isAnswered = cl.status && (cl.status.toLowerCase() === "answered" || cl.status.toLowerCase() === "completed");
+      const isOutbound = cl.direction?.toLowerCase() === "outbound";
+      if (isAnswered) {
+        if (!filterAnsweredCalls) return false;
+        return isOutbound ? filterOutboundAnswered : filterInboundAnswered;
+      } else {
+        return !isOutbound && filterMissedCalls;
+      }
+    });
+    count += calls.length;
+
+    // 3. CRM updates
+    if (filterCrmActions && bstUpdatesList) {
+      const updates = bstUpdatesList.filter(up => {
+        if (normalizeAgentName(up.agent) !== normalizeAgentName(agentName)) return false;
+        if (up.module === "NOTE") return filterCrmNotes;
+        if (up.module === "TASK" || up.module === "TASK_ADD" || up.action?.toLowerCase().includes("task")) return filterCrmTasks;
+        return filterCrmOther;
+      });
+      count += updates.length;
+    }
+
+    return count;
+  };
+
+  const getSortedAgents = () => {
+    return [...agents]
+      .filter(a => selectedAgents.includes(a.name))
+      .sort((a, b) => {
+        const countA = getAgentActivityCount(a.name);
+        const countB = getAgentActivityCount(b.name);
+        return sortOrder === "most" ? countB - countA : countA - countB;
+      });
+  };
 
   const getWhatsAppMessageType = (msg) => {
     if (!msg.body) return "text";
@@ -363,9 +422,9 @@ export default function ExecutiveReport({
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = Math.max(1200, containerRef.current ? containerRef.current.clientWidth : 1200);
     
-    // Filter agents list based on multi-select checkbox array
-    const filteredAgents = agents.filter(a => selectedAgents.includes(a.name));
-    const displayHeight = timelineTopMargin + timelineBottomMargin + Math.max(1, filteredAgents.length) * timelineRowHeight;
+    // Filter agents list based on multi-select checkbox array and sorting
+    const sortedAgents = getSortedAgents();
+    const displayHeight = timelineTopMargin + timelineBottomMargin + Math.max(1, sortedAgents.length) * timelineRowHeight;
 
     canvas.width = displayWidth * dpr;
     canvas.height = displayHeight * dpr;
@@ -402,7 +461,7 @@ export default function ExecutiveReport({
     }
 
     // 2. Draw rows and scatter points for each agent
-    filteredAgents.forEach((agent, idx) => {
+    sortedAgents.forEach((agent, idx) => {
       const rowTop = timelineTopMargin + idx * timelineRowHeight;
       const yCenter = rowTop + timelineRowHeight / 2;
 
@@ -545,6 +604,7 @@ export default function ExecutiveReport({
     bstUpdatesList,
     hoveredItem,
     selectedAgents,
+    sortOrder,
     startHour,
     endHour,
     filterSmsOutbound,
@@ -575,15 +635,15 @@ export default function ExecutiveReport({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const filteredAgents = agents.filter(a => selectedAgents.includes(a.name));
+    const sortedAgents = getSortedAgents();
 
-    if (y < timelineTopMargin || y > timelineTopMargin + filteredAgents.length * timelineRowHeight) {
+    if (y < timelineTopMargin || y > timelineTopMargin + sortedAgents.length * timelineRowHeight) {
       setHoveredItem(null);
       return;
     }
 
     const idx = Math.floor((y - timelineTopMargin) / timelineRowHeight);
-    const agent = filteredAgents[idx];
+    const agent = sortedAgents[idx];
     if (!agent) {
       setHoveredItem(null);
       return;
@@ -1748,6 +1808,86 @@ export default function ExecutiveReport({
                     </div>
                   </>
                 )}
+              </div>
+
+              {/* Sort Order Selector (Custom Premium Dropdown) */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-secondary)" }}>Sort:</span>
+                <div style={{ position: "relative" }}>
+                  <button
+                    onClick={() => setSortDropOpen(!sortDropOpen)}
+                    style={{
+                      padding: "0.3rem 0.8rem",
+                      borderRadius: "6px",
+                      background: "var(--card-bg)",
+                      border: "1px solid var(--card-border)",
+                      color: "var(--text-primary)",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      minWidth: "125px",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <span>{sortOrder === "most" ? "Most Activity" : "Least Activity"}</span>
+                    <i className={`fa-solid fa-chevron-${sortDropOpen ? "up" : "down"}`} style={{ fontSize: "0.65rem", color: "var(--primary)" }}></i>
+                  </button>
+                  {sortDropOpen && (
+                    <>
+                      <div onClick={() => setSortDropOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 9999 }} />
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "115%",
+                          right: 0,
+                          minWidth: "140px",
+                          zIndex: 10000,
+                          borderRadius: "8px",
+                          border: "1px solid var(--card-border)",
+                          background: "var(--card-bg)",
+                          boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)",
+                          padding: "0.4rem 0",
+                        }}
+                      >
+                        <div
+                          onClick={() => {
+                            setSortOrder("most");
+                            setSortDropOpen(false);
+                          }}
+                          style={{
+                            padding: "0.5rem 0.85rem",
+                            fontSize: "0.8rem",
+                            fontWeight: 600,
+                            color: sortOrder === "most" ? "var(--primary)" : "var(--text-primary)",
+                            background: sortOrder === "most" ? "rgba(209,92,46,0.08)" : "transparent",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Most Activity
+                        </div>
+                        <div
+                          onClick={() => {
+                            setSortOrder("least");
+                            setSortDropOpen(false);
+                          }}
+                          style={{
+                            padding: "0.5rem 0.85rem",
+                            fontSize: "0.8rem",
+                            fontWeight: 600,
+                            color: sortOrder === "least" ? "var(--primary)" : "var(--text-primary)",
+                            background: sortOrder === "least" ? "rgba(209,92,46,0.08)" : "transparent",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Least Activity
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Time bounds Start & End Picker */}

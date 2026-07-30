@@ -46,29 +46,17 @@ async function fetchUserMap(token, locationId) {
   }
 }
 
-// Update report data locally
-function updateLocalCopy(dateStr, jsonString) {
-  try {
-    const localDir = path.join(process.cwd(), "Test-Data");
-    if (fs.existsSync(localDir)) {
-      const localFile = path.join(localDir, `lifeline_report_${dateStr}.json`);
-      fs.writeFileSync(localFile, jsonString, "utf-8");
-      console.log(`[GHL Cron Sync] Updated local backup file at: ${localFile}`);
-      return true;
-    }
-  } catch (err) {
-    console.error("[GHL Cron Sync] Failed to write local backup file:", err.message);
-  }
-  return false;
-}
-
-// Read daily report, replace/merge GHL outbound messages, and write back to GitHub/filesystem
+// Read daily report, replace/merge GHL outbound messages, and write back to GitHub
 async function updateDailyBackup(dateStr, ghlMessages) {
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;
 
-  const fileName = `daily_backups/${dateStr}.json`;
+  if (!token || !owner || !repo) {
+    throw new Error("No backup targets available (GitHub env missing)");
+  }
+
+  const fileName = `daily_backups/messages_${dateStr}.json`;
   const githubApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`;
 
   const headers = {
@@ -84,88 +72,87 @@ async function updateDailyBackup(dateStr, ghlMessages) {
   while (attempt < maxRetries) {
     attempt++;
     let reportData = {
-      agents: [],
-      calls: [],
-      audit_logs: [],
-      ghl_outbound_messages: []
+      ghl_outbound_messages: [],
+      ghlMessages: [],
+      summary: { total_ghl_messages: 0 }
     };
     let sha = null;
-    let existsOnGithub = false;
 
     // 1. Try to fetch existing data from GitHub
-    if (token && owner && repo) {
-      try {
-        const getResponse = await fetch(githubApiUrl, { headers, cache: "no-store" });
-        if (getResponse.ok) {
-          const fileData = await getResponse.json();
-          sha = fileData.sha;
-          existsOnGithub = true;
-          const decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+    try {
+      const getResponse = await fetch(githubApiUrl, { headers, cache: "no-store" });
+      if (getResponse.ok) {
+        const fileData = await getResponse.json();
+        sha = fileData.sha;
+        
+        let base64Content = fileData.content;
+        if (!base64Content) {
+          const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${fileData.sha}`;
+          const blobResponse = await fetch(blobUrl, { headers, cache: "no-store" });
+          if (blobResponse.ok) {
+            const blobData = await blobResponse.json();
+            base64Content = blobData.content;
+          }
+        }
+        
+        if (base64Content) {
+          const cleanBase64 = base64Content.replace(/\s/g, "");
+          const decodedContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
           reportData = JSON.parse(decodedContent);
         }
-      } catch (err) {
-        console.warn(`[GHL Cron Sync] Attempt ${attempt}: Failed to fetch backup from GitHub:`, err.message);
       }
+    } catch (err) {
+      console.warn(`[GHL Cron Sync] Attempt ${attempt}: Failed to fetch backup from GitHub:`, err.message);
     }
 
-    // 2. If not on GitHub, check local Test-Data directory
-    if (!existsOnGithub) {
-      try {
-        const localDir = path.join(process.cwd(), "Test-Data");
-        const localFile = path.join(localDir, `lifeline_report_${dateStr}.json`);
-        if (fs.existsSync(localFile)) {
-          const fileContent = fs.readFileSync(localFile, "utf-8");
-          reportData = JSON.parse(fileContent);
-        }
-      } catch (err) {
-        console.warn("[GHL Cron Sync] Failed to check local backup file:", err.message);
+    const existingMsgs = reportData.ghl_outbound_messages || reportData.ghlMessages || [];
+    const existingIds = new Set(existingMsgs.map(m => m.id));
+    const mergedMessages = [...existingMsgs];
+    
+    ghlMessages.forEach(msg => {
+      if (!existingIds.has(msg.id)) {
+        mergedMessages.push(msg);
       }
-    }
+    });
 
-    // 3. Update conversations arrays in the daily report (leaving calls, agents, audit logs untouched)
-    reportData.ghl_outbound_messages = ghlMessages;
-    reportData.ghlMessages = ghlMessages;
+    mergedMessages.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+    reportData.ghl_outbound_messages = mergedMessages;
+    reportData.ghlMessages = mergedMessages;
+    if (!reportData.summary) {
+      reportData.summary = { total_ghl_messages: 0 };
+    }
+    reportData.summary.total_ghl_messages = mergedMessages.length;
 
     const jsonString = JSON.stringify(reportData, null, 2);
 
-    // 4. Save back to GitHub
-    if (token && owner && repo) {
-      const contentBase64 = Buffer.from(jsonString).toString("base64");
-      const commitMessage = `Auto-cron: sync GHL messages for ${dateStr}`;
-      const putBody = {
-        message: commitMessage,
-        content: contentBase64,
-      };
-      if (sha) {
-        putBody.sha = sha;
-      }
+    // 2. Save back to GitHub
+    const contentBase64 = Buffer.from(jsonString).toString("base64");
+    const commitMessage = `Auto-cron: sync GHL messages for ${dateStr}`;
+    const putBody = {
+      message: commitMessage,
+      content: contentBase64,
+    };
+    if (sha) {
+      putBody.sha = sha;
+    }
 
-      const putResponse = await fetch(githubApiUrl, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify(putBody),
-      });
+    const putResponse = await fetch(githubApiUrl, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(putBody),
+    });
 
-      if (putResponse.ok) {
-        console.log(`[GHL Cron Sync] Successfully updated GitHub backup for ${dateStr}`);
-        updateLocalCopy(dateStr, jsonString);
-        return { success: true, message: "Updated GitHub and local backup" };
-      } else if (putResponse.status === 409 && attempt < maxRetries) {
-        console.warn(`[GHL Cron Sync] Attempt ${attempt}: Conflict detected. Retrying in 1s...`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        continue;
-      } else {
-        const errText = await putResponse.text();
-        throw new Error(`GitHub PUT error (${putResponse.status}): ${errText}`);
-      }
+    if (putResponse.ok) {
+      console.log(`[GHL Cron Sync] Successfully updated GitHub messages backup for ${dateStr}`);
+      return { success: true, message: "Updated GitHub messages backup" };
+    } else if (putResponse.status === 409 && attempt < maxRetries) {
+      console.warn(`[GHL Cron Sync] Attempt ${attempt}: Conflict detected. Retrying in 1s...`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      continue;
     } else {
-      // Local fallback
-      const localUpdated = updateLocalCopy(dateStr, jsonString);
-      if (localUpdated) {
-        return { success: true, message: "Updated local backup (GitHub config missing)" };
-      } else {
-        throw new Error("No backup targets available (GitHub env missing and local Test-Data folder does not exist)");
-      }
+      const errText = await putResponse.text();
+      throw new Error(`GitHub PUT error (${putResponse.status}): ${errText}`);
     }
   }
 
