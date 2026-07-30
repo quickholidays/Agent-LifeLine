@@ -76,7 +76,7 @@ export default function ExecutiveReport({
   const [endHour, setEndHour] = useState(22);
   const [startDropOpen, setStartDropOpen] = useState(false);
   const [endDropOpen, setEndDropOpen] = useState(false);
-  const [sortOrder, setSortOrder] = useState("most"); // "most" or "least"
+  const [sortOrder, setSortOrder] = useState("default"); // "default", "most" or "least"
   const [sortDropOpen, setSortDropOpen] = useState(false);
 
   const getAgentActivityCount = (agentName) => {
@@ -130,6 +130,9 @@ export default function ExecutiveReport({
     return [...agents]
       .filter(a => selectedAgents.includes(a.name))
       .sort((a, b) => {
+        if (sortOrder === "default") {
+          return a.name.localeCompare(b.name);
+        }
         const countA = getAgentActivityCount(a.name);
         const countB = getAgentActivityCount(b.name);
         return sortOrder === "most" ? countB - countA : countA - countB;
@@ -1832,7 +1835,7 @@ export default function ExecutiveReport({
                       justifyContent: "space-between"
                     }}
                   >
-                    <span>{sortOrder === "most" ? "Most Activity" : "Least Activity"}</span>
+                    <span>{sortOrder === "default" ? "Default" : sortOrder === "most" ? "Most Activity" : "Least Activity"}</span>
                     <i className={`fa-solid fa-chevron-${sortDropOpen ? "up" : "down"}`} style={{ fontSize: "0.65rem", color: "var(--primary)" }}></i>
                   </button>
                   {sortDropOpen && (
@@ -1852,6 +1855,22 @@ export default function ExecutiveReport({
                           padding: "0.4rem 0",
                         }}
                       >
+                        <div
+                          onClick={() => {
+                            setSortOrder("default");
+                            setSortDropOpen(false);
+                          }}
+                          style={{
+                            padding: "0.5rem 0.85rem",
+                            fontSize: "0.8rem",
+                            fontWeight: 600,
+                            color: sortOrder === "default" ? "var(--primary)" : "var(--text-primary)",
+                            background: sortOrder === "default" ? "rgba(209,92,46,0.08)" : "transparent",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Default
+                        </div>
                         <div
                           onClick={() => {
                             setSortOrder("most");
