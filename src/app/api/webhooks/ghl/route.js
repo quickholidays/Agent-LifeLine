@@ -392,28 +392,10 @@ export async function POST(req) {
       });
     }
 
-    // 4. Create the message object
-    const newMessageId = payload.messageId || payload.id || `webhook_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const newMessage = {
-      id: newMessageId,
-      agent: parsedData.agentName,
-      time: parsedData.timeObj.toISOString(),
-      body: parsedData.body || `[SMS Message]`,
-      contactName: parsedData.contactName,
-      contactId: parsedData.contactId,
-      type: "sms"
-    };
-
-    console.log("[GHL Webhook] Prepared message object:", JSON.stringify(newMessage, null, 2));
-
-    // 4. Update the daily backup file (GitHub or local)
-    const result = await updateDailyBackup(parsedData.dateStr, newMessage);
-
+    console.log("[GHL Webhook] Real-time live sync is disabled. GHL messages will be synced in bulk at 8:00 PM PKT.");
     return NextResponse.json({
       success: true,
-      message: "Webhook processed successfully",
-      details: result.message,
-      parsedRecord: newMessage
+      message: "Webhook ignored: Live sync is disabled for GHL messages (synced in bulk at 8:00 PM PKT)"
     });
   } catch (error) {
     console.error("[GHL Webhook] Route Error:", error);

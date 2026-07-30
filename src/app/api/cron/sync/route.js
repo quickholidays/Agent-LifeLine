@@ -319,7 +319,7 @@ export async function GET(req) {
                   body: cleanBody,
                   contactName: cNameWithId,
                   contactId: cId,
-                  type: "sms"
+                  type: typeLower.includes("whatsapp") ? "whatsapp" : "sms"
                 });
               }
             });
