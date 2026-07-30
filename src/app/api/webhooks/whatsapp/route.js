@@ -205,7 +205,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "GitHub configuration missing" }, { status: 500 });
     }
 
-    const githubApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/daily_backups/${dateStr}.json`;
+    const githubApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/daily_backups/messages_${dateStr}.json`;
     const headers = {
       "Authorization": `Bearer ${token}`,
       "Accept": "application/vnd.github+json",

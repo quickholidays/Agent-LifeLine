@@ -68,7 +68,7 @@ function makeGithubRequest(method, urlPath, payloadObj = null) {
   });
 }
 
-const gitPath = `/repos/${owner}/${repo}/contents/daily_backups/2026-07-30.json`;
+const gitPath = `/repos/${owner}/${repo}/contents/daily_backups/2026-07-26.json`;
 
 makeGithubRequest("GET", gitPath)
   .then((res) => {

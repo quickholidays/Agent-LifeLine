@@ -183,7 +183,7 @@ function updateLocalCopy(dateStr, jsonString) {
   try {
     const localDir = path.join(process.cwd(), "Test-Data");
     if (fs.existsSync(localDir)) {
-      const localFile = path.join(localDir, `lifeline_report_${dateStr}.json`);
+      const localFile = path.join(localDir, `lifeline_report_messages_${dateStr}.json`);
       fs.writeFileSync(localFile, jsonString, "utf-8");
       console.log(`[GHL Webhook] Updated local backup file at: ${localFile}`);
       return true;
@@ -200,7 +200,7 @@ async function updateDailyBackup(dateStr, newMessage) {
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;
 
-  const fileName = `daily_backups/${dateStr}.json`;
+  const fileName = `daily_backups/messages_${dateStr}.json`;
   const githubApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`;
 
   const headers = {
@@ -261,7 +261,7 @@ async function updateDailyBackup(dateStr, newMessage) {
     if (!existsOnGithub) {
       try {
         const localDir = path.join(process.cwd(), "Test-Data");
-        const localFile = path.join(localDir, `lifeline_report_${dateStr}.json`);
+        const localFile = path.join(localDir, `lifeline_report_messages_${dateStr}.json`);
         if (fs.existsSync(localFile)) {
           const fileContent = fs.readFileSync(localFile, "utf-8");
           reportData = JSON.parse(fileContent);

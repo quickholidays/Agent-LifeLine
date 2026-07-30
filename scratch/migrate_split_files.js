@@ -27,38 +27,36 @@ const GITHUB_TOKEN = env.GITHUB_TOKEN;
 const owner = env.GITHUB_OWNER;
 const repo = env.GITHUB_REPO;
 
-function makeGithubRequest(method, urlPath, payloadObj = null) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: "api.github.com",
-      path: urlPath,
-      method: method,
-      headers: {
-        "User-Agent": "antigravity-agent",
-        "Authorization": `Bearer ${GITHUB_TOKEN}`,
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Content-Type": "application/json"
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let data = "";
-      res.on("data", (chunk) => { data += chunk; });
-      res.on("end", () => {
-        resolve({
-          status: res.statusCode,
-          body: data
-        });
-      });
-    });
-
-    req.on("error", (e) => reject(e));
-    if (payloadObj) {
-      req.write(JSON.stringify(payloadObj));
+async function makeGithubRequest(method, urlPath, payloadObj = null) {
+  const url = `https://api.github.com${urlPath}`;
+  const options = {
+    method: method,
+    headers: {
+      "User-Agent": "antigravity-agent",
+      "Authorization": `Bearer ${GITHUB_TOKEN}`,
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "Content-Type": "application/json"
     }
-    req.end();
-  });
+  };
+  if (payloadObj) {
+    options.body = JSON.stringify(payloadObj);
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  options.signal = controller.signal;
+
+  try {
+    const res = await fetch(url, options);
+    const text = await res.text();
+    return {
+      status: res.status,
+      body: text
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
