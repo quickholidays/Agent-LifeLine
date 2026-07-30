@@ -19,6 +19,7 @@ import CustomDatePicker from "@/components/CustomDatePicker";
 import Login from "@/components/Login";
 import AiAssistant from "@/components/AiAssistant";
 import HeroSection from "@/components/HeroSection";
+import ManageAgentsWorkspace from "@/components/ManageAgentsWorkspace";
 
 const isNewLead = (lead, newLeadsList) => {
   if (!Array.isArray(newLeadsList) || newLeadsList.length === 0) return false;
@@ -75,6 +76,7 @@ export default function Home() {
   });
   const [timezone, setTimezone] = useState("PKT");
   const [syncConversations, setSyncConversations] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authMounted, setAuthMounted] = useState(false);
@@ -839,7 +841,7 @@ export default function Home() {
     };
 
     loadDateData();
-  }, [reportDate]);
+  }, [reportDate, refreshTrigger]);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -854,6 +856,46 @@ export default function Home() {
       document.body.classList.add("dark-mode");
       document.body.classList.remove("light-mode");
     }
+  };
+
+  const saveReportData = async (updatedRawData) => {
+    const cleanData = { ...updatedRawData };
+    
+    // Remove UI helpers to keep backup payload clean
+    delete cleanData.bstCallsList;
+    delete cleanData.bstUpdatesList;
+
+    let response = await fetch("/api/backup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: cleanData,
+        date: reportDate
+      })
+    });
+
+    if (!response.ok) {
+      console.warn("GitHub backup update failed, attempting local-only save...");
+      response = await fetch("/api/backup?skipGithub=true", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: cleanData,
+          date: reportDate
+        })
+      });
+
+      if (!response.ok) {
+        let errMessage = "Failed to update backup file";
+        try {
+          const err = await response.json();
+          errMessage = err.error || errMessage;
+        } catch (_) {}
+        throw new Error(errMessage);
+      }
+    }
+
+    setRefreshTrigger(prev => prev + 1);
   };
 
   const filteredAgents = agentsList.filter((agent) =>
@@ -1033,6 +1075,16 @@ export default function Home() {
             ghlMessages={ghlOutboundMessages}
             reportDate={reportDate}
             userRole={userRole}
+          />
+        );
+        break;
+      case "manage-agents":
+        content = (
+          <ManageAgentsWorkspace
+            agents={agentsList}
+            rawAnalysisData={rawAnalysisData}
+            reportDate={reportDate}
+            saveReportData={saveReportData}
           />
         );
         break;

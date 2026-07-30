@@ -30,6 +30,10 @@ export default function Sidebar({
     { id: "ai-assistant", label: "AI Operations", icon: "fa-wand-magic-sparkles" },
   ];
 
+  if (userRole === "special") {
+    menuItems.push({ id: "manage-agents", label: "Manage Agents", icon: "fa-users-gear" });
+  }
+
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       <button className="sidebar-toggle-btn" onClick={onToggleCollapse}>

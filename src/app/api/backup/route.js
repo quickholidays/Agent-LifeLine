@@ -16,18 +16,17 @@ export async function POST(req) {
     if (skipGithub) {
       try {
         const localDir = path.join(process.cwd(), "Test-Data");
-        if (fs.existsSync(localDir)) {
-          const localFile = path.join(localDir, `lifeline_report_${date}.json`);
-          const jsonString = JSON.stringify(data, null, 2);
-          fs.writeFileSync(localFile, jsonString, "utf-8");
-          console.log(`Successfully updated local backup file at: ${localFile}`);
-          return NextResponse.json({
-            success: true,
-            message: `Successfully saved report locally at ${localFile}`
-          });
-        } else {
-          return NextResponse.json({ error: "Local Test-Data folder does not exist" }, { status: 500 });
+        if (!fs.existsSync(localDir)) {
+          fs.mkdirSync(localDir, { recursive: true });
         }
+        const localFile = path.join(localDir, `lifeline_report_${date}.json`);
+        const jsonString = JSON.stringify(data, null, 2);
+        fs.writeFileSync(localFile, jsonString, "utf-8");
+        console.log(`Successfully updated local backup file at: ${localFile}`);
+        return NextResponse.json({
+          success: true,
+          message: `Successfully saved report locally at ${localFile}`
+        });
       } catch (err) {
         return NextResponse.json({ error: `Failed to save locally: ${err.message}` }, { status: 500 });
       }

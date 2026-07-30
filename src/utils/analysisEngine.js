@@ -128,7 +128,11 @@ export function toBST(dateStr, targetDateStr = "2026-07-17", timezone = "BST", i
   }
 
   if (isUtc) {
-    return new Date(Date.UTC(year, monthIdx, day, hours, minutes, seconds));
+    let utcHours = hours;
+    if (isUtc === "BST") {
+      utcHours = hours - 1; // Convert BST (UTC+1) to UTC
+    }
+    return new Date(Date.UTC(year, monthIdx, day, utcHours, minutes, seconds));
   } else {
     return new Date(year, monthIdx, day, hours, minutes, seconds);
   }
