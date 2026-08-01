@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { parseCSV } from "@/utils/csvParser";
 import { processAgentData, toBST, isJuly17BST, mergeRawStats } from "@/utils/analysisEngine";
@@ -191,6 +192,7 @@ export default function UploadDataPage() {
 
   // Custom Alert & Confirm Popup States
   const [customPopup, setCustomPopup] = useState(null);
+  const [activeModal, setActiveModal] = useState(null); // { type, title, message, defaultValue, onConfirm, onCancel }
 
   const showCustomConfirm = (message, confirmLabel = "Overwrite", cancelLabel = "Cancel") => {
     return new Promise((resolve) => {
@@ -1671,33 +1673,24 @@ export default function UploadDataPage() {
                       Review the detected agents below. You can drop duplicates, merge variants, or rename them before saving/uploading.
                     </p>
                     
-                    <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid var(--card-border)", borderRadius: "8px", background: "rgba(0,0,0,0.2)" }}>
+                    <div style={{ maxHeight: "300px", overflowY: "auto", overflowX: "hidden", border: "1px solid var(--card-border)", borderRadius: "8px", background: "rgba(0,0,0,0.2)" }}>
                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem", textAlign: "left" }}>
                         <thead>
                           <tr style={{ borderBottom: "1px solid var(--card-border)", background: "rgba(255,255,255,0.02)" }}>
                             <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Agent Name</th>
-                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Actions</th>
-                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Calls</th>
-                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>New Leads</th>
-                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Margin</th>
                             <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700, textAlign: "right" }}>Operation</th>
                           </tr>
                         </thead>
                         <tbody>
                           {Object.keys(compiledData.agents).length === 0 ? (
                             <tr>
-                              <td colSpan="6" style={{ padding: "1rem", textAlign: "center", color: "var(--text-secondary)" }}>No agents detected.</td>
+                              <td colSpan="2" style={{ padding: "1rem", textAlign: "center", color: "var(--text-secondary)" }}>No agents detected.</td>
                             </tr>
                           ) : (
                             Object.keys(compiledData.agents).map(agentKey => {
-                              const stats = compiledData.agents[agentKey] || {};
                               return (
                                 <tr key={agentKey} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                                   <td style={{ padding: "0.6rem 0.8rem", fontWeight: 600, color: "var(--text-primary)" }}>{agentKey}</td>
-                                  <td style={{ padding: "0.6rem 0.8rem" }}>{stats.total_actions || 0}</td>
-                                  <td style={{ padding: "0.6rem 0.8rem" }}>{stats.calls?.length || 0}</td>
-                                  <td style={{ padding: "0.6rem 0.8rem" }}>{stats.segmentations?.newLeadsToday || 0}</td>
-                                  <td style={{ padding: "0.6rem 0.8rem", color: "#aaca9b" }}>${(stats.margin_added_today || 0).toLocaleString()}</td>
                                   <td style={{ padding: "0.6rem 0.8rem", textAlign: "right" }}>
                                     <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end", alignItems: "center" }}>
                                       <select
@@ -1705,25 +1698,42 @@ export default function UploadDataPage() {
                                         onChange={(e) => {
                                           const val = e.target.value;
                                           if (val === "__new__") {
-                                            const newName = prompt(`Enter new agent name to combine "${agentKey}" into:`);
-                                            if (newName && newName.trim()) {
-                                              combineAgentsInCompiled(agentKey, newName.trim());
-                                            }
+                                            setActiveModal({
+                                              type: "prompt-new-name",
+                                              title: "Combine Agent",
+                                              message: `Enter new agent name to combine "${agentKey}" into:`,
+                                              onConfirm: (newName) => {
+                                                if (newName && newName.trim()) {
+                                                  combineAgentsInCompiled(agentKey, newName.trim());
+                                                }
+                                              }
+                                            });
                                           } else if (val) {
-                                            if (confirm(`Merge "${agentKey}" into "${val}"?`)) {
-                                              combineAgentsInCompiled(agentKey, val);
-                                            }
+                                            setActiveModal({
+                                              type: "confirm-merge",
+                                              title: "Merge Agents",
+                                              message: `Are you sure you want to merge "${agentKey}" into "${val}"?`,
+                                              onConfirm: () => combineAgentsInCompiled(agentKey, val)
+                                            });
                                           }
                                           e.target.value = ""; // Reset selection
                                         }}
                                         style={{
-                                          padding: "0.3rem",
-                                          fontSize: "0.75rem",
-                                          background: "var(--card-bg)",
-                                          border: "1px solid var(--card-border)",
-                                          borderRadius: "4px",
+                                          padding: "0.4rem 2rem 0.4rem 0.8rem",
+                                          fontSize: "0.8rem",
+                                          background: "var(--input-bg)",
+                                          border: "1px solid var(--input-border)",
+                                          borderRadius: "6px",
                                           color: "var(--text-primary)",
-                                          cursor: "pointer"
+                                          cursor: "pointer",
+                                          outline: "none",
+                                          appearance: "none",
+                                          WebkitAppearance: "none",
+                                          MozAppearance: "none",
+                                          backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='%23cbd5e1' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>")`,
+                                          backgroundPosition: "right 0.4rem center",
+                                          backgroundRepeat: "no-repeat",
+                                          backgroundSize: "18px"
                                         }}
                                       >
                                         <option value="">Merge with...</option>
@@ -1735,9 +1745,12 @@ export default function UploadDataPage() {
                                       
                                       <button
                                         onClick={() => {
-                                          if (confirm(`Are you sure you want to drop "${agentKey}"? All of their data will be excluded.`)) {
-                                            dropAgentFromCompiled(agentKey);
-                                          }
+                                          setActiveModal({
+                                            type: "confirm-drop",
+                                            title: "Drop Agent?",
+                                            message: `Are you sure you want to drop "${agentKey}"? All of their data will be excluded.`,
+                                            onConfirm: () => dropAgentFromCompiled(agentKey)
+                                          });
                                         }}
                                         style={{
                                           padding: "0.3rem 0.5rem",
@@ -1932,6 +1945,147 @@ export default function UploadDataPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Agent Standardisation Alert/Confirm/Prompt Popups */}
+      <AnimatePresence>
+        {activeModal && (
+          <div style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100005
+          }}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="card"
+              style={{
+                width: "min(420px, 90%)",
+                padding: "2rem",
+                borderRadius: "16px",
+                border: "1px solid var(--card-border)",
+                backgroundColor: "var(--card-bg)",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.5)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.2rem"
+              }}
+            >
+              {/* Header with Icon */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+                <div style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  backgroundColor: activeModal.type === "confirm-drop" ? "rgba(239, 68, 68, 0.15)" : "rgba(34, 197, 94, 0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: activeModal.type === "confirm-drop" ? "var(--danger)" : "var(--primary)"
+                }}>
+                  <i className={activeModal.type === "confirm-drop" ? "fa-solid fa-trash fa-lg" : "fa-solid fa-code-merge fa-lg"}></i>
+                </div>
+                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>
+                  {activeModal.title}
+                </h3>
+              </div>
+
+              {/* Message Body */}
+              <p style={{
+                margin: 0,
+                fontSize: "0.92rem",
+                lineHeight: 1.5,
+                color: "var(--text-secondary)"
+              }}>
+                {activeModal.message}
+              </p>
+
+              {/* Input for Prompt */}
+              {activeModal.type === "prompt-new-name" && (
+                <input
+                  type="text"
+                  placeholder="Enter new agent name..."
+                  id="modal-input-field"
+                  style={{
+                    padding: "0.65rem 0.8rem",
+                    borderRadius: "8px",
+                    background: "var(--input-bg)",
+                    border: "1px solid var(--input-border)",
+                    color: "var(--text-primary)",
+                    fontSize: "0.9rem",
+                    outline: "none",
+                    width: "100%"
+                  }}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const value = e.currentTarget.value;
+                      activeModal.onConfirm(value);
+                      setActiveModal(null);
+                    }
+                  }}
+                />
+              )}
+
+              {/* Buttons Group */}
+              <div style={{ display: "flex", gap: "0.8rem", justifyContent: "flex-end", marginTop: "0.4rem" }}>
+                <button
+                  onClick={() => {
+                    if (activeModal.onCancel) activeModal.onCancel();
+                    setActiveModal(null);
+                  }}
+                  className="btn-secondary"
+                  style={{
+                    padding: "0.6rem 1.2rem",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: "0.85rem",
+                    border: "1px solid var(--card-border)",
+                    backgroundColor: "transparent",
+                    color: "var(--text-primary)",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    let value = null;
+                    if (activeModal.type === "prompt-new-name") {
+                      value = document.getElementById("modal-input-field")?.value;
+                    }
+                    activeModal.onConfirm(value);
+                    setActiveModal(null);
+                  }}
+                  className="btn-primary"
+                  style={{
+                    padding: "0.6rem 1.2rem",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: "0.85rem",
+                    border: "none",
+                    backgroundColor: activeModal.type === "confirm-drop" ? "var(--danger)" : "var(--primary)",
+                    color: activeModal.type === "confirm-drop" ? "#ffffff" : "var(--bg-color)",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  Confirm
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Popup Animations */}
       <style>{`

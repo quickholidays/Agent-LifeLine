@@ -941,14 +941,21 @@ export default function ManageAgentsWorkspace({
                   value={sourceAgent}
                   onChange={(e) => setSourceAgent(e.target.value)}
                   style={{
-                    padding: "0.65rem 0.8rem",
+                    padding: "0.65rem 2.5rem 0.65rem 0.8rem",
                     borderRadius: "8px",
                     background: "var(--input-bg)",
                     border: "1px solid var(--input-border)",
                     color: "var(--text-primary)",
                     fontSize: "0.9rem",
                     outline: "none",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                    backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='%23cbd5e1' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>")`,
+                    backgroundPosition: "right 0.8rem center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "20px"
                   }}
                 >
                   <option value="" disabled>Select Source Agent...</option>
@@ -990,14 +997,21 @@ export default function ManageAgentsWorkspace({
                     value={targetAgent}
                     onChange={(e) => setTargetAgent(e.target.value)}
                     style={{
-                      padding: "0.65rem 0.8rem",
+                      padding: "0.65rem 2.5rem 0.65rem 0.8rem",
                       borderRadius: "8px",
                       background: "var(--input-bg)",
                       border: "1px solid var(--input-border)",
                       color: "var(--text-primary)",
                       fontSize: "0.9rem",
                       outline: "none",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      appearance: "none",
+                      WebkitAppearance: "none",
+                      MozAppearance: "none",
+                      backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='%23cbd5e1' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>")`,
+                      backgroundPosition: "right 0.8rem center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundSize: "20px"
                     }}
                   >
                     <option value="" disabled>Select Target Agent...</option>
