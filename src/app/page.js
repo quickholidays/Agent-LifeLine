@@ -14,7 +14,7 @@ import ExecutiveReport from "@/components/ExecutiveReport";
 import AgentCharts from "@/components/AgentCharts";
 import ConversationsWorkspace from "@/components/ConversationsWorkspace";
 import { parseCSV } from "@/utils/csvParser";
-import { processAgentData } from "@/utils/analysisEngine";
+import { processAgentData, normalizeAgentName, mergeRawStats } from "@/utils/analysisEngine";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import Login from "@/components/Login";
 import AiAssistant from "@/components/AiAssistant";
@@ -544,7 +544,7 @@ export default function Home() {
 
           if (Array.isArray(data.calls)) {
             data.calls.forEach(c => {
-              const agName = c.agent;
+              const agName = normalizeAgentName(c.agent);
               if (agName) {
                 if (!callsByAgent[agName]) callsByAgent[agName] = [];
                 callsByAgent[agName].push({
@@ -560,7 +560,7 @@ export default function Home() {
 
           if (Array.isArray(data.audit_logs)) {
             data.audit_logs.forEach(act => {
-              const agName = act.agent;
+              const agName = normalizeAgentName(act.agent);
               if (agName) {
                 if (!auditByAgent[agName]) auditByAgent[agName] = [];
                 auditByAgent[agName].push({
@@ -579,9 +579,18 @@ export default function Home() {
           
           if (Array.isArray(rawAgentsSource)) {
             rawAgentsSource.forEach(stats => {
-              const name = stats.name || stats.name_raw;
+              const name = normalizeAgentName(stats.name || stats.name_raw);
               if (name && name.toLowerCase() !== "unassigned") {
-                agentsSource.push(stats);
+                const existingIdx = agentsSource.findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+                if (existingIdx !== -1) {
+                  agentsSource[existingIdx] = {
+                    ...mergeRawStats(agentsSource[existingIdx], stats),
+                    name,
+                    name_raw: name
+                  };
+                } else {
+                  agentsSource.push({ ...stats, name, name_raw: name });
+                }
                 existingAgentsMap[name.toLowerCase()] = true;
               }
             });
@@ -589,9 +598,18 @@ export default function Home() {
             Object.keys(rawAgentsSource).forEach(agentName => {
               const stats = rawAgentsSource[agentName];
               if (stats && agentName.toLowerCase() !== "unassigned") {
-                const statsCopy = { ...stats, name: stats.name || agentName };
-                agentsSource.push(statsCopy);
-                existingAgentsMap[agentName.toLowerCase()] = true;
+                const name = normalizeAgentName(stats.name || agentName);
+                const existingIdx = agentsSource.findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+                if (existingIdx !== -1) {
+                  agentsSource[existingIdx] = {
+                    ...mergeRawStats(agentsSource[existingIdx], stats),
+                    name,
+                    name_raw: name
+                  };
+                } else {
+                  agentsSource.push({ ...stats, name, name_raw: name });
+                }
+                existingAgentsMap[name.toLowerCase()] = true;
               }
             });
           }
@@ -601,20 +619,35 @@ export default function Home() {
           
           if (Array.isArray(data.calls)) {
             data.calls.forEach(c => {
-              if (c.agent && c.agent.toLowerCase() !== "unassigned") extractedAgentNames.add(c.agent);
+              if (c.agent) {
+                const normName = normalizeAgentName(c.agent);
+                if (normName && normName.toLowerCase() !== "unassigned") {
+                  extractedAgentNames.add(normName);
+                }
+              }
             });
           }
           
           if (Array.isArray(data.audit_logs)) {
             data.audit_logs.forEach(act => {
-              if (act.agent && act.agent.toLowerCase() !== "unassigned") extractedAgentNames.add(act.agent);
+              if (act.agent) {
+                const normName = normalizeAgentName(act.agent);
+                if (normName && normName.toLowerCase() !== "unassigned") {
+                  extractedAgentNames.add(normName);
+                }
+              }
             });
           }
           
           if (Array.isArray(ghlMessages)) {
             ghlMessages.forEach(m => {
               const agentName = m.agent || m.agent_name;
-              if (agentName && agentName.toLowerCase() !== "unassigned") extractedAgentNames.add(agentName);
+              if (agentName) {
+                const normName = normalizeAgentName(agentName);
+                if (normName && normName.toLowerCase() !== "unassigned") {
+                  extractedAgentNames.add(normName);
+                }
+              }
             });
           }
           
@@ -939,10 +972,6 @@ export default function Home() {
 
   const saveReportData = async (updatedRawData) => {
     let cleanData = { ...updatedRawData };
-    
-    // Remove UI helpers to keep backup payload clean
-    delete cleanData.bstCallsList;
-    delete cleanData.bstUpdatesList;
 
     let retries = 5;
     let success = false;

@@ -929,3 +929,124 @@ export function processAgentData(
     stageChangesToday,
   };
 }
+
+export function mergeRawStats(statsA, statsB) {
+  const merged = {};
+
+  // Numeric fields summation
+  merged.total_actions = (statsA.total_actions || 0) + (statsB.total_actions || 0);
+  merged.assigned_opportunities = (statsA.assigned_opportunities || 0) + (statsB.assigned_opportunities || 0);
+  merged.interacted_leads_today = (statsA.interacted_leads_today || 0) + (statsB.interacted_leads_today || 0);
+  merged.interacted_conversions_today = (statsA.interacted_conversions_today || 0) + (statsB.interacted_conversions_today || 0);
+  merged.margin_added_today = (statsA.margin_added_today || 0) + (statsB.margin_added_today || 0);
+  merged.stage_interested_today = (statsA.stage_interested_today || 0) + (statsB.stage_interested_today || 0);
+  merged.stage_contacted_today = (statsA.stage_contacted_today || 0) + (statsB.stage_contacted_today || 0);
+  merged.notes_updated_today = (statsA.notes_updated_today || 0) + (statsB.notes_updated_today || 0);
+  merged.tasks_added_today = (statsA.tasks_added_today || 0) + (statsB.tasks_added_today || 0);
+  merged.referrals_today = (statsA.referrals_today || 0) + (statsB.referrals_today || 0);
+
+  merged.active_duration = (statsA.active_duration || 0) + (statsB.active_duration || 0);
+  merged.total_break_duration = (statsA.total_break_duration || 0) + (statsB.total_break_duration || 0);
+
+  // Time boundaries
+  const firstTimes = [];
+  if (statsA.first_action) firstTimes.push(new Date(statsA.first_action).getTime());
+  if (statsB.first_action) firstTimes.push(new Date(statsB.first_action).getTime());
+  merged.first_action = firstTimes.length > 0 ? new Date(Math.min(...firstTimes)).toISOString() : null;
+
+  const lastTimes = [];
+  if (statsA.last_action) lastTimes.push(new Date(statsA.last_action).getTime());
+  if (statsB.last_action) lastTimes.push(new Date(statsB.last_action).getTime());
+  merged.last_action = lastTimes.length > 0 ? new Date(Math.max(...lastTimes)).toISOString() : null;
+
+  merged.workday_span = (merged.first_action && merged.last_action)
+    ? (new Date(merged.last_action).getTime() - new Date(merged.first_action).getTime()) / 1000
+    : 0;
+
+  // Dictionary counts
+  merged.module_counts = {};
+  const modules = new Set([...Object.keys(statsA.module_counts || {}), ...Object.keys(statsB.module_counts || {})]);
+  modules.forEach(m => {
+    merged.module_counts[m] = ((statsA.module_counts || {})[m] || 0) + ((statsB.module_counts || {})[m] || 0);
+  });
+
+  merged.action_counts = {};
+  const actions = new Set([...Object.keys(statsA.action_counts || {}), ...Object.keys(statsB.action_counts || {})]);
+  actions.forEach(a => {
+    merged.action_counts[a] = ((statsA.action_counts || {})[a] || 0) + ((statsB.action_counts || {})[a] || 0);
+  });
+
+  // Helper lists concatenation
+  const concatAndSort = (arrA, arrB, key) => {
+    const combined = [...(arrA || []), ...(arrB || [])];
+    combined.sort((x, y) => new Date(x[key] || 0).getTime() - new Date(y[key] || 0).getTime());
+    return combined;
+  };
+
+  merged.sessions = concatAndSort(statsA.sessions, statsB.sessions, 'start');
+  merged.breaks = concatAndSort(statsA.breaks, statsB.breaks, 'start');
+  merged.actions_list = concatAndSort(statsA.actions_list, statsB.actions_list, 'timestamp');
+  merged.calls = concatAndSort(statsA.calls, statsB.calls, 'timestamp');
+
+  // Helper de-duplication
+  const dedupList = (arrA, arrB) => {
+    const combined = [...(arrA || []), ...(arrB || [])];
+    const seen = new Set();
+    return combined.filter(item => {
+      const identity = (item.phone || item.email || item.name || JSON.stringify(item)).trim().toLowerCase();
+      if (seen.has(identity)) return false;
+      seen.add(identity);
+      return true;
+    });
+  };
+
+  merged.new_leads_details = dedupList(statsA.new_leads_details, statsB.new_leads_details);
+  merged.margin_opportunities_details = dedupList(statsA.margin_opportunities_details, statsB.margin_opportunities_details);
+  merged.booked_leads_details = dedupList(statsA.booked_leads_details, statsB.booked_leads_details);
+  merged.closed_leads_details = dedupList(statsA.closed_leads_details, statsB.closed_leads_details);
+  merged.appt_booked_leads_details = dedupList(statsA.appt_booked_leads_details, statsB.appt_booked_leads_details);
+  merged.today_conversion_leads = dedupList(statsA.today_conversion_leads, statsB.today_conversion_leads);
+
+  // Segmentations
+  const segA = statsA.segmentations || {};
+  const segB = statsB.segmentations || {};
+  merged.segmentations = {
+    newLeads: (segA.newLeads || 0) + (segB.newLeads || 0),
+    bookedLeads: (segA.bookedLeads || 0) + (segB.bookedLeads || 0),
+    apptBookedLeads: (segA.apptBookedLeads || 0) + (segB.apptBookedLeads || 0),
+    closedLeads: (segA.closedLeads || 0) + (segB.closedLeads || 0),
+    newLeadsToday: (segA.newLeadsToday || 0) + (segB.newLeadsToday || 0),
+    bookedLeadsToday: (segA.bookedLeadsToday || 0) + (segB.bookedLeadsToday || 0),
+    apptBookedLeadsToday: (segA.apptBookedLeadsToday || 0) + (segB.apptBookedLeadsToday || 0),
+    closedLeadsToday: (segA.closedLeadsToday || 0) + (segB.closedLeadsToday || 0),
+    referrals: (segA.referrals || 0) + (segB.referrals || 0),
+    referralsToday: (segA.referralsToday || 0) + (segB.referralsToday || 0),
+  };
+
+  // Call metrics
+  const cmA = statsA.call_metrics || {};
+  const cmB = statsB.call_metrics || {};
+  const outboundCount = (cmA.outboundCount || 0) + (cmB.outboundCount || 0);
+  const outboundAttended = (cmA.outboundAttended || 0) + (cmB.outboundAttended || 0);
+  const outboundMissed = (cmA.outboundMissed || 0) + (cmB.outboundMissed || 0);
+  const outboundMinutes = (cmA.outboundMinutes || 0) + (cmB.outboundMinutes || 0);
+  const inboundCount = (cmA.inboundCount || 0) + (cmB.inboundCount || 0);
+  const inboundAttended = (cmA.inboundAttended || 0) + (cmB.inboundAttended || 0);
+  const inboundMissed = (cmA.inboundMissed || 0) + (cmB.inboundMissed || 0);
+  const inboundMinutes = (cmA.inboundMinutes || 0) + (cmB.inboundMinutes || 0);
+
+  merged.call_metrics = {
+    outboundCount,
+    outboundAttended,
+    outboundMissed,
+    outboundMinutes,
+    outboundAvgDuration: outboundAttended > 0 ? outboundMinutes / outboundAttended : 0,
+    inboundCount,
+    inboundAttended,
+    inboundMissed,
+    inboundMinutes,
+    inboundAvgDuration: inboundAttended > 0 ? inboundMinutes / inboundAttended : 0,
+  };
+
+  return merged;
+}

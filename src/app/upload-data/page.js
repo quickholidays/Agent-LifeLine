@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import { parseCSV } from "@/utils/csvParser";
-import { processAgentData, toBST, isJuly17BST } from "@/utils/analysisEngine";
+import { processAgentData, toBST, isJuly17BST, mergeRawStats } from "@/utils/analysisEngine";
 import Login from "@/components/Login";
 
 export default function UploadDataPage() {
@@ -75,6 +75,119 @@ export default function UploadDataPage() {
     marginRows: []
   });
   const [compiledData, setCompiledData] = useState(null);
+
+  const dropAgentFromCompiled = (agentName) => {
+    if (!compiledData) return;
+    const updated = { ...compiledData };
+    
+    // 1. Remove from agents object
+    if (updated.agents && typeof updated.agents === "object") {
+      const agentsObj = { ...updated.agents };
+      const matchedKey = Object.keys(agentsObj).find(k => k.toLowerCase() === agentName.toLowerCase());
+      if (matchedKey) delete agentsObj[matchedKey];
+      updated.agents = agentsObj;
+    }
+
+    // 2. Filter out of bstCallsList
+    if (Array.isArray(updated.bstCallsList)) {
+      updated.bstCallsList = updated.bstCallsList.filter(c => !c.agent || c.agent.toLowerCase() !== agentName.toLowerCase());
+    }
+
+    // 3. Filter out of bstUpdatesList
+    if (Array.isArray(updated.bstUpdatesList)) {
+      updated.bstUpdatesList = updated.bstUpdatesList.filter(act => !act.agent || act.agent.toLowerCase() !== agentName.toLowerCase());
+    }
+
+    // 4. Filter out of messages
+    const filterMsgs = (msgs) => {
+      if (!Array.isArray(msgs)) return msgs;
+      return msgs.filter(m => {
+        const ag = m.agent || m.agent_name;
+        return !ag || ag.toLowerCase() !== agentName.toLowerCase();
+      });
+    };
+    if (updated.ghl_outbound_messages) updated.ghl_outbound_messages = filterMsgs(updated.ghl_outbound_messages);
+    if (updated.ghlMessages) updated.ghlMessages = filterMsgs(updated.ghlMessages);
+
+    setCompiledData(updated);
+    setStepDetails(prev => prev + `\nDropped agent "${agentName}".`);
+  };
+
+  const combineAgentsInCompiled = (src, target) => {
+    if (!compiledData) return;
+    const updated = { ...compiledData };
+
+    if (src.toLowerCase() === target.toLowerCase()) return;
+
+    // 1. Merge in agents dictionary
+    if (updated.agents && typeof updated.agents === "object") {
+      const agentsObj = { ...updated.agents };
+      
+      const srcKey = Object.keys(agentsObj).find(k => k.toLowerCase() === src.toLowerCase());
+      const targetKey = Object.keys(agentsObj).find(k => k.toLowerCase() === target.toLowerCase());
+
+      const srcStats = srcKey ? agentsObj[srcKey] : null;
+      const targetStats = targetKey ? agentsObj[targetKey] : null;
+
+      if (srcKey) delete agentsObj[srcKey];
+
+      if (srcStats) {
+        if (targetStats) {
+          agentsObj[targetKey || target] = {
+            ...mergeRawStats(srcStats, targetStats),
+            name: target,
+            name_raw: target
+          };
+        } else {
+          agentsObj[target] = {
+            ...srcStats,
+            name: target,
+            name_raw: target
+          };
+        }
+      }
+      updated.agents = agentsObj;
+    }
+
+    // 2. Rename in bstCallsList
+    if (Array.isArray(updated.bstCallsList)) {
+      updated.bstCallsList = updated.bstCallsList.map(c => {
+        if (c.agent && c.agent.toLowerCase() === src.toLowerCase()) {
+          return { ...c, agent: target };
+        }
+        return c;
+      });
+    }
+
+    // 3. Rename in bstUpdatesList
+    if (Array.isArray(updated.bstUpdatesList)) {
+      updated.bstUpdatesList = updated.bstUpdatesList.map(act => {
+        if (act.agent && act.agent.toLowerCase() === src.toLowerCase()) {
+          return { ...act, agent: target };
+        }
+        return act;
+      });
+    }
+
+    // 4. Rename in messages
+    const renameMsgs = (msgs) => {
+      if (!Array.isArray(msgs)) return msgs;
+      return msgs.map(m => {
+        if (m.agent && m.agent.toLowerCase() === src.toLowerCase()) {
+          return { ...m, agent: target };
+        }
+        if (m.agent_name && m.agent_name.toLowerCase() === src.toLowerCase()) {
+          return { ...m, agent_name: target };
+        }
+        return m;
+      });
+    };
+    if (updated.ghl_outbound_messages) updated.ghl_outbound_messages = renameMsgs(updated.ghl_outbound_messages);
+    if (updated.ghlMessages) updated.ghlMessages = renameMsgs(updated.ghlMessages);
+
+    setCompiledData(updated);
+    setStepDetails(prev => prev + `\nMerged agent "${src}" into "${target}".`);
+  };
 
   // Custom Alert & Confirm Popup States
   const [customPopup, setCustomPopup] = useState(null);
@@ -1502,7 +1615,7 @@ export default function UploadDataPage() {
             className="card"
             style={{
               width: "100%",
-              maxWidth: "550px",
+              maxWidth: stepStatus === "confirm-upload" ? "900px" : "550px",
               padding: "2rem",
               textAlign: "left",
               boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
@@ -1548,6 +1661,109 @@ export default function UploadDataPage() {
                   {stepDetails}
                 </div>
                 
+                
+                {stepStatus === "confirm-upload" && compiledData && compiledData.agents && (
+                  <div style={{ marginTop: "1.5rem", borderTop: "1px solid var(--card-border)", paddingTop: "1rem" }}>
+                    <h4 style={{ margin: "0 0 0.8rem 0", color: "var(--primary)", fontWeight: 800, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <i className="fa-solid fa-users-gear"></i> Agent Standardisation & Review
+                    </h4>
+                    <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: "0 0 1rem 0" }}>
+                      Review the detected agents below. You can drop duplicates, merge variants, or rename them before saving/uploading.
+                    </p>
+                    
+                    <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid var(--card-border)", borderRadius: "8px", background: "rgba(0,0,0,0.2)" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem", textAlign: "left" }}>
+                        <thead>
+                          <tr style={{ borderBottom: "1px solid var(--card-border)", background: "rgba(255,255,255,0.02)" }}>
+                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Agent Name</th>
+                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Actions</th>
+                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Calls</th>
+                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>New Leads</th>
+                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700 }}>Margin</th>
+                            <th style={{ padding: "0.6rem 0.8rem", fontWeight: 700, textAlign: "right" }}>Operation</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.keys(compiledData.agents).length === 0 ? (
+                            <tr>
+                              <td colSpan="6" style={{ padding: "1rem", textAlign: "center", color: "var(--text-secondary)" }}>No agents detected.</td>
+                            </tr>
+                          ) : (
+                            Object.keys(compiledData.agents).map(agentKey => {
+                              const stats = compiledData.agents[agentKey] || {};
+                              return (
+                                <tr key={agentKey} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                                  <td style={{ padding: "0.6rem 0.8rem", fontWeight: 600, color: "var(--text-primary)" }}>{agentKey}</td>
+                                  <td style={{ padding: "0.6rem 0.8rem" }}>{stats.total_actions || 0}</td>
+                                  <td style={{ padding: "0.6rem 0.8rem" }}>{stats.calls?.length || 0}</td>
+                                  <td style={{ padding: "0.6rem 0.8rem" }}>{stats.segmentations?.newLeadsToday || 0}</td>
+                                  <td style={{ padding: "0.6rem 0.8rem", color: "#aaca9b" }}>${(stats.margin_added_today || 0).toLocaleString()}</td>
+                                  <td style={{ padding: "0.6rem 0.8rem", textAlign: "right" }}>
+                                    <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end", alignItems: "center" }}>
+                                      <select
+                                        defaultValue=""
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          if (val === "__new__") {
+                                            const newName = prompt(`Enter new agent name to combine "${agentKey}" into:`);
+                                            if (newName && newName.trim()) {
+                                              combineAgentsInCompiled(agentKey, newName.trim());
+                                            }
+                                          } else if (val) {
+                                            if (confirm(`Merge "${agentKey}" into "${val}"?`)) {
+                                              combineAgentsInCompiled(agentKey, val);
+                                            }
+                                          }
+                                          e.target.value = ""; // Reset selection
+                                        }}
+                                        style={{
+                                          padding: "0.3rem",
+                                          fontSize: "0.75rem",
+                                          background: "var(--card-bg)",
+                                          border: "1px solid var(--card-border)",
+                                          borderRadius: "4px",
+                                          color: "var(--text-primary)",
+                                          cursor: "pointer"
+                                        }}
+                                      >
+                                        <option value="">Merge with...</option>
+                                        <option value="__new__">[Merge into new name...]</option>
+                                        {Object.keys(compiledData.agents).filter(k => k.toLowerCase() !== agentKey.toLowerCase()).map(k => (
+                                          <option key={k} value={k}>{k}</option>
+                                        ))}
+                                      </select>
+                                      
+                                      <button
+                                        onClick={() => {
+                                          if (confirm(`Are you sure you want to drop "${agentKey}"? All of their data will be excluded.`)) {
+                                            dropAgentFromCompiled(agentKey);
+                                          }
+                                        }}
+                                        style={{
+                                          padding: "0.3rem 0.5rem",
+                                          fontSize: "0.75rem",
+                                          background: "rgba(239, 68, 68, 0.1)",
+                                          border: "1px solid rgba(239, 68, 68, 0.3)",
+                                          borderRadius: "4px",
+                                          color: "var(--danger)",
+                                          cursor: "pointer"
+                                        }}
+                                        title="Drop Agent"
+                                      >
+                                        <i className="fa-solid fa-trash"></i>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
                 {stepStatus === "waiting-for-user" && (
                   <div style={{ display: "flex", gap: "0.8rem", marginTop: "1rem" }}>
                     <button
