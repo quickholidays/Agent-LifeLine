@@ -6,7 +6,9 @@
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "get-recordings": "node scripts/get_yesterday_recordings.js",
+    "extract-recordings": "node scratch/extract_ghl_recordings.js"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

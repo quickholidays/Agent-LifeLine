@@ -189,12 +189,17 @@ export default function ExecutiveReport({
   const [table3Agents, setTable3Agents] = useState(agents.map(a => a.name));
   const [table3VisibleCols, setTable3VisibleCols] = useState(["outboundCount", "outboundAttended", "outboundMissed", "outboundMinutes", "outboundAvgDuration", "inboundCount", "inboundAttended", "inboundMissed", "inboundMinutes", "inboundAvgDuration"]);
 
+  // Table 4 (72-Hour Balance Overdue Queue) states
+  const [table4Agents, setTable4Agents] = useState(agents.map(a => a.name));
+  const [table4Search, setTable4Search] = useState("");
+
   // Sync selected agents when data loads
   useEffect(() => {
     setSelectedAgents(agents.map(a => a.name));
     setTable1Agents(agents.map(a => a.name));
     setTable2Agents(agents.map(a => a.name));
     setTable3Agents(agents.map(a => a.name));
+    setTable4Agents(agents.map(a => a.name));
   }, [agents]);
 
   // Columns metadata definitions
@@ -1005,6 +1010,71 @@ export default function ExecutiveReport({
           </table>
         </div>
       `;
+
+      // 4. Overdue Appointments Table in PDF
+      const allOverduePDF = [];
+      agents.forEach(a => {
+        const details = a.overdue_appt_details || a.details?.overdue_appt_details || [];
+        details.forEach(item => {
+          allOverduePDF.push({
+            agent: a.name,
+            name: item.name || "Unknown",
+            phone: item.phone || "",
+            email: item.email || "",
+            bookedDate: item.bookedDate || "",
+            appointmentDate: item.appointmentDate || item.bookedDate || "",
+            hoursWaiting: item.hoursWaiting || 0,
+            daysWaiting: item.daysWaiting || "0.0",
+            stage: item.stage || "Appointment Scheduled"
+          });
+        });
+      });
+      allOverduePDF.sort((a, b) => (b.hoursWaiting || 0) - (a.hoursWaiting || 0));
+
+      const overdueRowsHTML = allOverduePDF.map((item, index) => {
+        const rowBg = index % 2 === 0 ? "#ffffff" : "#fef2f2";
+        return `
+          <tr style="background: ${rowBg};">
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; font-weight: bold; text-align: center; color: #1e293b;">${item.agent}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; font-weight: bold; text-align: center; color: #0f172a;">${item.name}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; text-align: center; color: #334155;">${item.phone || "-"}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; text-align: center; color: #334155;">${item.email || "-"}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; text-align: center; color: #334155;">${item.bookedDate || "-"}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; text-align: center; color: #334155;">${item.appointmentDate || "-"}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; font-weight: bold; text-align: center; color: #b91c1c;">${item.hoursWaiting}h (${item.daysWaiting}d)</td>
+            <td style="border: 1px solid #cbd5e1; padding: 4px 3px; text-align: center; color: #334155;">${item.stage}</td>
+          </tr>
+        `;
+      }).join("");
+
+      reportBodyHTML += `
+        <!-- Section 4: 72-Hour Balance Overdue Table -->
+        <div style="margin-bottom: 1.5rem; page-break-inside: avoid; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+          <div style="border-left: 4px solid #b91c1c; padding-left: 8px; color: #b91c1c; font-weight: bold; font-size: 11pt; margin-top: 1.5rem; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px;">
+            4. 72-Hour Balance Overdue Action Queue (COO Daily Report) - ${allOverduePDF.length} Cases Pending
+          </div>
+          <div style="font-size: 7.2pt; color: #64748b; margin-bottom: 0.5rem; font-style: italic;">
+            Cases remaining in "Appointment Scheduled" past the 72-hour target without moving to "Documentation in Progress". Sorted oldest first.
+          </div>
+          <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #cbd5e1; font-size: 6.8pt; text-align: center; margin: 0 auto; table-layout: auto;">
+            <thead>
+              <tr style="background: #7f1d1d; color: #ffffff; font-weight: bold;">
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 14%;">AGENT</th>
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 16%;">CUSTOMER NAME</th>
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 12%;">PHONE</th>
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 16%;">EMAIL</th>
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 12%;">BOOKED DATE</th>
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 12%;">APPT DATE</th>
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 10%;">WAITING</th>
+                <th style="border: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; width: 8%;">STAGE</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${overdueRowsHTML || '<tr><td colspan="8" style="padding: 8px; color: #64748b;">No overdue appointment cases recorded today.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      `;
     }
 
     if (activeSection === "exec-timeline" || activeSection === "exec-export" || activeSection === "executive-report" || !activeSection) {
@@ -1675,6 +1745,73 @@ export default function ExecutiveReport({
       ];
     });
     downloadCSV(headers, rows, "call_analytics_report.csv");
+  };
+
+  // Compile all overdue appointment cases across all agents
+  const allOverdueAppts = React.useMemo(() => {
+    const list = [];
+    agents.forEach(a => {
+      const details = a.overdue_appt_details || a.details?.overdue_appt_details || [];
+      details.forEach(item => {
+        list.push({
+          id: item.id || `${a.name}_${item.name}`,
+          agent: a.name,
+          name: item.name || "Unknown",
+          phone: item.phone || "",
+          email: item.email || "",
+          bookedDate: item.bookedDate || "",
+          appointmentDate: item.appointmentDate || item.bookedDate || "",
+          hoursWaiting: item.hoursWaiting || 0,
+          daysWaiting: item.daysWaiting || "0.0",
+          stage: item.stage || "Appointment Scheduled"
+        });
+      });
+    });
+    // Sort oldest first (highest hours waiting first)
+    list.sort((a, b) => (b.hoursWaiting || 0) - (a.hoursWaiting || 0));
+    return list;
+  }, [agents]);
+
+  const filteredOverdueList = React.useMemo(() => {
+    return allOverdueAppts.filter(item => {
+      if (!table4Agents.includes(item.agent)) return false;
+      if (!table4Search) return true;
+      const q = table4Search.toLowerCase();
+      return (
+        item.name.toLowerCase().includes(q) ||
+        item.phone.includes(q) ||
+        item.email.toLowerCase().includes(q) ||
+        item.agent.toLowerCase().includes(q)
+      );
+    });
+  }, [allOverdueAppts, table4Agents, table4Search]);
+
+  const handleExportOverdueCOO = () => {
+    const headers = [
+      "Owning Agent",
+      "Customer Name",
+      "Phone",
+      "Email",
+      "Booked Date (Clock Start)",
+      "Appointment Date",
+      "Hours Waiting",
+      "Days Waiting",
+      "Current Stage",
+      "Report Date"
+    ];
+    const rows = filteredOverdueList.map(item => [
+      item.agent,
+      item.name,
+      item.phone,
+      item.email,
+      item.bookedDate,
+      item.appointmentDate,
+      item.hoursWaiting,
+      item.daysWaiting,
+      item.stage,
+      reportDate
+    ]);
+    downloadCSV(headers, rows, `COO_Overdue_Appointments_Report_${reportDate}.csv`);
   };
 
   const showAll = !activeSection || activeSection === "executive-report";
@@ -2839,6 +2976,171 @@ export default function ExecutiveReport({
         </section>
       )}
 
+      {/* 6. Table 4: 72-Hour Balance Overdue Queue (COO Action List) */}
+      {(showAll || activeSection === "exec-overdue" || activeSection === "exec-conversion") && (
+        <section className="card" style={{ border: "1.5px solid rgba(239,68,68,0.3)" }}>
+          <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+              <h2 style={{ margin: 0, color: "#ef4444" }}>
+                <i className="fa-solid fa-clock-rotate-left"></i> Table 4: 72-Hour Balance Overdue Action Queue (COO Daily Report)
+              </h2>
+              <span style={{
+                background: "rgba(239,68,68,0.15)",
+                color: "#ef4444",
+                border: "1px solid rgba(239,68,68,0.3)",
+                padding: "0.2rem 0.65rem",
+                borderRadius: "20px",
+                fontSize: "0.75rem",
+                fontWeight: 800
+              }}>
+                {filteredOverdueList.length} Overdue Cases
+              </span>
+            </div>
+
+            {/* Table Controls (Selective Agents, Search, and Export) */}
+            <div className="no-print" style={{ display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
+              {/* Search input */}
+              <div style={{ position: "relative" }}>
+                <input
+                  type="text"
+                  placeholder="Search customer, phone, agent..."
+                  value={table4Search}
+                  onChange={(e) => setTable4Search(e.target.value)}
+                  style={{
+                    padding: "0.35rem 0.75rem",
+                    fontSize: "0.78rem",
+                    borderRadius: "6px",
+                    background: "var(--input-bg)",
+                    border: "1px solid var(--input-border)",
+                    color: "var(--text-primary)",
+                    minWidth: "190px"
+                  }}
+                />
+              </div>
+
+              {/* Selective Agents checklist */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => toggleDropdown("table4Agents")}
+                  className="custom-select-small"
+                  style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 1.6rem 0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px" }}
+                >
+                  <i className="fa-solid fa-user-gear"></i> Agents ({table4Agents.length})
+                </button>
+                {activeDropdown === "table4Agents" && (
+                  <>
+                    <div onClick={closeDropdowns} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 998 }} />
+                    <div style={{ position: "absolute", right: 0, top: "100%", marginTop: "0.4rem", background: "var(--card-bg)", border: "1px solid var(--card-border)", borderRadius: "8px", padding: "0.6rem", width: "180px", maxHeight: "200px", overflowY: "auto", zIndex: 999, boxShadow: "var(--shadow)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.3rem", marginBottom: "0.3rem" }}>
+                        <button onClick={() => setTable4Agents(agents.map(a => a.name))} style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>All</button>
+                        <button onClick={() => setTable4Agents([])} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {agents.map(a => (
+                          <label key={a.name} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.75rem", color: "var(--text-primary)", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={table4Agents.includes(a.name)}
+                              onChange={() => {
+                                if (table4Agents.includes(a.name)) {
+                                  setTable4Agents(table4Agents.filter(x => x !== a.name));
+                                } else {
+                                  setTable4Agents([...table4Agents, a.name]);
+                                }
+                              }}
+                              style={{ cursor: "pointer", accentColor: "var(--primary)" }}
+                            />
+                            {a.name}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Export COO Overdue CSV */}
+              <button
+                className="btn-primary-small no-print"
+                onClick={handleExportOverdueCOO}
+                style={{
+                  background: "rgba(239,68,68,0.15)",
+                  color: "#ef4444",
+                  border: "1px solid rgba(239,68,68,0.3)"
+                }}
+              >
+                <i className="fa-solid fa-file-csv"></i> Export COO Report (CSV)
+              </button>
+            </div>
+          </div>
+
+          <div className="table-container">
+            <table className="print-table">
+              <thead>
+                <tr>
+                  <th style={{ minWidth: "130px" }}>Owning Agent</th>
+                  <th style={{ minWidth: "140px" }}>Customer Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th style={{ backgroundColor: "rgba(56, 189, 248, 0.08)", color: "#38bdf8" }}>Booked Date</th>
+                  <th>Appt Date</th>
+                  <th style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", color: "#ef4444" }}>Hours Waiting</th>
+                  <th>Stage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOverdueList.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: "center", padding: "2.5rem 1rem", color: "var(--text-secondary)" }}>
+                      <i className="fa-solid fa-circle-check" style={{ color: "var(--success)", fontSize: "1.5rem", display: "block", marginBottom: "0.5rem" }}></i>
+                      No overdue appointment cases recorded. All final balance collections are within the 72-hour target!
+                    </td>
+                  </tr>
+                ) : (
+                  filteredOverdueList.map((item, idx) => (
+                    <tr key={`${item.id}_${idx}`}>
+                      <td style={{ fontWeight: 700 }}>{item.agent}</td>
+                      <td style={{ fontWeight: 700, color: "var(--text-primary)" }}>{item.name}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>{item.phone || "-"}</td>
+                      <td style={{ fontSize: "0.82rem" }}>{item.email || "-"}</td>
+                      <td style={{ backgroundColor: "rgba(56, 189, 248, 0.02)", fontWeight: 600, whiteSpace: "nowrap" }}>
+                        {item.bookedDate || "-"}
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>{item.appointmentDate || "-"}</td>
+                      <td style={{ backgroundColor: "rgba(239, 68, 68, 0.03)", whiteSpace: "nowrap" }}>
+                        <span style={{
+                          color: "#ef4444",
+                          background: "rgba(239,68,68,0.12)",
+                          padding: "0.2rem 0.55rem",
+                          borderRadius: "4px",
+                          fontWeight: 800,
+                          fontSize: "0.82rem"
+                        }}>
+                          <i className="fa-solid fa-clock" style={{ marginRight: "0.3rem" }}></i>
+                          {item.hoursWaiting}h ({item.daysWaiting}d)
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{
+                          padding: "0.2rem 0.55rem",
+                          borderRadius: "4px",
+                          background: "rgba(201, 179, 54, 0.12)",
+                          color: "var(--warning)",
+                          fontWeight: 600,
+                          fontSize: "0.78rem"
+                        }}>
+                          {item.stage}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       {/* 7. Export Centre (PDF + Excel Exports) */}
       {activeSection === "exec-export" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
@@ -2860,7 +3162,7 @@ export default function ExecutiveReport({
                   <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700 }}>Print Operations Summary</h3>
                 </div>
                 <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", minHeight: "40px" }}>
-                  Generate a complete operations report including all metrics tables and the activity scatter timeline graph.
+                  Generate a complete operations report including all metrics tables, overdue queues, and the activity scatter timeline graph.
                 </p>
                 <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
                   <button className="btn-primary-small" onClick={handlePrint} style={{ padding: "0.6rem 1.25rem" }}>
@@ -2882,6 +3184,9 @@ export default function ExecutiveReport({
                   Download complete spreadsheets of each table compiled directly from GHL audit records and standard phone report CSVs.
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <button className="btn-primary-small" onClick={handleExportOverdueCOO} style={{ textAlign: "left", width: "100%", justifyContent: "flex-start", background: "rgba(239, 68, 68, 0.12)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.25)", fontWeight: 700 }}>
+                    <i className="fa-solid fa-clock-rotate-left"></i> Download COO 72h Overdue Queue (CSV)
+                  </button>
                   <button className="btn-primary-small" onClick={handleExportTable1} style={{ textAlign: "left", width: "100%", justifyContent: "flex-start", background: "rgba(113, 167, 88, 0.1)", color: "var(--success)", border: "1px solid rgba(113, 167, 88, 0.2)" }}>
                     <i className="fa-solid fa-download"></i> Download Table 1 (Agent Conversion)
                   </button>

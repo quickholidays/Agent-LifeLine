@@ -35,6 +35,7 @@ export default function Overview({ agents, stageChanges = {}, reportDate = "2026
   const totalNewLeadsToday = agents.reduce((sum, a) => sum + (a.new_leads_today || 0), 0);
   const totalConvertedToday = agents.reduce((sum, a) => sum + (a.converted_today || 0), 0);
   const teamTodayConvRate = totalNewLeadsToday > 0 ? (totalConvertedToday / totalNewLeadsToday) * 100 : 0.0;
+  const totalOverdueAppts = agents.reduce((sum, a) => sum + (a.overdue_appt_cases_count || a.details?.overdue_appt_cases_count || 0), 0);
 
   // Pipeline stage changes distribution (transitions to Interested, Contacted, Visa Status etc.)
   const displayStageDistribution = stageChanges && Object.keys(stageChanges).length > 0
@@ -114,6 +115,23 @@ export default function Overview({ agents, stageChanges = {}, reportDate = "2026
             <span className="kpi-title">Today&apos;s Conversion Rate</span>
             <h3 className="kpi-value">{teamTodayConvRate.toFixed(1)}%</h3>
             <p className="kpi-subtext">Immediate conversion sprints</p>
+          </div>
+        </div>
+
+        <div className="kpi-card" style={{
+          background: totalOverdueAppts > 0 ? "linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)" : "linear-gradient(135deg, rgba(34,51,59,0.9), rgba(10,9,8,0.95))",
+          color: "white",
+          border: totalOverdueAppts > 0 ? "1px solid rgba(239, 68, 68, 0.4)" : "1px solid var(--card-border)"
+        }}>
+          <div className="kpi-icon" style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "white" }}>
+            <i className="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div className="kpi-info">
+            <span className="kpi-title" style={{ color: "rgba(255,255,255,0.85)" }}>Overdue Appts (&gt;72h)</span>
+            <h3 className="kpi-value">{totalOverdueAppts.toLocaleString()}</h3>
+            <p className="kpi-subtext" style={{ color: "rgba(255,255,255,0.75)" }}>
+              {totalOverdueAppts > 0 ? "Balance pending past 72h" : "Target on track"}
+            </p>
           </div>
         </div>
       </div>

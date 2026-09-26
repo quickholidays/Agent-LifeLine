@@ -26,6 +26,32 @@ export function normalizeAgentName(name) {
     .join(" ");
 }
 
+export function parseDateRobust(dateStr) {
+  if (!dateStr) return null;
+  const clean = String(dateStr).trim();
+  if (!clean) return null;
+  const d = new Date(clean);
+  if (!isNaN(d.getTime())) return d;
+
+  const parts = clean.split(/[\s,/-]+/);
+  const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  let month = -1, day = -1, year = -1;
+  parts.forEach(p => {
+    const pLower = p.toLowerCase();
+    const mIdx = monthNames.findIndex(m => pLower.startsWith(m));
+    if (mIdx !== -1) month = mIdx;
+    else if (/^\d{4}$/.test(p)) year = parseInt(p, 10);
+    else if (/^\d{1,2}$/.test(p)) {
+      if (day === -1) day = parseInt(p, 10);
+      else if (year === -1) year = parseInt(p, 10);
+    }
+  });
+  if (year !== -1 && month !== -1 && day !== -1) {
+    return new Date(Date.UTC(year, month, day, 12, 0, 0));
+  }
+  return null;
+}
+
 // Helper to convert date to BST standard timezone-robust checking (interprets string directly as UTC components)
 export function toBST(dateStr, targetDateStr = "2026-07-17", timezone = "BST", isUtc = false) {
   if (!dateStr) return null;
@@ -704,6 +730,135 @@ export function processAgentData(
     });
   });
 
+  // Calculate 72-hour overdue appointments (Clock starts at Appointment Scheduled, stops at Documentation in Progress / Deposit Collected)
+  let refDate = new Date();
+  if (targetDateStr) {
+    const parts = targetDateStr.split("-").map(Number);
+    if (parts.length === 3) {
+      const now = new Date();
+      const todayY = now.getFullYear();
+      const todayM = now.getMonth() + 1;
+      const todayD = now.getDate();
+      if (parts[0] === todayY && parts[1] === todayM && parts[2] === todayD) {
+        refDate = now;
+      } else {
+        refDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], 23, 59, 59));
+      }
+    }
+  }
+
+  const agentOverdueApptLeads = {};
+  const teamOverdueApptLeads = [];
+  const seenOverdueIds = new Set();
+
+  // 1. Process contacts rows
+  contactsRows.forEach(c => {
+    const tags = (c["Tags"] || "").toLowerCase();
+    const isApptScheduled = tags.includes("stage-appointment-scheduled");
+    const isDocumentationOrPaid = tags.includes("stage-documentation-in-progress") ||
+      tags.includes("stage-deposit-collected") ||
+      tags.includes("stage-closed-won") ||
+      tags.includes("stage-invalid-lead") ||
+      tags.includes("stage-not-interested");
+
+    if (isApptScheduled && !isDocumentationOrPaid) {
+      const bookedDateStr = c["Booked Time"] || c["Appointmeent Booked Lead Date"] || c["Appointment Booked Lead Date"] || c["Created"] || "";
+      const bookedDateObj = parseDateRobust(bookedDateStr);
+      const apptDateStr = c["Appointmeent Booked Lead Date"] || c["Appointment Booked Lead Date"] || c["Booked Time"] || "";
+
+      if (bookedDateObj) {
+        const elapsedMs = refDate.getTime() - bookedDateObj.getTime();
+        const elapsedHours = elapsedMs / (1000 * 60 * 60);
+
+        if (elapsedHours >= 72) {
+          const phone = c["Phone"] || c["phone"] || "";
+          const fullName = `${c["First Name"] || ""} ${c["Last Name"] || ""}`.trim();
+          const rawAgent = c["Assigned To"] || c["assignedTo"] || findAgent(phone, fullName);
+          const agent = normalizeAgentName(rawAgent) || "Unassigned";
+
+          const id = c["Contact Id"] || c["contactId"] || c["id"] || phone || fullName;
+          if (!seenOverdueIds.has(id)) {
+            seenOverdueIds.add(id);
+            const item = {
+              id,
+              name: fullName || "Unknown",
+              phone: phone,
+              email: c["Email"] || c["email"] || "",
+              agent: agent,
+              bookedDate: bookedDateStr,
+              appointmentDate: apptDateStr || bookedDateStr,
+              hoursWaiting: Math.max(0, Math.floor(elapsedHours)),
+              daysWaiting: (elapsedHours / 24).toFixed(1),
+              stage: "Appointment Scheduled",
+              source: "contacts"
+            };
+            if (!agentOverdueApptLeads[agent]) agentOverdueApptLeads[agent] = [];
+            agentOverdueApptLeads[agent].push(item);
+            teamOverdueApptLeads.push(item);
+          }
+        }
+      }
+    }
+  });
+
+  // 2. Process opportunities rows
+  opportunitiesRows.forEach(o => {
+    const stage = (o.stage || o.Stage || "").trim().toLowerCase();
+    const isApptScheduled = stage === "appointment scheduled";
+    const status = (o.status || o.Status || "").trim().toLowerCase();
+    const isDocumentationOrPaid = stage === "documentation in progress" ||
+      stage === "deposit collected" ||
+      stage === "closed won" ||
+      status === "won" ||
+      status === "lost" ||
+      status === "abandoned";
+
+    if (isApptScheduled && !isDocumentationOrPaid) {
+      const bookedDateStr = o["Appointment Date"] || o["Created on"] || o["Updated on"] || "";
+      const bookedDateObj = parseDateRobust(bookedDateStr);
+      const apptDateStr = o["Appointment Date"] || "";
+
+      if (bookedDateObj) {
+        const elapsedMs = refDate.getTime() - bookedDateObj.getTime();
+        const elapsedHours = elapsedMs / (1000 * 60 * 60);
+
+        if (elapsedHours >= 72) {
+          const phone = o.phone || o.Phone || o["Contact phone"] || "";
+          const name = o["Contact Name"] || o["Opportunity name"] || o["contact_name"] || "Unknown";
+          const rawAgent = o.assigned || o.Assigned || findAgent(phone, name);
+          const agent = normalizeAgentName(rawAgent) || "Unassigned";
+
+          const id = o["Contact ID"] || o["Opportunity ID"] || o["opportunityId"] || phone || name;
+          if (!seenOverdueIds.has(id)) {
+            seenOverdueIds.add(id);
+            const item = {
+              id,
+              name: name,
+              phone: phone,
+              email: o.email || o.Email || "",
+              agent: agent,
+              bookedDate: bookedDateStr,
+              appointmentDate: apptDateStr || bookedDateStr,
+              hoursWaiting: Math.max(0, Math.floor(elapsedHours)),
+              daysWaiting: (elapsedHours / 24).toFixed(1),
+              stage: "Appointment Scheduled",
+              source: "opportunities"
+            };
+            if (!agentOverdueApptLeads[agent]) agentOverdueApptLeads[agent] = [];
+            agentOverdueApptLeads[agent].push(item);
+            teamOverdueApptLeads.push(item);
+          }
+        }
+      }
+    }
+  });
+
+  // Sort oldest first (highest hours waiting first)
+  teamOverdueApptLeads.sort((a, b) => b.hoursWaiting - a.hoursWaiting);
+  Object.keys(agentOverdueApptLeads).forEach(agent => {
+    agentOverdueApptLeads[agent].sort((a, b) => b.hoursWaiting - a.hoursWaiting);
+  });
+
   // Compile final results dictionary per agent
   const results = {};
   const allAgents = new Set([
@@ -712,6 +867,7 @@ export function processAgentData(
     ...Object.keys(agentSegmentations),
     ...Object.keys(agentCalls),
     ...Object.keys(agentMargins),
+    ...Object.keys(agentOverdueApptLeads),
     ...Object.values(contactToAgent).filter(Boolean),
   ]);
 
@@ -946,6 +1102,8 @@ export function processAgentData(
       booked_leads_details: agentBookedLeads[agent] || [],
       closed_leads_details: agentClosedLeads[agent] || [],
       appt_booked_leads_details: agentApptBookedLeads[agent] || [],
+      overdue_appt_cases_count: (agentOverdueApptLeads[agent] || []).length,
+      overdue_appt_details: agentOverdueApptLeads[agent] || [],
 
       // Segmentation stats
       segmentations: seg,
@@ -983,6 +1141,8 @@ export function processAgentData(
     bstCallsList,
     bstUpdatesList,
     stageChangesToday,
+    teamOverdueAppts: teamOverdueApptLeads,
+    teamOverdueCount: teamOverdueApptLeads.length,
   };
 }
 
@@ -995,6 +1155,7 @@ export function mergeRawStats(statsA, statsB) {
   merged.interacted_leads_today = (statsA.interacted_leads_today || 0) + (statsB.interacted_leads_today || 0);
   merged.interacted_conversions_today = (statsA.interacted_conversions_today || 0) + (statsB.interacted_conversions_today || 0);
   merged.margin_added_today = (statsA.margin_added_today || 0) + (statsB.margin_added_today || 0);
+  merged.overdue_appt_cases_count = (statsA.overdue_appt_cases_count || 0) + (statsB.overdue_appt_cases_count || 0);
   merged.stage_interested_today = (statsA.stage_interested_today || 0) + (statsB.stage_interested_today || 0);
   merged.stage_contacted_today = (statsA.stage_contacted_today || 0) + (statsB.stage_contacted_today || 0);
   merged.notes_updated_today = (statsA.notes_updated_today || 0) + (statsB.notes_updated_today || 0);
@@ -1062,6 +1223,10 @@ export function mergeRawStats(statsA, statsB) {
   merged.closed_leads_details = dedupList(statsA.closed_leads_details, statsB.closed_leads_details);
   merged.appt_booked_leads_details = dedupList(statsA.appt_booked_leads_details, statsB.appt_booked_leads_details);
   merged.today_conversion_leads = dedupList(statsA.today_conversion_leads, statsB.today_conversion_leads);
+  merged.overdue_appt_details = dedupList(statsA.overdue_appt_details, statsB.overdue_appt_details);
+  if (merged.overdue_appt_details) {
+    merged.overdue_appt_details.sort((a, b) => (b.hoursWaiting || 0) - (a.hoursWaiting || 0));
+  }
 
   // Segmentations
   const segA = statsA.segmentations || {};

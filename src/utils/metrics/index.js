@@ -17,6 +17,7 @@ import { calculateBookedLeadRate } from "./bookedLeadRate";
 import { calculateClosedLeadRate } from "./closedLeadRate";
 import { calculateTotalActions } from "./totalActions";
 import { calculateWhatsAppConversations } from "./whatsappConversations";
+import { calculateOverdueApptCases } from "./overdueApptCases";
 
 export {
   calculateNewLeads,
@@ -37,5 +38,6 @@ export {
   calculateBookedLeadRate,
   calculateClosedLeadRate,
   calculateTotalActions,
-  calculateWhatsAppConversations
+  calculateWhatsAppConversations,
+  calculateOverdueApptCases
 };

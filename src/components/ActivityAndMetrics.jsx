@@ -40,7 +40,8 @@ import {
   calculateGeneralConversion,
   calculateBookedLeadRate,
   calculateClosedLeadRate,
-  calculateTotalActions
+  calculateTotalActions,
+  calculateOverdueApptCases
 } from "../utils/metrics";
 
 export default function ActivityAndMetrics({
@@ -464,7 +465,8 @@ export default function ActivityAndMetrics({
     generalRate: calculateGeneralConversion(selectedAgent),
     bookedRate: calculateBookedLeadRate(selectedAgent),
     closedRate: calculateClosedLeadRate(selectedAgent),
-    totalActions: calculateTotalActions(selectedAgent)
+    totalActions: calculateTotalActions(selectedAgent),
+    overdueApptCases: calculateOverdueApptCases(selectedAgent)
   };
 
   // Cards definitions: key, title, value, unit/sub, tooltip description
@@ -503,6 +505,14 @@ export default function ActivityAndMetrics({
       value: metricValues.apptBooked,
       sub: "Meeting slots secured",
       tooltip: "Total number of appointments successfully scheduled for leads today.",
+    },
+    {
+      key: "overdueApptCases",
+      title: "Overdue Appts (>72h)",
+      value: metricValues.overdueApptCases,
+      sub: (metricValues.overdueApptCases || 0) > 0 ? "Pending balance >72h" : "Target on track",
+      tooltip: "Appointments scheduled past the 72-hour target without moving to Documentation in Progress (balance collection pending).",
+      isAlert: (metricValues.overdueApptCases || 0) > 0,
     },
     {
       key: "interactedLeads",
@@ -835,6 +845,18 @@ export default function ActivityAndMetrics({
               details: cleanDetails
             };
           });
+      case "overdueApptCases":
+        if (Array.isArray(selectedAgent.overdue_appt_details) && selectedAgent.overdue_appt_details.length > 0) {
+          return selectedAgent.overdue_appt_details.map((lead) => ({
+            time: lead.bookedDate || "-",
+            agent: lead.agent || selectedAgentName,
+            contact: lead.name,
+            category: `Waiting: ${lead.hoursWaiting}h (${lead.daysWaiting}d)`,
+            action: lead.stage || "Appointment Scheduled",
+            details: `Booked: ${lead.bookedDate || "-"} | Appt Date: ${lead.appointmentDate || "-"} | Email: ${lead.email || "-"} | Phone: ${lead.phone || "-"}`
+          }));
+        }
+        return [];
       case "todayConverted":
         if (Array.isArray(selectedAgent.today_conversion_leads) && selectedAgent.today_conversion_leads.length > 0) {
           return selectedAgent.today_conversion_leads.map((lead) => ({
@@ -1207,6 +1229,7 @@ export default function ActivityAndMetrics({
       >
         {cards.map((c) => {
           const isSelected = activeCard === c.key;
+          const isWarningAlert = c.isAlert;
           return (
             <div
               key={c.key}
@@ -1222,19 +1245,27 @@ export default function ActivityAndMetrics({
                 textAlign: "center",
                 position: "relative",
                 cursor: "pointer",
-                border: isSelected ? "2.5px solid var(--primary)" : "1px solid var(--card-border)",
+                border: isSelected ? "2.5px solid var(--primary)" : isWarningAlert ? "1.5px solid #ef4444" : "1px solid var(--card-border)",
                 transform: isSelected ? "scale(1.02)" : "scale(1)",
-                boxShadow: isSelected ? "0 4px 15px rgba(209,92,46,0.25)" : "var(--shadow)",
+                boxShadow: isSelected ? "0 4px 15px rgba(209,92,46,0.25)" : isWarningAlert ? "0 4px 15px rgba(239,68,68,0.15)" : "var(--shadow)",
                 transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
             >
-              <h4 className="metric-card-title" style={{ margin: 0, fontSize: "0.82rem", color: "var(--text-secondary)", fontWeight: 700 }}>
+              <h4 className="metric-card-title" style={{ margin: 0, fontSize: "0.82rem", color: isWarningAlert ? "#ef4444" : "var(--text-secondary)", fontWeight: 700 }}>
+                {isWarningAlert && <i className="fa-solid fa-clock-rotate-left" style={{ marginRight: "0.35rem" }}></i>}
                 {c.title}
               </h4>
-              <div className="metric-card-value" style={{ fontSize: "2.3rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.6rem 0" }}>
+              <div className="metric-card-value" style={{ fontSize: "2.3rem", fontWeight: 800, color: isWarningAlert ? "#ef4444" : "var(--text-primary)", margin: "0.6rem 0" }}>
                 {c.value}
               </div>
-              <span className="metric-card-sub" style={{ fontSize: "0.72rem", color: "var(--primary)", background: "rgba(209,92,46,0.08)", padding: "0.2rem 0.6rem", borderRadius: "20px", fontWeight: 600 }}>
+              <span className="metric-card-sub" style={{
+                fontSize: "0.72rem",
+                color: isWarningAlert ? "#ef4444" : "var(--primary)",
+                background: isWarningAlert ? "rgba(239,68,68,0.12)" : "rgba(209,92,46,0.08)",
+                padding: "0.2rem 0.6rem",
+                borderRadius: "20px",
+                fontWeight: 600
+              }}>
                 {c.sub}
               </span>
             </div>
